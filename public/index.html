@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>COC Player Lookup</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <button
+      id="soundToggleBtn"
+      class="sound-icon-btn"
+      type="button"
+      aria-label="Unmute video background"
+      title="Unmute video background"
+    >
+      <svg class="icon icon-volume-off" viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M14 5.23v13.54c0 .45-.54.67-.85.35L8.57 15H5a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h3.57l4.58-4.12c.31-.32.85-.1.85.35z"
+          fill="currentColor"
+        />
+        <path d="M17 9l4 4m0-4l-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </svg>
+      <svg class="icon icon-volume-on" viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M14 5.23v13.54c0 .45-.54.67-.85.35L8.57 15H5a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h3.57l4.58-4.12c.31-.32.85-.1.85.35z"
+          fill="currentColor"
+        />
+        <path
+          d="M17 9a4 4 0 0 1 0 6m2.5-8.5a7.5 7.5 0 0 1 0 11"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          fill="none"
+        />
+      </svg>
+    </button>
+
+    <div class="bg-media-layer">
+      <img id="backgroundImage" class="bg-image" src="/assets/bg.jpg" alt="Background image" />
+      <video id="backgroundVideo" class="bg-video" autoplay muted loop playsinline>
+        <source src="/assets/bg.mp4" type="video/mp4" />
+      </video>
+      <div class="bg-overlay"></div>
+    </div>
+
+    <main class="app">
+      <div class="mode-switcher">
+        <div class="mode-buttons">
+          <button class="mode-btn active" data-mode="gradient" type="button" title="Gradient mode">1</button>
+          <button class="mode-btn" data-mode="image" type="button" title="Image mode">2</button>
+          <button class="mode-btn" data-mode="video" type="button" title="Video mode">3</button>
+        </div>
+      </div>
+
+      <h1>Cari Profile Pemain Clash of Clans</h1>
+      <p class="subtitle">
+        Masukkan player tag, contohnya <span class="hint-code">#ABC123</span> atau
+        <span class="hint-code">ABC123</span>.
+      </p>
+
+      <div class="row">
+        <input id="tagInput" type="text" placeholder="Masukkan player tag" />
+        <button id="fetchBtn">Cari Player</button>
+      </div>
+
+      <p id="errorMessage" class="error"></p>
+
+      <div class="card-stack">
+        <div id="resultCard" class="card">
+          <h2>Player Data</h2>
+          <div class="stats">
+            <div class="stat">
+              <span class="stat-label">Name</span>
+              <span class="stat-value" id="playerName">-</span>
+            </div>
+            <div class="stat">
+              <div class="stat-head">
+                <img class="stat-icon" src="/assets/townhall-temp.svg" alt="Town Hall icon" />
+                <span class="stat-label">Town Hall Level</span>
+              </div>
+              <span class="stat-value" id="townHallLevel">-</span>
+            </div>
+            <div class="stat">
+              <div class="stat-head">
+                <img class="stat-icon" src="/assets/trophy-temp.svg" alt="Trophy icon" />
+                <span class="stat-label">Trophies</span>
+              </div>
+              <span class="stat-value" id="trophies">-</span>
+            </div>
+            <div class="stat">
+              <div class="stat-head">
+                <img class="stat-icon" src="/assets/trophy-temp.svg" alt="Best trophy icon" />
+                <span class="stat-label">Best Trophies</span>
+              </div>
+              <span class="stat-value" id="bestTrophies">-</span>
+            </div>
+            <div class="stat">
+              <div class="stat-head">
+                <img class="stat-icon" src="/assets/star-temp.svg" alt="War star icon" />
+                <span class="stat-label">War Stars</span>
+              </div>
+              <span class="stat-value" id="warStars">-</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">EXP Level</span>
+              <span class="stat-value" id="expLevel">-</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Clan Name</span>
+              <span class="stat-value" id="clanName">-</span>
+            </div>
+          </div>
+          <span class="tag">LIVE PLAYER STATS</span>
+        </div>
+
+        <div id="clanCard" class="card">
+          <h2>Clan Data</h2>
+          <div class="clan-header">
+            <img id="clanBadge" class="clan-badge" src="/assets/clan-temp.svg" alt="Clan badge" />
+            <div>
+              <p id="clanDataName" class="clan-name">-</p>
+              <p id="clanDataTag" class="clan-tag-text">-</p>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat">
+              <span class="stat-label">Clan Level</span>
+              <span class="stat-value" id="clanLevel">-</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Members</span>
+              <span class="stat-value" id="clanMembers">-</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">War League</span>
+              <span class="stat-value" id="warLeague">-</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Location</span>
+              <span class="stat-value" id="clanLocation">-</span>
+            </div>
+          </div>
+
+          <div class="members-wrapper">
+            <h3 class="members-title">Clan Members</h3>
+            <p id="membersStatus" class="members-status">No member data loaded.</p>
+            <div class="members-table-wrap">
+              <table class="members-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Role</th>
+                    <th>Trophies</th>
+                  </tr>
+                </thead>
+                <tbody id="membersTableBody">
+                  <tr>
+                    <td colspan="4" class="members-empty">No members yet.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <span class="tag">CLAN PROFILE</span>
+        </div>
+      </div>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

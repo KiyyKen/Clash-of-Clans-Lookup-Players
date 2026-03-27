@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: coc-player-lookup
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: COC_API_KEY
+        sync: false
