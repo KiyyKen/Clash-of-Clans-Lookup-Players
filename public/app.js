@@ -19,6 +19,7 @@ const elements = {
   playerName: document.getElementById("playerName"),
   playerTagText: document.getElementById("playerTagText"),
   copyPlayerTagBtn: document.getElementById("copyPlayerTagBtn"),
+  sharePlayerBtn: document.getElementById("sharePlayerBtn"),
   playerLeagueBadge: document.getElementById("playerLeagueBadge"),
   playerRoleBadge: document.getElementById("playerRoleBadge"),
   playerClanChip: document.getElementById("playerClanChip"),
@@ -55,6 +56,7 @@ const elements = {
   clanDataName: document.getElementById("clanDataName"),
   clanDataTag: document.getElementById("clanDataTag"),
   copyClanTagBtn: document.getElementById("copyClanTagBtn"),
+  shareClanBtn: document.getElementById("shareClanBtn"),
   clanTypeBadge: document.getElementById("clanTypeBadge"),
   clanLocationBadge: document.getElementById("clanLocationBadge"),
   clanWarLeagueBadge: document.getElementById("clanWarLeagueBadge"),
@@ -70,6 +72,8 @@ const elements = {
   requiredTrophies: document.getElementById("requiredTrophies"),
   warFrequency: document.getElementById("warFrequency"),
 
+  memberSearchInput: document.getElementById("memberSearchInput"),
+  memberSortSelect: document.getElementById("memberSortSelect"),
   membersStatus: document.getElementById("membersStatus"),
   membersTableBody: document.getElementById("membersTableBody"),
 
@@ -85,6 +89,7 @@ const elements = {
 
 // State
 let activeTab = "player"; // "player" | "clan"
+let currentClanMembers = []; // Cache clan members for search & sort
 const RECENT_KEY = "coc_recent_searches_v2";
 const BACKGROUND_STORAGE_KEY = "coc-background-mode";
 const AVAILABLE_BACKGROUND_MODES = ["gradient", "image", "video"];
@@ -127,6 +132,20 @@ async function copyToClipboard(text, entityType = "Tag") {
   } catch (err) {
     showToast(`Gagal menyalin: ${text}`);
   }
+}
+
+// Share Direct Link
+function shareDirectLink(type, tag, name) {
+  const cleanTag = tag.replace(/^#/, "");
+  const url = `${window.location.origin}${window.location.pathname}?${type}=${encodeURIComponent(cleanTag)}`;
+  copyToClipboard(url, `Link ${name || tag}`);
+}
+
+// Update URL bar without reload
+function updateBrowserUrl(type, tag) {
+  const cleanTag = tag.replace(/^#/, "");
+  const newUrl = `${window.location.pathname}?${type}=${encodeURIComponent(cleanTag)}`;
+  window.history.replaceState({ type, tag }, "", newUrl);
 }
 
 // Format Role string
@@ -340,6 +359,7 @@ function renderPlayer(p) {
   setText(elements.playerTagText, p.tag);
 
   elements.copyPlayerTagBtn.onclick = () => copyToClipboard(p.tag, "Player Tag");
+  elements.sharePlayerBtn.onclick = () => shareDirectLink("player", p.tag, p.name);
 
   // League icon
   if (p.league && p.league.iconUrl) {
@@ -413,6 +433,7 @@ function renderPlayer(p) {
 
   elements.playerCard.classList.add("show");
   saveRecentSearch("player", p.tag, p.name);
+  updateBrowserUrl("player", p.tag);
 }
 
 // Render Clan Profile
@@ -421,6 +442,7 @@ function renderClan(c) {
   setText(elements.clanDataTag, c.tag);
 
   elements.copyClanTagBtn.onclick = () => copyToClipboard(c.tag, "Clan Tag");
+  elements.shareClanBtn.onclick = () => shareDirectLink("clan", c.tag, c.name);
 
   elements.clanBadge.src = c.badgeUrl || "/assets/clan-temp.svg";
   setText(elements.clanTypeBadge, formatClanType(c.type));
@@ -454,18 +476,44 @@ function renderClan(c) {
 
   elements.clanCard.classList.add("show");
   saveRecentSearch("clan", c.tag, c.name);
+  updateBrowserUrl("clan", c.tag);
 }
 
-// Render Clan Members Table
-function renderClanMembers(members = []) {
+// Clan Members Filter & Sorting
+function getFilteredAndSortedMembers() {
+  const query = (elements.memberSearchInput?.value || "").toLowerCase().trim();
+  const sortMode = elements.memberSortSelect?.value || "trophies_desc";
+
+  let list = [...currentClanMembers];
+
+  if (query) {
+    list = list.filter((m) => (m.name || "").toLowerCase().includes(query) || (m.tag || "").toLowerCase().includes(query));
+  }
+
+  list.sort((a, b) => {
+    if (sortMode === "trophies_desc") return (b.trophies || 0) - (a.trophies || 0);
+    if (sortMode === "th_desc") return (b.townHallLevel || 0) - (a.townHallLevel || 0);
+    if (sortMode === "donations_desc") return (b.donations || 0) - (a.donations || 0);
+    if (sortMode === "name_asc") return (a.name || "").localeCompare(b.name || "");
+    return 0;
+  });
+
+  return list;
+}
+
+function updateClanMembersTable() {
+  const members = getFilteredAndSortedMembers();
+
   if (!members.length) {
-    elements.membersStatus.textContent = "Clan ini tidak memiliki data anggota.";
+    elements.membersStatus.textContent = currentClanMembers.length === 0
+      ? "Clan ini tidak memiliki data anggota."
+      : "Tidak ada anggota yang cocok dengan pencarian.";
     elements.membersTableBody.innerHTML =
-      '<tr><td colspan="6" class="members-empty">Tidak ada data anggota.</td></tr>';
+      '<tr><td colspan="6" class="members-empty">Tidak ada data anggota ditemukan.</td></tr>';
     return;
   }
 
-  elements.membersStatus.textContent = `Total ${members.length} anggota clan:`;
+  elements.membersStatus.textContent = `Menampilkan ${members.length} dari ${currentClanMembers.length} anggota:`;
 
   const rows = members
     .map((m, index) => {
@@ -504,6 +552,21 @@ function renderClanMembers(members = []) {
       }
     });
   });
+}
+
+if (elements.memberSearchInput) {
+  elements.memberSearchInput.addEventListener("input", updateClanMembersTable);
+}
+
+if (elements.memberSortSelect) {
+  elements.memberSortSelect.addEventListener("change", updateClanMembersTable);
+}
+
+// Render Clan Members
+function renderClanMembers(members = []) {
+  currentClanMembers = members;
+  if (elements.memberSearchInput) elements.memberSearchInput.value = "";
+  updateClanMembersTable();
 }
 
 // Search Player
@@ -769,3 +832,20 @@ if (elements.backgroundVideo) {
 const savedMode = localStorage.getItem(BACKGROUND_STORAGE_KEY) || "gradient";
 activateBackgroundMode(savedMode);
 renderRecentSearches();
+
+// Check URL query parameters (Direct Link Support)
+const urlParams = new URLSearchParams(window.location.search);
+const initialPlayer = urlParams.get("player");
+const initialClan = urlParams.get("clan");
+
+if (initialPlayer) {
+  setActiveTab("player");
+  elements.tagInput.value = initialPlayer.replace(/^#/, "");
+  elements.clearInputBtn.classList.add("visible");
+  searchPlayer(initialPlayer);
+} else if (initialClan) {
+  setActiveTab("clan");
+  elements.tagInput.value = initialClan.replace(/^#/, "");
+  elements.clearInputBtn.classList.add("visible");
+  searchClan(initialClan);
+}

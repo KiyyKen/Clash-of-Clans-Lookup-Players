@@ -136,10 +136,16 @@
                 <h2 id="playerName" class="entity-name">-</h2>
                 <div class="tag-pill-wrap">
                   <span id="playerTagText" class="tag-pill">#-</span>
-                  <button id="copyPlayerTagBtn" class="copy-icon-btn" type="button" title="Salin Player Tag">
-                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                  <button id="copyPlayerTagBtn" class="action-icon-btn" type="button" title="Salin Player Tag">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                  </button>
+                  <button id="sharePlayerBtn" class="action-icon-btn" type="button" title="Bagikan link langsung profil ini">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                     </svg>
                   </button>
                 </div>
@@ -286,10 +292,16 @@
                 <h2 id="clanDataName" class="entity-name">-</h2>
                 <div class="tag-pill-wrap">
                   <span id="clanDataTag" class="tag-pill">#-</span>
-                  <button id="copyClanTagBtn" class="copy-icon-btn" type="button" title="Salin Clan Tag">
-                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                  <button id="copyClanTagBtn" class="action-icon-btn" type="button" title="Salin Clan Tag">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                  </button>
+                  <button id="shareClanBtn" class="action-icon-btn" type="button" title="Bagikan link langsung clan ini">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                     </svg>
                   </button>
                 </div>
@@ -373,8 +385,26 @@
           <div class="members-wrapper">
             <div class="members-header">
               <h3 class="section-title">Daftar Anggota Clan</h3>
-              <span class="members-tip">💡 Klik baris anggota untuk langsung membuka profilnya</span>
+              <span class="members-tip">💡 Klik baris anggota untuk membuka profil</span>
             </div>
+
+            <!-- Member Live Filter & Sorting -->
+            <div class="members-controls-row">
+              <div class="member-search-wrap">
+                <span class="member-search-icon">🔍</span>
+                <input id="memberSearchInput" type="text" placeholder="Cari nama anggota..." />
+              </div>
+              <div class="member-sort-wrap">
+                <label for="memberSortSelect" class="member-sort-label">Urutkan:</label>
+                <select id="memberSortSelect" class="member-sort-select">
+                  <option value="trophies_desc">Trofi (Tertinggi)</option>
+                  <option value="th_desc">Town Hall (Tertinggi)</option>
+                  <option value="donations_desc">Donasi (Tertinggi)</option>
+                  <option value="name_asc">Nama (A-Z)</option>
+                </select>
+              </div>
+            </div>
+
             <p id="membersStatus" class="members-status">Memuat data anggota...</p>
             <div class="members-table-wrap">
               <table class="members-table">
