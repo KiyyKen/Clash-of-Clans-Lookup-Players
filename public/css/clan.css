@@ -1,0 +1,214 @@
+/* ==================== CLAN PROFILE & ROSTER ==================== */
+.clan-badge-container {
+  width: 76px;
+  height: 76px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.clan-badge-img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
+}
+
+.clan-bio {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin-top: 2px;
+}
+
+/* ==================== CLAN ROSTER TABLE ==================== */
+.roster-section {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.roster-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.roster-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.roster-title-group h3 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-tertiary);
+}
+
+.roster-counter {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent-blue);
+  background: var(--accent-blue-subtle);
+  padding: 1px 6px;
+  border-radius: var(--radius-xs);
+}
+
+.roster-tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.table-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.table-search-box svg {
+  position: absolute;
+  left: 10px;
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+
+#memberSearchInput {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  font-size: 0.8rem;
+  padding: 6px 10px 6px 28px;
+  width: 170px;
+  outline: none;
+  transition: all 0.15s;
+}
+
+#memberSearchInput:focus {
+  border-color: var(--clash-gold);
+  width: 200px;
+}
+
+.table-sort-select {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  color: var(--text-secondary);
+  font-family: var(--font-main);
+  font-size: 0.8rem;
+  padding: 6px 10px;
+  outline: none;
+  cursor: pointer;
+}
+
+.table-sort-select:focus {
+  border-color: var(--clash-gold);
+}
+
+/* Responsive Table Wrapper */
+.table-responsive-wrapper {
+  overflow: auto;
+  max-inline-size: 100%;
+  max-block-size: 480px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  container-type: inline-size;
+}
+
+.roster-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  text-align: left;
+  font-size: 0.82rem;
+}
+
+.roster-table thead {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 2;
+  background: var(--bg-surface-elevated);
+}
+
+.roster-table th {
+  padding: 10px 12px;
+  color: var(--text-tertiary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border-default);
+  white-space: nowrap;
+}
+
+.roster-table td {
+  padding: 10px 12px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle;
+}
+
+.member-row-clickable {
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.member-row-clickable:hover {
+  background: var(--bg-surface-hover);
+}
+
+.member-row-clickable:hover td {
+  color: var(--text-primary);
+}
+
+.member-name-flex {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.member-league-img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.table-th-flex {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.table-th-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.table-empty {
+  text-align: center;
+  padding: 30px !important;
+  color: var(--text-tertiary);
+}
+
+.table-caption-status {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}

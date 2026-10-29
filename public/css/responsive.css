@@ -1,0 +1,77 @@
+/* ==================== ANIMATIONS & KEYFRAMES ==================== */
+@keyframes pulseDot {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes livePulse {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+/* ==================== RESPONSIVE ADJUSTMENTS ==================== */
+@media (max-width: 768px) {
+  .dashboard-modules-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-banner {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .banner-avatars {
+    justify-content: center;
+  }
+
+  .title-line,
+  .meta-badges-row,
+  .official-labels-list {
+    justify-content: center;
+  }
+
+  .builder-body {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .roster-header-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .roster-tools {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .table-search-box {
+    flex: 1;
+  }
+
+  #memberSearchInput {
+    width: 100%;
+  }
+
+  #memberSearchInput:focus {
+    width: 100%;
+  }
+
+  .search-bar-wrap {
+    flex-direction: column;
+  }
+
+  .search-submit-btn {
+    height: 44px;
+  }
+}
+
+@container (max-width: 500px) {
+  .roster-table th:nth-child(4),
+  .roster-table td:nth-child(4),
+  .roster-table th:nth-child(6),
+  .roster-table td:nth-child(6) {
+    display: none;
+  }
+}

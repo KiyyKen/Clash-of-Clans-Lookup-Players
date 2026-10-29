@@ -1,0 +1,86 @@
+:root {
+  color-scheme: dark;
+
+  /* Typography */
+  --font-main: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* Tactical Dark Palette (Default) */
+  --bg-base: #090c12;
+  --bg-header: rgba(13, 17, 24, 0.94);
+  --bg-surface: #111622;
+  --bg-surface-elevated: #171e2e;
+  --bg-surface-hover: #1e273c;
+  --bg-card: #121824;
+
+  /* Borders & Dividers */
+  --border-subtle: #1b2333;
+  --border-default: #242f44;
+  --border-highlight: #334360;
+
+  /* Brand & Accents */
+  --clash-gold: #f59e0b;
+  --clash-gold-dark: #b45309;
+  --clash-gold-subtle: rgba(245, 158, 11, 0.12);
+  --accent-blue: #38bdf8;
+  --accent-blue-subtle: rgba(56, 189, 248, 0.12);
+  --accent-emerald: #10b981;
+  --accent-emerald-subtle: rgba(16, 185, 129, 0.12);
+  --accent-purple: #c084fc;
+  --accent-purple-subtle: rgba(192, 132, 252, 0.12);
+
+  /* Typography Colors */
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+  --text-muted: #475569;
+
+  /* System */
+  --error: #ef4444;
+  --error-bg: rgba(239, 68, 68, 0.14);
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+}
+
+/* ==================== THEME: DESA SIANG (LIGHT MODE) ==================== */
+body.bg-image-mode {
+  color-scheme: light;
+
+  /* Bright Daylight Village Palette */
+  --bg-base: #f0f4f8;
+  --bg-header: rgba(255, 255, 255, 0.94);
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #f8fafc;
+  --bg-surface-hover: #f1f5f9;
+  --bg-card: rgba(255, 255, 255, 0.97);
+
+  /* Clean Borders & Dividers */
+  --border-subtle: #e2e8f0;
+  --border-default: #cbd5e1;
+  --border-highlight: #94a3b8;
+
+  /* High-Contrast Brand & Accents for Light Mode */
+  --clash-gold: #b45309;
+  --clash-gold-dark: #78350f;
+  --clash-gold-subtle: rgba(217, 119, 6, 0.12);
+  --accent-blue: #0284c7;
+  --accent-blue-subtle: rgba(2, 132, 199, 0.12);
+  --accent-emerald: #059669;
+  --accent-emerald-subtle: rgba(5, 150, 105, 0.12);
+  --accent-purple: #7e22ce;
+  --accent-purple-subtle: rgba(126, 34, 206, 0.12);
+
+  /* Crisp Readable Slate Typography */
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-tertiary: #64748b;
+  --text-muted: #94a3b8;
+
+  /* System */
+  --error: #dc2626;
+  --error-bg: rgba(220, 38, 38, 0.08);
+}
