@@ -13,12 +13,9 @@
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
-    <!-- Background Layer (Wallpaper / Video) -->
+    <!-- Background Layer (Wallpaper) -->
     <div class="bg-media-layer" aria-hidden="true">
       <img id="backgroundImage" class="bg-image" src="/assets/bg.jpg" alt="" />
-      <video id="backgroundVideo" class="bg-video" autoplay muted loop playsinline>
-        <source src="/assets/bg.mp4" type="video/mp4" />
-      </video>
       <div class="bg-overlay"></div>
     </div>
 
@@ -59,34 +56,15 @@
           </button>
         </nav>
 
-        <!-- Right Controls (Theme & Sound) -->
+        <!-- Right Controls (Theme Selector) -->
         <div class="header-controls">
           <div class="theme-select-wrap">
             <label for="themeSelect" class="sr-only">Tema Tampilan</label>
             <select id="themeSelect" class="theme-select" title="Pilih Tema Tampilan">
-              <option value="gradient">🌙 Tactical Dark</option>
-              <option value="image">☀️ Village Daylight (Terang)</option>
-              <option value="video">🎬 Cinematic Video (Gerak)</option>
+              <option value="gradient">🌙 Desa Malam (Gelap)</option>
+              <option value="image">☀️ Desa Siang (Terang)</option>
             </select>
           </div>
-
-          <button
-            id="soundToggleBtn"
-            class="sound-btn"
-            type="button"
-            aria-label="Unmute background video"
-            title="Unmute background audio"
-          >
-            <svg class="icon-volume-off" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-              <line x1="23" y1="9" x2="17" y2="15"></line>
-              <line x1="17" y1="9" x2="23" y2="15"></line>
-            </svg>
-            <svg class="icon-volume-on" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-            </svg>
-          </button>
         </div>
       </div>
     </header>

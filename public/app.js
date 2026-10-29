@@ -4,7 +4,6 @@ const elements = {
   tabPlayer: document.getElementById("tabPlayer"),
   tabClan: document.getElementById("tabClan"),
   themeSelect: document.getElementById("themeSelect"),
-  soundToggleBtn: document.getElementById("soundToggleBtn"),
 
   // Search Console
   tagInput: document.getElementById("tagInput"),
@@ -105,7 +104,6 @@ const elements = {
 
   // Background media
   backgroundImage: document.getElementById("backgroundImage"),
-  backgroundVideo: document.getElementById("backgroundVideo"),
 
   // Toast
   toast: document.getElementById("toast"),
@@ -972,63 +970,28 @@ elements.clearRecentBtn.addEventListener("click", () => {
   renderRecent();
 });
 
-// Theme Management
+// Theme Management (Desa Malam / Desa Siang)
 function applyTheme(theme) {
-  document.body.classList.remove("bg-image-mode", "bg-video-mode");
+  document.body.classList.remove("bg-image-mode");
 
-  if (theme === "image") {
+  const isDay = theme === "image";
+  if (isDay) {
     document.body.classList.add("bg-image-mode");
-  } else if (theme === "video") {
-    document.body.classList.add("bg-video-mode");
-    if (elements.backgroundVideo) {
-      elements.backgroundVideo.play().catch(() => {});
-    }
-  } else if (elements.backgroundVideo) {
-    elements.backgroundVideo.pause();
   }
 
+  const selectedTheme = isDay ? "image" : "gradient";
   if (elements.themeSelect) {
-    elements.themeSelect.value = theme;
+    elements.themeSelect.value = selectedTheme;
   }
 
-  localStorage.setItem(THEME_STORAGE_KEY, theme);
-  updateSoundBtn();
-}
-
-function updateSoundBtn() {
-  if (!elements.soundToggleBtn || !elements.backgroundVideo) return;
-  const isVideo = document.body.classList.contains("bg-video-mode");
-  const isMuted = elements.backgroundVideo.muted;
-
-  elements.soundToggleBtn.classList.toggle("sound-on", isVideo && !isMuted);
-  elements.soundToggleBtn.classList.toggle("visible", isVideo);
-}
-
-if (elements.soundToggleBtn) {
-  elements.soundToggleBtn.addEventListener("click", async () => {
-    if (!elements.backgroundVideo) return;
-    if (!document.body.classList.contains("bg-video-mode")) {
-      applyTheme("video");
-    }
-    elements.backgroundVideo.muted = !elements.backgroundVideo.muted;
-    try {
-      await elements.backgroundVideo.play();
-    } catch (e) {
-      elements.backgroundVideo.muted = true;
-    }
-    updateSoundBtn();
-  });
+  localStorage.setItem(THEME_STORAGE_KEY, selectedTheme);
 }
 
 if (elements.themeSelect) {
   elements.themeSelect.addEventListener("change", (e) => {
     applyTheme(e.target.value);
-    const msgs = {
-      gradient: "Tema Tactical Dark aktif 🌙",
-      image: "Tema Village Daylight (Terang) aktif ☀️",
-      video: "Tema Cinematic Video aktif 🎬 (Nyalakan audio jika mau)",
-    };
-    if (msgs[e.target.value]) showToast(msgs[e.target.value]);
+    const msg = e.target.value === "image" ? "Tema Desa Siang (Terang) aktif ☀️" : "Tema Desa Malam (Gelap) aktif 🌙";
+    showToast(msg);
   });
 }
 
@@ -1036,11 +999,6 @@ if (elements.themeSelect) {
 if (elements.backgroundImage) {
   elements.backgroundImage.addEventListener("error", () => {
     if (document.body.classList.contains("bg-image-mode")) applyTheme("gradient");
-  });
-}
-if (elements.backgroundVideo) {
-  elements.backgroundVideo.addEventListener("error", () => {
-    if (document.body.classList.contains("bg-video-mode")) applyTheme("gradient");
   });
 }
 
