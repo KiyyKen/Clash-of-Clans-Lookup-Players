@@ -91,7 +91,7 @@
             <input
               id="tagInput"
               type="text"
-              placeholder="Contoh: 98R828VJ"
+              placeholder="Contoh: 8QRC82JP8"
               autocomplete="off"
               spellcheck="false"
             />
@@ -105,8 +105,9 @@
         <!-- Quick Suggestions -->
         <div class="quick-samples">
           <span class="quick-label">Coba sampel:</span>
-          <button class="sample-chip" data-type="player" data-tag="#98R828VJ">👤 #98R828VJ (Pro Player)</button>
-          <button class="sample-chip" data-type="clan" data-tag="#2PP">🛡️ #2PP (Top Clan)</button>
+          <button class="sample-chip" data-type="player" data-tag="#8QRC82JP8">👤 #8QRC82JP8 (Big Smoke)</button>
+          <button class="sample-chip" data-type="clan" data-tag="#2LYQPU00L">🛡️ #2LYQPU00L (True Dominance)</button>
+          <button class="sample-chip" data-type="clan" data-tag="#2PP">🛡️ #2PP (The Order)</button>
         </div>
 
         <!-- Recent Searches -->
@@ -227,10 +228,17 @@
             </div>
           </div>
 
-          <!-- Section: Heroes Showcase -->
+          <!-- Section: Heroes & Equipment Showcase -->
           <div id="heroesSection" class="heroes-section">
-            <h3 class="section-title">Heroes & Levels</h3>
+            <div class="heroes-header-row">
+              <h3 class="section-title">Heroes & Equipment</h3>
+              <div class="heroes-subtabs">
+                <button id="heroTabHeroes" class="hero-subtab active" type="button">Heroes</button>
+                <button id="heroTabEquip" class="hero-subtab" type="button">Equipment</button>
+              </div>
+            </div>
             <div id="heroesGrid" class="heroes-grid"></div>
+            <div id="equipmentGrid" class="heroes-grid" style="display: none;"></div>
           </div>
 
           <!-- Section: Builder Base -->
@@ -242,7 +250,7 @@
                   <span class="stat-emoji">🔨</span>
                   <span class="stat-label">Builder Hall</span>
                 </div>
-                <span class="stat-value" id="builderHallLevel">-</span>
+                <span class="stat-value highlight" id="builderHallLevel">-</span>
               </div>
               <div class="stat-card">
                 <div class="stat-head">
@@ -259,6 +267,8 @@
                 <span class="stat-value" id="bestBuilderBaseTrophies">-</span>
               </div>
             </div>
+            <!-- Builder Base Heroes (Battle Machine, Battle Copter) -->
+            <div id="builderHeroesGrid" class="heroes-grid" style="margin-top: 8px;"></div>
           </div>
 
           <div class="card-footer">

@@ -38,12 +38,16 @@ const elements = {
   clanCapitalPoints: document.getElementById("clanCapitalPoints"),
 
   heroesSection: document.getElementById("heroesSection"),
+  heroTabHeroes: document.getElementById("heroTabHeroes"),
+  heroTabEquip: document.getElementById("heroTabEquip"),
   heroesGrid: document.getElementById("heroesGrid"),
+  equipmentGrid: document.getElementById("equipmentGrid"),
 
   builderBaseSection: document.getElementById("builderBaseSection"),
   builderHallLevel: document.getElementById("builderHallLevel"),
   builderBaseTrophies: document.getElementById("builderBaseTrophies"),
   bestBuilderBaseTrophies: document.getElementById("bestBuilderBaseTrophies"),
+  builderHeroesGrid: document.getElementById("builderHeroesGrid"),
 
   // Clan Card
   clanCard: document.getElementById("clanCard"),
@@ -149,7 +153,7 @@ function formatClanType(type) {
 // Format War Frequency
 function formatWarFrequency(freq) {
   const map = {
-    always: "Always",
+    always: "Selalu (Always)",
     moreThanOnceAWeek: "2x seminggu",
     onceAWeek: "1x seminggu",
     lessThanOnceAWeek: "Jarang",
@@ -165,12 +169,12 @@ function setActiveTab(tab) {
   if (tab === "player") {
     elements.tabPlayer.classList.add("active");
     elements.tabClan.classList.remove("active");
-    elements.tagInput.placeholder = "Contoh: 98R828VJ";
+    elements.tagInput.placeholder = "Contoh: 8QRC82JP8";
     elements.fetchButton.querySelector(".btn-text").textContent = "Cari Player";
   } else {
     elements.tabClan.classList.add("active");
     elements.tabPlayer.classList.remove("active");
-    elements.tagInput.placeholder = "Contoh: 2PP";
+    elements.tagInput.placeholder = "Contoh: 2LYQPU00L";
     elements.fetchButton.querySelector(".btn-text").textContent = "Cari Clan";
   }
   elements.tagInput.focus();
@@ -228,6 +232,7 @@ async function requestApi(url) {
 
 // Render Labels
 function renderLabels(container, labels = []) {
+  if (!container) return;
   container.innerHTML = "";
   if (!labels || labels.length === 0) {
     container.style.display = "none";
@@ -251,34 +256,82 @@ function renderLabels(container, labels = []) {
   });
 }
 
-// Render Heroes
-function renderHeroes(heroes = []) {
-  elements.heroesGrid.innerHTML = "";
-  const homeHeroes = heroes.filter((h) => h.village === "home" || !h.village);
-  if (!homeHeroes.length) {
-    elements.heroesSection.style.display = "none";
-    return;
-  }
-  elements.heroesSection.style.display = "flex";
-
-  homeHeroes.forEach((h) => {
-    const isMax = h.level >= h.maxLevel;
-    const percent = Math.min(100, Math.round((h.level / (h.maxLevel || 1)) * 100));
-
-    const card = document.createElement("div");
-    card.className = "hero-card";
-    card.innerHTML = `
-      <div class="hero-card-head">
-        <span class="hero-name">${h.name}</span>
-        <span class="hero-level-text">Lv ${h.level} / ${h.maxLevel}</span>
-      </div>
-      <div class="hero-bar-bg">
-        <div class="hero-bar-fill ${isMax ? "maxed" : ""}" style="width: ${percent}%;"></div>
-      </div>
-      ${isMax ? '<div style="display:flex;justify-content:flex-end;"><span class="hero-max-badge">MAXED</span></div>' : ""}
-    `;
-    elements.heroesGrid.appendChild(card);
+// Hero & Equipment Subtabs
+if (elements.heroTabHeroes && elements.heroTabEquip) {
+  elements.heroTabHeroes.addEventListener("click", () => {
+    elements.heroTabHeroes.classList.add("active");
+    elements.heroTabEquip.classList.remove("active");
+    elements.heroesGrid.style.display = "grid";
+    elements.equipmentGrid.style.display = "none";
   });
+
+  elements.heroTabEquip.addEventListener("click", () => {
+    elements.heroTabEquip.classList.add("active");
+    elements.heroTabHeroes.classList.remove("active");
+    elements.heroesGrid.style.display = "none";
+    elements.equipmentGrid.style.display = "grid";
+  });
+}
+
+function createLevelCard(name, level, maxLevel) {
+  const isMax = level >= maxLevel;
+  const percent = Math.min(100, Math.round((level / (maxLevel || 1)) * 100));
+
+  const card = document.createElement("div");
+  card.className = "hero-card";
+  card.innerHTML = `
+    <div class="hero-card-head">
+      <span class="hero-name">${name}</span>
+      <span class="hero-level-text">Lv ${level} / ${maxLevel}</span>
+    </div>
+    <div class="hero-bar-bg">
+      <div class="hero-bar-fill ${isMax ? "maxed" : ""}" style="width: ${percent}%;"></div>
+    </div>
+    ${isMax ? '<div style="display:flex;justify-content:flex-end;"><span class="hero-max-badge">MAXED</span></div>' : ""}
+  `;
+  return card;
+}
+
+// Render Heroes & Equipment
+function renderHeroesAndEquipment(heroes = [], equipment = []) {
+  elements.heroesGrid.innerHTML = "";
+  elements.equipmentGrid.innerHTML = "";
+  if (elements.builderHeroesGrid) elements.builderHeroesGrid.innerHTML = "";
+
+  const homeHeroes = heroes.filter((h) => h.village === "home" || !h.village);
+  const builderHeroes = heroes.filter((h) => h.village === "builderBase");
+
+  if (!homeHeroes.length && !equipment.length) {
+    elements.heroesSection.style.display = "none";
+  } else {
+    elements.heroesSection.style.display = "flex";
+
+    // Home Heroes
+    homeHeroes.forEach((h) => {
+      elements.heroesGrid.appendChild(createLevelCard(h.name, h.level, h.maxLevel));
+    });
+
+    // Equipment
+    equipment.forEach((eq) => {
+      elements.equipmentGrid.appendChild(createLevelCard(eq.name, eq.level, eq.maxLevel));
+    });
+
+    // Default to Heroes tab
+    elements.heroTabHeroes.classList.add("active");
+    elements.heroTabEquip.classList.remove("active");
+    elements.heroesGrid.style.display = "grid";
+    elements.equipmentGrid.style.display = "none";
+  }
+
+  // Builder Base Heroes
+  if (elements.builderHeroesGrid && builderHeroes.length > 0) {
+    elements.builderHeroesGrid.style.display = "grid";
+    builderHeroes.forEach((bh) => {
+      elements.builderHeroesGrid.appendChild(createLevelCard(bh.name, bh.level, bh.maxLevel));
+    });
+  } else if (elements.builderHeroesGrid) {
+    elements.builderHeroesGrid.style.display = "none";
+  }
 }
 
 // Render Player Profile
@@ -345,8 +398,8 @@ function renderPlayer(p) {
   setText(elements.donationRatio, `${donated} / ${received}`);
   setText(elements.clanCapitalPoints, p.clanCapitalContributions?.toLocaleString() || "0");
 
-  // Heroes
-  renderHeroes(p.heroes);
+  // Heroes & Equipment
+  renderHeroesAndEquipment(p.heroes, p.heroEquipment);
 
   // Builder Base
   if (p.builderHallLevel) {
@@ -388,8 +441,13 @@ function renderClan(c) {
   setText(elements.clanLevel, `Lv ${c.clanLevel}`);
   setText(elements.clanPoints, `${c.clanPoints?.toLocaleString() || 0} 🏆`);
   setText(elements.clanMembers, `${c.members} / 50`);
-  setText(elements.warWinStreak, `${c.warWinStreak || 0} Seri/Win`);
-  setText(elements.warRecord, `${c.warWins || 0}M / ${c.warLosses || 0}K / ${c.warTies || 0}S`);
+  setText(elements.warWinStreak, `${c.warWinStreak || 0} Win Streak`);
+
+  const warRecordText = c.isWarLogPublic
+    ? `${c.warWins || 0}M / ${c.warLosses || 0}K / ${c.warTies || 0}S`
+    : `${c.warWins || 0} Menang (Log Privat)`;
+  setText(elements.warRecord, warRecordText);
+
   setText(elements.capitalHallLevel, c.capitalHallLevel ? `CH ${c.capitalHallLevel}` : "-");
   setText(elements.requiredTrophies, `${c.requiredTrophies?.toLocaleString() || 0} 🏆`);
   setText(elements.warFrequency, formatWarFrequency(c.warFrequency));
