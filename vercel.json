@@ -8,8 +8,31 @@
   ],
   "routes": [
     {
-      "src": "/(.*)",
+      "handle": "filesystem"
+    },
+    {
+      "src": "/player/(.*)",
       "dest": "src/server.js"
+    },
+    {
+      "src": "/players/(.*)",
+      "dest": "src/server.js"
+    },
+    {
+      "src": "/clan/(.*)",
+      "dest": "src/server.js"
+    },
+    {
+      "src": "/clans/(.*)",
+      "dest": "src/server.js"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "src/server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
