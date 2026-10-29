@@ -158,6 +158,7 @@ function handleDeepLink() {
   const cTag = params.get("clan");
   const themeParam = params.get("theme");
   const armoryParam = params.get("armory");
+  const scrollParam = params.get("scroll");
 
   if (themeParam) {
     applyTheme(themeParam);
@@ -190,6 +191,12 @@ function handleDeepLink() {
     elements.tagInput.value = cTag.replace(/^#/, "");
     elements.clearInputBtn.classList.add("visible");
     executeClanSearch(cTag);
+
+    if (scrollParam === "members") {
+      setTimeout(() => {
+        document.querySelector(".clan-members-section")?.scrollIntoView();
+      }, 700);
+    }
   }
 }
 

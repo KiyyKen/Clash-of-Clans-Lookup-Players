@@ -51,18 +51,25 @@ async function handlePlayerLookup(req, res) {
         player.clan && player.clan.badgeUrls
           ? player.clan.badgeUrls.medium || player.clan.badgeUrls.small
           : null,
-      league: player.league
+      league: player.leagueTier
+        ? {
+            name: player.leagueTier.name,
+            iconUrl: player.leagueTier.iconUrls
+              ? player.leagueTier.iconUrls.small || player.leagueTier.iconUrls.large
+              : null,
+          }
+        : player.league && player.league.name !== "Unranked"
         ? {
             name: player.league.name,
             iconUrl: player.league.iconUrls
               ? player.league.iconUrls.medium || player.league.iconUrls.small
               : null,
           }
-        : player.leagueTier
+        : player.league
         ? {
-            name: player.leagueTier.name,
-            iconUrl: player.leagueTier.iconUrls
-              ? player.leagueTier.iconUrls.small || player.leagueTier.iconUrls.large
+            name: player.league.name,
+            iconUrl: player.league.iconUrls
+              ? player.league.iconUrls.medium || player.league.iconUrls.small
               : null,
           }
         : null,

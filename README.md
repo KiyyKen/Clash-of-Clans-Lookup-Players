@@ -30,7 +30,7 @@ Sistem tab showcase equipment hero (Common & Epic) dengan artwork resmi resolusi
 ---
 
 ### 3. 🛡️ Profil Clan & Roster Anggota (Clan View)
-Informasi komprehensif clan (badge resmi, level clan, war win streak, rekor war, capital hall) serta tabel anggota clan interaktif dengan fitur filter nama/tag dan sortir dinamis (Trofi, TH, Donasi).
+Informasi komprehensif clan (badge resmi, level clan, war win streak, rekor war, capital hall) serta tabel anggota clan interaktif lengkap dengan emblem rank liga pemain (Dragon League, Titan League, PEKKA League, dll.), preview icon Town Hall, filter pencarian instan nama/tag, dan sortir dinamis (Trofi, TH, Donasi).
 
 ![Clan Profile & Roster](docs/screenshots/clan-profile.png)
 

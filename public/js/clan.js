@@ -95,8 +95,8 @@ export function updateRosterTable(onMemberClick) {
   const rows = list
     .map((m, idx) => {
       const icon = m.leagueIcon
-        ? `<img class="member-league-img" src="${m.leagueIcon}" alt="" />`
-        : "";
+        ? `<img class="member-league-img" src="${m.leagueIcon}" alt="${m.leagueName || 'Rank'}" title="${m.leagueName || 'Rank'}" loading="lazy" onerror="this.onerror=null; this.src='/assets/trophy-temp.svg';" />`
+        : `<img class="member-league-img" src="/assets/trophy-temp.svg" alt="Rank" />`;
       const thImg = m.townHallLevel
         ? `<img class="table-th-icon" src="${getTownHallImg(m.townHallLevel)}" alt="TH ${m.townHallLevel}" loading="lazy" />`
         : "";

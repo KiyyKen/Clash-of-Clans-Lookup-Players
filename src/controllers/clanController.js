@@ -120,10 +120,16 @@ async function handleClanMembersLookup(req, res) {
         donations: member.donations ?? 0,
         donationsReceived: member.donationsReceived ?? 0,
         leagueIcon:
-          member.league?.iconUrls?.small ||
           member.leagueTier?.iconUrls?.small ||
+          member.leagueTier?.iconUrls?.large ||
+          (member.league?.name !== "Unranked" ? member.league?.iconUrls?.small : null) ||
+          member.league?.iconUrls?.small ||
           null,
-        leagueName: member.league?.name || member.leagueTier?.name || null,
+        leagueName:
+          member.leagueTier?.name ||
+          (member.league?.name !== "Unranked" ? member.league?.name : null) ||
+          member.league?.name ||
+          "Unranked",
       })),
     });
   } catch (error) {
