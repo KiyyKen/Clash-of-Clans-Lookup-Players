@@ -62,8 +62,12 @@ async function handleClanLookup(req, res) {
       }
 
       if (status === 403) {
+        const scMsg = error.response.data?.message || "";
         return res.status(403).json({
-          error: "Akses ditolak oleh Supercell API (403). Periksa API key atau Allowed IP.",
+          error: scMsg
+            ? `Akses ditolak oleh Supercell API (403): ${scMsg}`
+            : "Akses ditolak oleh Supercell API (403). Periksa API key atau Allowed IP di portal developer.",
+          supercellError: error.response.data || null,
         });
       }
 
@@ -143,8 +147,12 @@ async function handleClanMembersLookup(req, res) {
       }
 
       if (status === 403) {
+        const scMsg = error.response.data?.message || "";
         return res.status(403).json({
-          error: "Akses ditolak oleh Supercell API (403). Periksa API key atau Allowed IP.",
+          error: scMsg
+            ? `Akses ditolak oleh Supercell API (403): ${scMsg}`
+            : "Akses ditolak oleh Supercell API (403). Periksa API key atau Allowed IP di portal developer.",
+          supercellError: error.response.data || null,
         });
       }
 

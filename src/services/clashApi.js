@@ -1,6 +1,9 @@
 const axios = require("axios");
-const { COC_API_KEY } = require("../config");
+const { COC_API_KEY, COC_API_BASE_URL } = require("../config");
 const { getFromCache, saveToCache } = require("./cache");
+
+// Base URL can be overridden (e.g. https://proxy.royaleapi.dev/v1 for Vercel/dynamic IP hosting)
+const BASE_URL = (COC_API_BASE_URL || "https://api.clashofclans.com/v1").replace(/\/+$/, "");
 
 // Helper to validate Clash of Clans tag format (# + valid base32 characters)
 function isValidTag(tag) {
@@ -17,7 +20,8 @@ async function fetchFromClashApi(pathname) {
     return { data: cachedData, fromCache: true };
   }
 
-  const response = await axios.get(`https://api.clashofclans.com/v1${pathname}`, {
+  const cleanPath = pathname.startsWith("/") ? pathname : `/${pathname}`;
+  const response = await axios.get(`${BASE_URL}${cleanPath}`, {
     headers: {
       Authorization: `Bearer ${COC_API_KEY}`,
       Accept: "application/json",
