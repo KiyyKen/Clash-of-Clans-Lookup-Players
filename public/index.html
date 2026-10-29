@@ -142,8 +142,16 @@
         <article id="resultCard" class="profile-card player-view">
           <!-- Identity Banner -->
           <div class="profile-banner">
-            <div class="league-avatar-container">
-              <img id="playerLeagueBadge" class="league-badge" src="/assets/trophy-temp.svg" alt="League tier" />
+            <!-- Avatars: League Crest + Town Hall Building -->
+            <div class="banner-avatars">
+              <div class="avatar-card" title="League Tier">
+                <img id="playerLeagueBadge" class="avatar-img" src="/assets/trophy-temp.svg" alt="League tier" />
+                <span id="playerLeagueNameSub" class="avatar-sub-text">Unranked</span>
+              </div>
+              <div class="avatar-card th-avatar-card" title="Town Hall Building">
+                <img id="playerTownHallImg" class="avatar-img th-building-img" src="https://assets.clashk.ing/buildings/home-village/town_hall/level_18.webp" alt="Town Hall" />
+                <span id="townHallBadge" class="avatar-sub-text pill-th-badge">TH -</span>
+              </div>
             </div>
 
             <div class="profile-core-info">
@@ -167,7 +175,6 @@
               </div>
 
               <div class="meta-badges-row">
-                <span id="townHallBadge" class="pill-th">TH -</span>
                 <span id="playerRoleBadge" class="pill-role">Member</span>
                 <span id="playerWarPref" class="pill-war">Wars: In</span>
                 <button id="playerClanChip" class="pill-clan-link" type="button">
@@ -262,21 +269,29 @@
           <!-- Section: Builder Base Village -->
           <section id="builderBaseSection" class="builder-village-section">
             <div class="builder-header">
-              <h3>Builder Base (Night Village)</h3>
-              <span id="builderLeagueText" class="builder-league-pill">Unranked</span>
+              <div class="builder-title-group">
+                <h3>Builder Base (Night Village)</h3>
+                <span id="builderLeagueText" class="builder-league-pill">Unranked</span>
+              </div>
             </div>
-            <div class="metrics-row">
-              <div class="metric-item">
-                <span class="metric-label">Builder Hall</span>
-                <span id="builderHallLevel" class="metric-val highlight-gold">-</span>
+            <div class="builder-body">
+              <div class="avatar-card bh-avatar-card" title="Builder Hall Building">
+                <img id="builderHallImg" class="avatar-img bh-building-img" src="https://assets.clashk.ing/buildings/builder-base/builder_hall/level_10.webp" alt="Builder Hall" />
+                <span id="builderHallPill" class="avatar-sub-text pill-th-badge">BH -</span>
               </div>
-              <div class="metric-item">
-                <span class="metric-label">Trofi Builder Base</span>
-                <span id="builderBaseTrophies" class="metric-val">-</span>
-              </div>
-              <div class="metric-item">
-                <span class="metric-label">Trofi BB Tertinggi</span>
-                <span id="bestBuilderBaseTrophies" class="metric-val">-</span>
+              <div class="metrics-row" style="flex: 1;">
+                <div class="metric-item">
+                  <span class="metric-label">Builder Hall Level</span>
+                  <span id="builderHallLevel" class="metric-val highlight-gold">-</span>
+                </div>
+                <div class="metric-item">
+                  <span class="metric-label">Trofi Builder Base</span>
+                  <span id="builderBaseTrophies" class="metric-val">-</span>
+                </div>
+                <div class="metric-item">
+                  <span class="metric-label">Trofi BB Tertinggi</span>
+                  <span id="bestBuilderBaseTrophies" class="metric-val">-</span>
+                </div>
               </div>
             </div>
             <div id="builderHeroesGrid" class="armory-grid" style="margin-top: 14px;"></div>
@@ -316,9 +331,9 @@
               </div>
 
               <div class="meta-badges-row">
-                <span id="clanLevelBadge" class="pill-th">Clan Level -</span>
-                <span id="clanTypeBadge" class="pill-role">Public</span>
-                <span id="clanWarLeagueBadge" class="pill-war">War League -</span>
+                <span id="clanLevelBadge" class="pill-role">Level -</span>
+                <span id="clanTypeBadge" class="pill-war">Public</span>
+                <span id="clanWarLeagueBadge" class="pill-th">War League -</span>
                 <span id="clanLocationBadge" class="pill-clan-link">📍 International</span>
               </div>
 

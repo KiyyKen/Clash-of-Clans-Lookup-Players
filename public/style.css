@@ -92,7 +92,6 @@ body.bg-video-mode .bg-overlay {
   display: block;
 }
 
-/* Screen reader only utility */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -475,7 +474,6 @@ body.bg-video-mode .bg-overlay {
   color: var(--error);
 }
 
-/* Error Banner */
 .error-banner {
   background: var(--error-bg);
   border: 1px solid rgba(239, 68, 68, 0.35);
@@ -512,7 +510,7 @@ body.bg-video-mode .bg-overlay {
   display: flex;
 }
 
-/* Identity Banner */
+/* Identity Banner & Avatars */
 .profile-banner {
   display: flex;
   align-items: center;
@@ -521,7 +519,70 @@ body.bg-video-mode .bg-overlay {
   border-bottom: 1px solid var(--border-subtle);
 }
 
-.league-avatar-container,
+.banner-avatars {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.avatar-card {
+  width: 76px;
+  height: 84px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px;
+  position: relative;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.avatar-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-highlight);
+}
+
+.avatar-card.th-avatar-card {
+  border-color: rgba(245, 158, 11, 0.3);
+  background: radial-gradient(circle at 50% 30%, rgba(245, 158, 11, 0.08), var(--bg-surface));
+}
+
+.avatar-img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
+}
+
+.th-building-img {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+}
+
+.avatar-sub-text {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  text-align: center;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pill-th-badge {
+  color: var(--clash-gold);
+  background: var(--clash-gold-subtle);
+  padding: 1px 6px;
+  border-radius: var(--radius-xs);
+}
+
 .clan-badge-container {
   width: 76px;
   height: 76px;
@@ -533,11 +594,11 @@ body.bg-video-mode .bg-overlay {
   flex-shrink: 0;
 }
 
-.league-badge,
 .clan-badge-img {
-  width: 62px;
-  height: 62px;
+  width: 64px;
+  height: 64px;
   object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
 }
 
 .profile-core-info {
@@ -782,7 +843,7 @@ body.bg-video-mode .bg-overlay {
   transition: width 0.4s ease;
 }
 
-/* ==================== HERO ARMORY ==================== */
+/* ==================== HERO ARMORY & EQUIPMENT ==================== */
 .armory-section,
 .builder-village-section {
   background: var(--bg-surface);
@@ -801,14 +862,15 @@ body.bg-video-mode .bg-overlay {
   align-items: center;
 }
 
-.armory-title-wrap {
+.armory-title-wrap,
+.builder-title-group {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
 .armory-title-wrap h3,
-.builder-header h3 {
+.builder-title-group h3 {
   font-size: 0.85rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -864,10 +926,31 @@ body.bg-video-mode .bg-overlay {
   color: var(--clash-gold);
 }
 
+/* Builder Body */
+.builder-body {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.bh-avatar-card {
+  width: 76px;
+  height: 84px;
+  background: radial-gradient(circle at 50% 30%, rgba(16, 185, 129, 0.08), var(--bg-surface-elevated));
+  border-color: rgba(16, 185, 129, 0.3);
+  flex-shrink: 0;
+}
+
+.bh-building-img {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+}
+
 /* Armory Card Grid */
 .armory-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
   gap: 10px;
 }
 
@@ -875,25 +958,54 @@ body.bg-video-mode .bg-overlay {
   background: var(--bg-surface-elevated);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
-  padding: 10px 12px;
+  padding: 8px 10px;
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  transition: border-color 0.15s;
+  align-items: center;
+  gap: 10px;
+  transition: border-color 0.15s, transform 0.15s;
 }
 
 .hero-slot-card:hover {
   border-color: var(--border-default);
+  transform: translateY(-1.5px);
+}
+
+.hero-thumb-box {
+  width: 44px;
+  height: 44px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.hero-thumb-img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.hero-slot-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
 }
 
 .hero-slot-head {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
+  gap: 4px;
 }
 
 .hero-slot-name {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 700;
   color: var(--text-primary);
   white-space: nowrap;
@@ -903,14 +1015,15 @@ body.bg-video-mode .bg-overlay {
 
 .hero-slot-level {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
   color: var(--clash-gold);
+  flex-shrink: 0;
 }
 
 .hero-level-track {
   width: 100%;
-  height: 5px;
+  height: 4px;
   background: var(--bg-surface);
   border-radius: var(--radius-xs);
   overflow: hidden;
@@ -927,14 +1040,13 @@ body.bg-video-mode .bg-overlay {
 }
 
 .hero-max-badge {
-  align-self: flex-end;
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 800;
   color: var(--accent-emerald);
   letter-spacing: 0.5px;
 }
 
-/* ==================== CLAN ROSTER TABLE (COMPLIANT WITH RESPONSIVE-TABLE) ==================== */
+/* ==================== CLAN ROSTER TABLE ==================== */
 .roster-section {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
@@ -1094,8 +1206,20 @@ body.bg-video-mode .bg-overlay {
 }
 
 .member-league-img {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.table-th-flex {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.table-th-icon {
+  width: 20px;
+  height: 20px;
   object-fit: contain;
 }
 
@@ -1166,21 +1290,6 @@ body.bg-video-mode .bg-overlay {
   100% { transform: scale(1.2); opacity: 1; }
 }
 
-/* ==================== ACCESSIBILITY & FORCED COLORS ==================== */
-@media (forced-colors: active) {
-  .site-header,
-  .search-console,
-  .profile-card,
-  .stat-module,
-  .hero-slot-card,
-  .roster-section {
-    border: 1px solid CanvasText;
-  }
-  .search-submit-btn {
-    border: 1px solid ButtonText;
-  }
-}
-
 /* ==================== RESPONSIVE ADJUSTMENTS ==================== */
 @media (max-width: 768px) {
   .dashboard-modules-grid {
@@ -1196,10 +1305,19 @@ body.bg-video-mode .bg-overlay {
     text-align: center;
   }
 
+  .banner-avatars {
+    justify-content: center;
+  }
+
   .title-line,
   .meta-badges-row,
   .official-labels-list {
     justify-content: center;
+  }
+
+  .builder-body {
+    flex-direction: column;
+    text-align: center;
   }
 
   .roster-header-row {

@@ -25,7 +25,9 @@ const elements = {
   copyPlayerTagBtn: document.getElementById("copyPlayerTagBtn"),
   sharePlayerBtn: document.getElementById("sharePlayerBtn"),
   playerLeagueBadge: document.getElementById("playerLeagueBadge"),
+  playerLeagueNameSub: document.getElementById("playerLeagueNameSub"),
   townHallBadge: document.getElementById("townHallBadge"),
+  playerTownHallImg: document.getElementById("playerTownHallImg"),
   playerRoleBadge: document.getElementById("playerRoleBadge"),
   playerWarPref: document.getElementById("playerWarPref"),
   playerClanChip: document.getElementById("playerClanChip"),
@@ -52,6 +54,8 @@ const elements = {
   equipmentGrid: document.getElementById("equipmentGrid"),
 
   builderBaseSection: document.getElementById("builderBaseSection"),
+  builderHallImg: document.getElementById("builderHallImg"),
+  builderHallPill: document.getElementById("builderHallPill"),
   builderLeagueText: document.getElementById("builderLeagueText"),
   builderHallLevel: document.getElementById("builderHallLevel"),
   builderBaseTrophies: document.getElementById("builderBaseTrophies"),
@@ -297,21 +301,65 @@ if (elements.heroTabHeroes && elements.heroTabEquip) {
   });
 }
 
-function createArmorySlot(name, level, maxLevel) {
+// Asset URL Helpers (Town Hall, Builder Hall, Heroes, Equipment)
+function getTownHallImg(level) {
+  const lvl = Math.max(1, Math.min(18, parseInt(level, 10) || 1));
+  return `https://assets.clashk.ing/buildings/home-village/town_hall/level_${lvl}.webp`;
+}
+
+function getBuilderHallImg(level) {
+  const lvl = Math.max(1, Math.min(10, parseInt(level, 10) || 1));
+  return `https://assets.clashk.ing/buildings/builder-base/builder_hall/level_${lvl}.webp`;
+}
+
+function getHeroIcon(name) {
+  if (!name) return "/assets/barbarian-temp.svg";
+  const map = {
+    "barbarian king": "barbarian_king",
+    "archer queen": "archer_queen",
+    "grand warden": "grand_warden",
+    "royal champion": "royal_champion",
+    "minion prince": "minion_prince",
+    "dragon duke": "dragon_duke",
+    "battle machine": "battle_machine",
+    "battle copter": "battle_copter",
+  };
+  const key = map[name.toLowerCase().trim()] || name.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  return `https://assets.clashk.ing/heroes/${key}/icon.webp`;
+}
+
+function getEquipmentIcon(name) {
+  if (!name) return "/assets/barbarian-temp.svg";
+  const key = name.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  return `https://assets.clashk.ing/equipment/${key}.webp`;
+}
+
+function createArmorySlot(name, level, maxLevel, iconUrl) {
   const isMax = level >= maxLevel;
   const pct = Math.min(100, Math.round((level / (maxLevel || 1)) * 100));
 
   const card = document.createElement("div");
   card.className = "hero-slot-card";
   card.innerHTML = `
-    <div class="hero-slot-head">
-      <span class="hero-slot-name" title="${name}">${name}</span>
-      <span class="hero-slot-level">Lv ${level} <small style="color:var(--text-muted);font-weight:400;">/ ${maxLevel}</small></span>
+    <div class="hero-thumb-box">
+      <img
+        class="hero-thumb-img"
+        src="${iconUrl}"
+        alt="${name}"
+        loading="lazy"
+        onerror="this.onerror=null; this.src='/assets/barbarian-temp.svg';"
+      />
     </div>
-    <div class="hero-level-track">
-      <div class="hero-level-fill ${isMax ? "maxed" : ""}" style="width: ${pct}%;"></div>
+    <div class="hero-slot-info">
+      <div class="hero-slot-head">
+        <span class="hero-slot-name" title="${name}">${name}</span>
+        <span class="hero-slot-level">Lv ${level} <small style="color:var(--text-muted);font-weight:400;">/ ${maxLevel}</small></span>
+      </div>
+      <div class="hero-level-track">
+        <div class="hero-level-fill ${isMax ? "maxed" : ""}" style="width: ${pct}%;"></div>
+      </div>
+      ${isMax ? '<span class="hero-max-badge">MAX</span>' : ""}
     </div>
-    ${isMax ? '<span class="hero-max-badge">MAX</span>' : ""}
   `;
   return card;
 }
@@ -331,11 +379,11 @@ function renderArmory(heroes = [], equipment = []) {
     setText(elements.heroesCountText, `${homeHeroes.length} Heroes`);
 
     homeHeroes.forEach((h) => {
-      elements.heroesGrid.appendChild(createArmorySlot(h.name, h.level, h.maxLevel));
+      elements.heroesGrid.appendChild(createArmorySlot(h.name, h.level, h.maxLevel, getHeroIcon(h.name)));
     });
 
     equipment.forEach((eq) => {
-      elements.equipmentGrid.appendChild(createArmorySlot(eq.name, eq.level, eq.maxLevel));
+      elements.equipmentGrid.appendChild(createArmorySlot(eq.name, eq.level, eq.maxLevel, getEquipmentIcon(eq.name)));
     });
 
     // Default to Heroes
@@ -349,7 +397,7 @@ function renderArmory(heroes = [], equipment = []) {
   if (elements.builderHeroesGrid && builderHeroes.length > 0) {
     elements.builderHeroesGrid.style.display = "grid";
     builderHeroes.forEach((bh) => {
-      elements.builderHeroesGrid.appendChild(createArmorySlot(bh.name, bh.level, bh.maxLevel));
+      elements.builderHeroesGrid.appendChild(createArmorySlot(bh.name, bh.level, bh.maxLevel, getHeroIcon(bh.name)));
     });
   } else if (elements.builderHeroesGrid) {
     elements.builderHeroesGrid.style.display = "none";
@@ -364,16 +412,22 @@ function renderPlayer(p) {
   elements.copyPlayerTagBtn.onclick = () => copyToClipboard(p.tag, "Player Tag");
   elements.sharePlayerBtn.onclick = () => shareLink("player", p.tag, p.name);
 
-  // League icon
+  // League icon & text
   if (p.league && p.league.iconUrl) {
     elements.playerLeagueBadge.src = p.league.iconUrl;
     elements.playerLeagueBadge.title = p.league.name;
+    setText(elements.playerLeagueNameSub, p.league.name);
   } else {
     elements.playerLeagueBadge.src = "/assets/trophy-temp.svg";
     elements.playerLeagueBadge.title = "Unranked";
+    setText(elements.playerLeagueNameSub, "Unranked");
   }
 
-  // Meta pills
+  // Town Hall building image & meta pill
+  if (elements.playerTownHallImg) {
+    elements.playerTownHallImg.src = getTownHallImg(p.townHallLevel);
+    elements.playerTownHallImg.alt = `Town Hall ${p.townHallLevel || 1}`;
+  }
   const thText = p.townHallWeaponLevel
     ? `TH ${p.townHallLevel} ⭐${p.townHallWeaponLevel}`
     : `TH ${p.townHallLevel}`;
@@ -434,6 +488,11 @@ function renderPlayer(p) {
   // Builder Base
   if (p.builderHallLevel) {
     elements.builderBaseSection.style.display = "flex";
+    if (elements.builderHallImg) {
+      elements.builderHallImg.src = getBuilderHallImg(p.builderHallLevel);
+      elements.builderHallImg.alt = `Builder Hall ${p.builderHallLevel}`;
+    }
+    setText(elements.builderHallPill, `BH ${p.builderHallLevel}`);
     setText(elements.builderLeagueText, p.builderBaseLeague || "Builder Base");
     setText(elements.builderHallLevel, `BH ${p.builderHallLevel}`);
     setText(elements.builderBaseTrophies, `${p.builderBaseTrophies?.toLocaleString() || 0}`);
@@ -537,6 +596,9 @@ function updateRosterTable() {
       const icon = m.leagueIcon
         ? `<img class="member-league-img" src="${m.leagueIcon}" alt="" />`
         : "";
+      const thImg = m.townHallLevel
+        ? `<img class="table-th-icon" src="${getTownHallImg(m.townHallLevel)}" alt="TH ${m.townHallLevel}" loading="lazy" />`
+        : "";
       return `
         <tr class="member-row-clickable" data-tag="${m.tag}">
           <td style="font-weight:700;color:var(--text-tertiary);">${m.clanRank || idx + 1}</td>
@@ -547,7 +609,12 @@ function updateRosterTable() {
             </div>
           </td>
           <td><span class="pill-role">${formatRole(m.role)}</span></td>
-          <td><span class="pill-th">TH ${m.townHallLevel || "-"}</span></td>
+          <td>
+            <div class="table-th-flex">
+              ${thImg}
+              <span class="pill-th">TH ${m.townHallLevel || "-"}</span>
+            </div>
+          </td>
           <td style="font-weight:700;font-family:var(--font-mono);">${m.trophies?.toLocaleString() || 0}</td>
           <td style="font-family:var(--font-mono);">${m.donations?.toLocaleString() || 0}</td>
         </tr>
