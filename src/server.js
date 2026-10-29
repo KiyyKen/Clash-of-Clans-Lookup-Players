@@ -12,38 +12,65 @@ const COC_API_KEY = process.env.COC_API_KEY;
 // Serve static files (HTML/CSS/JS) from the public folder
 app.use(express.static(path.join(__dirname, "..", "public")));
 
-// Small helper to validate Clash of Clans player tag format
+// In-memory cache to reduce rate limits and speed up repeat queries
+const memoryCache = new Map();
+const CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes TTL
+
+function getFromCache(key) {
+  const cached = memoryCache.get(key);
+  if (!cached) return null;
+  if (Date.now() > cached.expiresAt) {
+    memoryCache.delete(key);
+    return null;
+  }
+  return cached.data;
+}
+
+function saveToCache(key, data, ttl = CACHE_TTL_MS) {
+  memoryCache.set(key, {
+    data,
+    expiresAt: Date.now() + ttl,
+  });
+}
+
+// Small helper to validate Clash of Clans tag format
 function isValidTag(tag) {
   // Valid chars in COC tag: #, uppercase letters, and numbers from this set
   return /^#?[0289PYLQGRJCUV]+$/i.test(tag);
 }
 
 function normalizeTag(tag) {
-  return tag.startsWith("#") ? tag : `#${tag}`;
+  return tag.startsWith("#") ? tag.toUpperCase() : `#${tag.toUpperCase()}`;
 }
 
 async function fetchFromClashApi(pathname) {
-  return axios.get(`https://api.clashofclans.com/v1${pathname}`, {
+  const cachedData = getFromCache(pathname);
+  if (cachedData) {
+    return { data: cachedData, fromCache: true };
+  }
+
+  const response = await axios.get(`https://api.clashofclans.com/v1${pathname}`, {
     headers: {
       Authorization: `Bearer ${COC_API_KEY}`,
     },
     timeout: 10000,
   });
+
+  saveToCache(pathname, response.data);
+  return { data: response.data, fromCache: false };
 }
 
-// Shared handler so we can support both:
-// - GET /player/:tag   (as requested in assignment)
-// - GET /players/:tag  (looks closer to Clash API naming)
+// Shared handler for player lookup:
+// - GET /player/:tag
+// - GET /players/:tag
 async function handlePlayerLookup(req, res) {
   const rawTag = req.params.tag;
-
-  // Add # if user did not include it
   const normalizedTag = normalizeTag(rawTag);
 
   // Validate before calling external API
   if (!isValidTag(normalizedTag)) {
     return res.status(400).json({
-      error: "Invalid player tag format.",
+      error: "Format player tag tidak valid. Karakter yang diperbolehkan: 0, 2, 8, 9, P, Y, L, Q, G, R, J, C, U, V.",
     });
   }
 
@@ -55,48 +82,99 @@ async function handlePlayerLookup(req, res) {
   }
 
   try {
-    // Clash API needs URL-encoded tag: # becomes %23
     const encodedTag = encodeURIComponent(normalizedTag);
     const response = await fetchFromClashApi(`/players/${encodedTag}`);
-
     const player = response.data;
 
-    // Send only fields needed by the frontend
+    // Send rich data to frontend
     return res.json({
+      tag: player.tag,
       name: player.name,
       expLevel: player.expLevel,
       townHallLevel: player.townHallLevel,
+      townHallWeaponLevel: player.townHallWeaponLevel || null,
       trophies: player.trophies,
       bestTrophies: player.bestTrophies,
       warStars: player.warStars,
+      attackWins: player.attackWins ?? 0,
+      defenseWins: player.defenseWins ?? 0,
+      builderHallLevel: player.builderHallLevel || null,
+      builderBaseTrophies: player.builderBaseTrophies ?? null,
+      bestBuilderBaseTrophies: player.bestBuilderBaseTrophies ?? null,
+      donations: player.donations ?? 0,
+      donationsReceived: player.donationsReceived ?? 0,
+      clanCapitalContributions: player.clanCapitalContributions ?? 0,
+      role: player.role || null,
+      warPreference: player.warPreference || null,
       clanName: player.clan ? player.clan.name : null,
       clanTag: player.clan ? player.clan.tag : null,
+      clanLevel: player.clan ? player.clan.clanLevel : null,
+      clanBadgeUrl:
+        player.clan && player.clan.badgeUrls
+          ? player.clan.badgeUrls.medium || player.clan.badgeUrls.small
+          : null,
+      league: player.league
+        ? {
+            name: player.league.name,
+            iconUrl: player.league.iconUrls
+              ? player.league.iconUrls.medium || player.league.iconUrls.small
+              : null,
+          }
+        : player.leagueTier
+        ? {
+            name: player.leagueTier.name,
+            iconUrl: player.leagueTier.iconUrls
+              ? player.leagueTier.iconUrls.small || player.leagueTier.iconUrls.large
+              : null,
+          }
+        : null,
+      builderBaseLeague: player.builderBaseLeague ? player.builderBaseLeague.name : null,
+      heroes: (player.heroes || []).map((h) => ({
+        name: h.name,
+        level: h.level,
+        maxLevel: h.maxLevel,
+        village: h.village,
+      })),
+      heroEquipment: (player.heroEquipment || []).map((eq) => ({
+        name: eq.name,
+        level: eq.level,
+        maxLevel: eq.maxLevel,
+        village: eq.village,
+      })),
+      labels: (player.labels || []).map((l) => ({
+        name: l.name,
+        iconUrl: l.iconUrls ? l.iconUrls.medium || l.iconUrls.small : null,
+      })),
     });
   } catch (error) {
-    // Handle known API error responses
     if (error.response) {
       const status = error.response.status;
 
       if (status === 404) {
         return res.status(404).json({
-          error: "Player not found. Check the player tag.",
+          error: "Pemain tidak ditemukan. Pastikan player tag sudah benar.",
         });
       }
 
       if (status === 403) {
         return res.status(403).json({
-          error: "Access denied by Clash API. Check your API key or allowed IP.",
+          error: "Akses ditolak oleh Supercell API (403). Periksa API key atau Allowed IP di portal developer.",
+        });
+      }
+
+      if (status === 503) {
+        return res.status(503).json({
+          error: "Server Clash of Clans sedang dalam pemeliharaan (Maintenance Break).",
         });
       }
 
       return res.status(status).json({
-        error: "Clash API returned an error.",
+        error: error.response.data?.message || "Clash of Clans API mengalami kendala.",
       });
     }
 
-    // Handle network/timeout/unexpected errors
     return res.status(500).json({
-      error: "Failed to fetch player data. Please try again.",
+      error: "Gagal mengambil data pemain. Silakan coba beberapa saat lagi.",
     });
   }
 }
@@ -108,7 +186,7 @@ async function handleClanLookup(req, res) {
 
   if (!isValidTag(normalizedTag)) {
     return res.status(400).json({
-      error: "Invalid clan tag format.",
+      error: "Format clan tag tidak valid.",
     });
   }
 
@@ -124,14 +202,33 @@ async function handleClanLookup(req, res) {
     const clan = response.data;
 
     return res.json({
-      name: clan.name,
       tag: clan.tag,
+      name: clan.name,
+      type: clan.type,
+      description: clan.description || null,
       clanLevel: clan.clanLevel,
+      clanPoints: clan.clanPoints,
+      clanBuilderBasePoints: clan.clanBuilderBasePoints || 0,
+      clanCapitalPoints: clan.clanCapitalPoints || 0,
+      capitalHallLevel: clan.clanCapital ? clan.clanCapital.capitalHallLevel : null,
       members: clan.members,
+      requiredTrophies: clan.requiredTrophies ?? 0,
+      requiredTownhallLevel: clan.requiredTownhallLevel ?? null,
+      warFrequency: clan.warFrequency || null,
+      warWinStreak: clan.warWinStreak ?? 0,
+      warWins: clan.warWins ?? 0,
+      warTies: clan.warTies ?? 0,
+      warLosses: clan.warLosses ?? 0,
+      isWarLogPublic: clan.isWarLogPublic ?? false,
       warLeague: clan.warLeague ? clan.warLeague.name : null,
       location: clan.location ? clan.location.name : null,
-      description: clan.description || null,
-      badgeUrl: clan.badgeUrls ? clan.badgeUrls.medium : null,
+      badgeUrl: clan.badgeUrls
+        ? clan.badgeUrls.large || clan.badgeUrls.medium || clan.badgeUrls.small
+        : null,
+      labels: (clan.labels || []).map((l) => ({
+        name: l.name,
+        iconUrl: l.iconUrls ? l.iconUrls.medium || l.iconUrls.small : null,
+      })),
     });
   } catch (error) {
     if (error.response) {
@@ -139,23 +236,29 @@ async function handleClanLookup(req, res) {
 
       if (status === 404) {
         return res.status(404).json({
-          error: "Clan not found. Check the clan tag.",
+          error: "Clan tidak ditemukan. Pastikan clan tag sudah benar.",
         });
       }
 
       if (status === 403) {
         return res.status(403).json({
-          error: "Access denied by Clash API. Check your API key or allowed IP.",
+          error: "Akses ditolak oleh Supercell API (403). Periksa API key atau Allowed IP.",
+        });
+      }
+
+      if (status === 503) {
+        return res.status(503).json({
+          error: "Server Clash of Clans sedang dalam pemeliharaan (Maintenance Break).",
         });
       }
 
       return res.status(status).json({
-        error: "Clash API returned an error.",
+        error: error.response.data?.message || "Clash of Clans API mengalami kendala.",
       });
     }
 
     return res.status(500).json({
-      error: "Failed to fetch clan data. Please try again.",
+      error: "Gagal mengambil data clan. Silakan coba beberapa saat lagi.",
     });
   }
 }
@@ -167,7 +270,7 @@ async function handleClanMembersLookup(req, res) {
 
   if (!isValidTag(normalizedTag)) {
     return res.status(400).json({
-      error: "Invalid clan tag format.",
+      error: "Format clan tag tidak valid.",
     });
   }
 
@@ -189,9 +292,18 @@ async function handleClanMembersLookup(req, res) {
         name: member.name,
         tag: member.tag,
         role: member.role,
+        clanRank: member.clanRank,
+        townHallLevel: member.townHallLevel,
         expLevel: member.expLevel,
         trophies: member.trophies,
         builderBaseTrophies: member.builderBaseTrophies,
+        donations: member.donations ?? 0,
+        donationsReceived: member.donationsReceived ?? 0,
+        leagueIcon:
+          member.league?.iconUrls?.small ||
+          member.leagueTier?.iconUrls?.small ||
+          null,
+        leagueName: member.league?.name || member.leagueTier?.name || null,
       })),
     });
   } catch (error) {
@@ -200,44 +312,39 @@ async function handleClanMembersLookup(req, res) {
 
       if (status === 404) {
         return res.status(404).json({
-          error: "Clan members not found. Check the clan tag.",
+          error: "Anggota clan tidak ditemukan. Pastikan clan tag sudah benar.",
         });
       }
 
       if (status === 403) {
         return res.status(403).json({
-          error: "Access denied by Clash API. Check your API key or allowed IP.",
+          error: "Akses ditolak oleh Supercell API (403). Periksa API key atau Allowed IP.",
         });
       }
 
       return res.status(status).json({
-        error: "Clash API returned an error.",
+        error: error.response.data?.message || "Clash of Clans API mengalami kendala.",
       });
     }
 
     return res.status(500).json({
-      error: "Failed to fetch clan members. Please try again.",
+      error: "Gagal mengambil daftar anggota clan. Silakan coba beberapa saat lagi.",
     });
   }
 }
 
 // GET /player/:tag
-// Example: /player/%2390ABC123
+// Example: /player/%2398R828VJ
 app.get("/player/:tag", handlePlayerLookup);
-
-// Optional alias route
 app.get("/players/:tag", handlePlayerLookup);
 
 // GET /clan/:tag
+// Example: /clan/%232PP
 app.get("/clan/:tag", handleClanLookup);
-
-// Optional alias route
 app.get("/clans/:tag", handleClanLookup);
 
 // GET /clan/:tag/members
 app.get("/clan/:tag/members", handleClanMembersLookup);
-
-// Optional alias route
 app.get("/clans/:tag/members", handleClanMembersLookup);
 
 // Start server only when this file is run directly

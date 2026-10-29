@@ -1,44 +1,637 @@
-// Cache DOM elements once so we do not query repeatedly
+// Cache DOM elements
 const elements = {
+  // Tabs & Search Input
+  tabPlayer: document.getElementById("tabPlayer"),
+  tabClan: document.getElementById("tabClan"),
   tagInput: document.getElementById("tagInput"),
+  clearInputBtn: document.getElementById("clearInputBtn"),
   fetchButton: document.getElementById("fetchBtn"),
   errorMessage: document.getElementById("errorMessage"),
-  playerCard: document.getElementById("resultCard"),
-  clanCard: document.getElementById("clanCard"),
+  sampleChips: document.querySelectorAll(".sample-chip"),
 
+  // Recent Searches
+  recentContainer: document.getElementById("recentContainer"),
+  recentChips: document.getElementById("recentChips"),
+  clearRecentBtn: document.getElementById("clearRecentBtn"),
+
+  // Player Card
+  playerCard: document.getElementById("resultCard"),
   playerName: document.getElementById("playerName"),
+  playerTagText: document.getElementById("playerTagText"),
+  copyPlayerTagBtn: document.getElementById("copyPlayerTagBtn"),
+  playerLeagueBadge: document.getElementById("playerLeagueBadge"),
+  playerRoleBadge: document.getElementById("playerRoleBadge"),
+  playerClanChip: document.getElementById("playerClanChip"),
+  playerClanBadgeMini: document.getElementById("playerClanBadgeMini"),
+  playerClanNameText: document.getElementById("playerClanNameText"),
+  playerWarPref: document.getElementById("playerWarPref"),
+  playerLabelsContainer: document.getElementById("playerLabelsContainer"),
+
   townHallLevel: document.getElementById("townHallLevel"),
   trophies: document.getElementById("trophies"),
   bestTrophies: document.getElementById("bestTrophies"),
   warStars: document.getElementById("warStars"),
   expLevel: document.getElementById("expLevel"),
-  clanName: document.getElementById("clanName"),
+  attackWins: document.getElementById("attackWins"),
+  defenseWins: document.getElementById("defenseWins"),
+  donationRatio: document.getElementById("donationRatio"),
+  clanCapitalPoints: document.getElementById("clanCapitalPoints"),
 
+  heroesSection: document.getElementById("heroesSection"),
+  heroesGrid: document.getElementById("heroesGrid"),
+
+  builderBaseSection: document.getElementById("builderBaseSection"),
+  builderHallLevel: document.getElementById("builderHallLevel"),
+  builderBaseTrophies: document.getElementById("builderBaseTrophies"),
+  bestBuilderBaseTrophies: document.getElementById("bestBuilderBaseTrophies"),
+
+  // Clan Card
+  clanCard: document.getElementById("clanCard"),
   clanBadge: document.getElementById("clanBadge"),
   clanDataName: document.getElementById("clanDataName"),
   clanDataTag: document.getElementById("clanDataTag"),
+  copyClanTagBtn: document.getElementById("copyClanTagBtn"),
+  clanTypeBadge: document.getElementById("clanTypeBadge"),
+  clanLocationBadge: document.getElementById("clanLocationBadge"),
+  clanWarLeagueBadge: document.getElementById("clanWarLeagueBadge"),
+  clanDescription: document.getElementById("clanDescription"),
+  clanLabelsContainer: document.getElementById("clanLabelsContainer"),
+
   clanLevel: document.getElementById("clanLevel"),
+  clanPoints: document.getElementById("clanPoints"),
   clanMembers: document.getElementById("clanMembers"),
-  warLeague: document.getElementById("warLeague"),
-  clanLocation: document.getElementById("clanLocation"),
+  warWinStreak: document.getElementById("warWinStreak"),
+  warRecord: document.getElementById("warRecord"),
+  capitalHallLevel: document.getElementById("capitalHallLevel"),
+  requiredTrophies: document.getElementById("requiredTrophies"),
+  warFrequency: document.getElementById("warFrequency"),
+
   membersStatus: document.getElementById("membersStatus"),
   membersTableBody: document.getElementById("membersTableBody"),
+
+  // Background & Media
   backgroundImage: document.getElementById("backgroundImage"),
   backgroundVideo: document.getElementById("backgroundVideo"),
   modeButtons: document.querySelectorAll(".mode-btn[data-mode]"),
   soundToggleButton: document.getElementById("soundToggleBtn"),
+
+  // Toast
+  toast: document.getElementById("toast"),
 };
 
-const DEFAULT_BUTTON_TEXT = "Fetch Player";
-const DEFAULT_CLAN_BADGE = "/assets/clan-temp.svg";
+// State
+let activeTab = "player"; // "player" | "clan"
+const RECENT_KEY = "coc_recent_searches_v2";
 const BACKGROUND_STORAGE_KEY = "coc-background-mode";
 const AVAILABLE_BACKGROUND_MODES = ["gradient", "image", "video"];
 
-// Small helper for cleaner text assignment
+// Helper: Safely format values
 function setText(element, value, fallback = "-") {
-  element.textContent = value ?? fallback;
+  if (element) {
+    element.textContent = value !== null && value !== undefined && value !== "" ? value : fallback;
+  }
 }
 
+// Show toast alert
+let toastTimer = null;
+function showToast(message) {
+  if (!elements.toast) return;
+  elements.toast.textContent = message;
+  elements.toast.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    elements.toast.classList.remove("show");
+  }, 2500);
+}
+
+// Copy to clipboard helper
+async function copyToClipboard(text, entityType = "Tag") {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+    } else {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+    }
+    showToast(`${entityType} (${text}) berhasil disalin! 📋`);
+  } catch (err) {
+    showToast(`Gagal menyalin: ${text}`);
+  }
+}
+
+// Format Role string
+function formatRole(role) {
+  const map = {
+    member: "Member",
+    admin: "Elder",
+    coLeader: "Co-Leader",
+    leader: "Leader",
+  };
+  return map[role] || role || "Member";
+}
+
+// Format Clan Type
+function formatClanType(type) {
+  const map = {
+    open: "Open",
+    inviteOnly: "Invite Only",
+    closed: "Closed",
+  };
+  return map[type] || type || "Public";
+}
+
+// Format War Frequency
+function formatWarFrequency(freq) {
+  const map = {
+    always: "Always",
+    moreThanOnceAWeek: "2x seminggu",
+    onceAWeek: "1x seminggu",
+    lessThanOnceAWeek: "Jarang",
+    never: "Never",
+    unknown: "Tidak diketahui",
+  };
+  return map[freq] || freq || "-";
+}
+
+// Tab Switcher
+function setActiveTab(tab) {
+  activeTab = tab;
+  if (tab === "player") {
+    elements.tabPlayer.classList.add("active");
+    elements.tabClan.classList.remove("active");
+    elements.tagInput.placeholder = "Contoh: 98R828VJ";
+    elements.fetchButton.querySelector(".btn-text").textContent = "Cari Player";
+  } else {
+    elements.tabClan.classList.add("active");
+    elements.tabPlayer.classList.remove("active");
+    elements.tagInput.placeholder = "Contoh: 2PP";
+    elements.fetchButton.querySelector(".btn-text").textContent = "Cari Clan";
+  }
+  elements.tagInput.focus();
+}
+
+elements.tabPlayer.addEventListener("click", () => setActiveTab("player"));
+elements.tabClan.addEventListener("click", () => setActiveTab("clan"));
+
+// Input clear button toggle
+elements.tagInput.addEventListener("input", () => {
+  elements.clearInputBtn.classList.toggle("visible", elements.tagInput.value.length > 0);
+});
+
+elements.clearInputBtn.addEventListener("click", () => {
+  elements.tagInput.value = "";
+  elements.clearInputBtn.classList.remove("visible");
+  elements.tagInput.focus();
+});
+
+// Loading state
+function toggleLoading(isLoading) {
+  elements.fetchButton.disabled = isLoading;
+  const btnText = elements.fetchButton.querySelector(".btn-text");
+  if (isLoading) {
+    btnText.innerHTML = '<span class="loading-dot"></span>Memuat...';
+  } else {
+    btnText.textContent = activeTab === "player" ? "Cari Player" : "Cari Clan";
+  }
+}
+
+// Error state
+function showError(msg) {
+  if (msg) {
+    elements.errorMessage.textContent = msg;
+    elements.errorMessage.classList.add("show");
+  } else {
+    elements.errorMessage.textContent = "";
+    elements.errorMessage.classList.remove("show");
+  }
+}
+
+// Reset views
+function resetViews() {
+  showError("");
+  elements.playerCard.classList.remove("show");
+  elements.clanCard.classList.remove("show");
+}
+
+// Request Helper
+async function requestApi(url) {
+  const response = await fetch(url);
+  const data = await response.json();
+  return { response, data };
+}
+
+// Render Labels
+function renderLabels(container, labels = []) {
+  container.innerHTML = "";
+  if (!labels || labels.length === 0) {
+    container.style.display = "none";
+    return;
+  }
+  container.style.display = "flex";
+  labels.forEach((l) => {
+    const badge = document.createElement("div");
+    badge.className = "label-badge";
+    if (l.iconUrl) {
+      const img = document.createElement("img");
+      img.className = "label-icon";
+      img.src = l.iconUrl;
+      img.alt = l.name;
+      badge.appendChild(img);
+    }
+    const txt = document.createElement("span");
+    txt.textContent = l.name;
+    badge.appendChild(txt);
+    container.appendChild(badge);
+  });
+}
+
+// Render Heroes
+function renderHeroes(heroes = []) {
+  elements.heroesGrid.innerHTML = "";
+  const homeHeroes = heroes.filter((h) => h.village === "home" || !h.village);
+  if (!homeHeroes.length) {
+    elements.heroesSection.style.display = "none";
+    return;
+  }
+  elements.heroesSection.style.display = "flex";
+
+  homeHeroes.forEach((h) => {
+    const isMax = h.level >= h.maxLevel;
+    const percent = Math.min(100, Math.round((h.level / (h.maxLevel || 1)) * 100));
+
+    const card = document.createElement("div");
+    card.className = "hero-card";
+    card.innerHTML = `
+      <div class="hero-card-head">
+        <span class="hero-name">${h.name}</span>
+        <span class="hero-level-text">Lv ${h.level} / ${h.maxLevel}</span>
+      </div>
+      <div class="hero-bar-bg">
+        <div class="hero-bar-fill ${isMax ? "maxed" : ""}" style="width: ${percent}%;"></div>
+      </div>
+      ${isMax ? '<div style="display:flex;justify-content:flex-end;"><span class="hero-max-badge">MAXED</span></div>' : ""}
+    `;
+    elements.heroesGrid.appendChild(card);
+  });
+}
+
+// Render Player Profile
+function renderPlayer(p) {
+  setText(elements.playerName, p.name);
+  setText(elements.playerTagText, p.tag);
+
+  elements.copyPlayerTagBtn.onclick = () => copyToClipboard(p.tag, "Player Tag");
+
+  // League icon
+  if (p.league && p.league.iconUrl) {
+    elements.playerLeagueBadge.src = p.league.iconUrl;
+    elements.playerLeagueBadge.title = p.league.name;
+  } else {
+    elements.playerLeagueBadge.src = "/assets/trophy-temp.svg";
+    elements.playerLeagueBadge.title = "Unranked";
+  }
+
+  // Role & War Preference
+  setText(elements.playerRoleBadge, formatRole(p.role));
+  elements.playerRoleBadge.style.display = p.role ? "inline-flex" : "none";
+
+  if (p.warPreference) {
+    elements.playerWarPref.textContent = p.warPreference === "in" ? "Wars: IN ✅" : "Wars: OUT ❌";
+    elements.playerWarPref.style.display = "inline-flex";
+  } else {
+    elements.playerWarPref.style.display = "none";
+  }
+
+  // Clan chip
+  if (p.clanName) {
+    elements.playerClanChip.style.display = "inline-flex";
+    setText(elements.playerClanNameText, p.clanName);
+    elements.playerClanBadgeMini.src = p.clanBadgeUrl || "/assets/clan-temp.svg";
+    elements.playerClanChip.style.cursor = "pointer";
+    elements.playerClanChip.onclick = () => {
+      if (p.clanTag) {
+        setActiveTab("clan");
+        elements.tagInput.value = p.clanTag.replace(/^#/, "");
+        searchClan(p.clanTag);
+      }
+    };
+  } else {
+    elements.playerClanChip.style.display = "none";
+  }
+
+  // Labels
+  renderLabels(elements.playerLabelsContainer, p.labels);
+
+  // Stats Grid
+  const thDisplay = p.townHallWeaponLevel
+    ? `TH ${p.townHallLevel} ⭐${p.townHallWeaponLevel}`
+    : `TH ${p.townHallLevel}`;
+  setText(elements.townHallLevel, thDisplay);
+  setText(elements.trophies, `${p.trophies?.toLocaleString() || 0} 🏆`);
+  setText(elements.bestTrophies, `${p.bestTrophies?.toLocaleString() || 0} 🏆`);
+  setText(elements.warStars, `${p.warStars?.toLocaleString() || 0} ⭐`);
+  setText(elements.expLevel, p.expLevel);
+  setText(elements.attackWins, `${p.attackWins || 0} Menang`);
+  setText(elements.defenseWins, `${p.defenseWins || 0} Menang`);
+
+  const donated = p.donations?.toLocaleString() || "0";
+  const received = p.donationsReceived?.toLocaleString() || "0";
+  setText(elements.donationRatio, `${donated} / ${received}`);
+  setText(elements.clanCapitalPoints, p.clanCapitalContributions?.toLocaleString() || "0");
+
+  // Heroes
+  renderHeroes(p.heroes);
+
+  // Builder Base
+  if (p.builderHallLevel) {
+    elements.builderBaseSection.style.display = "flex";
+    setText(elements.builderHallLevel, `BH ${p.builderHallLevel}`);
+    setText(elements.builderBaseTrophies, `${p.builderBaseTrophies?.toLocaleString() || 0} 🏆`);
+    setText(elements.bestBuilderBaseTrophies, `${p.bestBuilderBaseTrophies?.toLocaleString() || 0} 🏆`);
+  } else {
+    elements.builderBaseSection.style.display = "none";
+  }
+
+  elements.playerCard.classList.add("show");
+  saveRecentSearch("player", p.tag, p.name);
+}
+
+// Render Clan Profile
+function renderClan(c) {
+  setText(elements.clanDataName, c.name);
+  setText(elements.clanDataTag, c.tag);
+
+  elements.copyClanTagBtn.onclick = () => copyToClipboard(c.tag, "Clan Tag");
+
+  elements.clanBadge.src = c.badgeUrl || "/assets/clan-temp.svg";
+  setText(elements.clanTypeBadge, formatClanType(c.type));
+  setText(elements.clanLocationBadge, c.location ? `📍 ${c.location}` : "📍 International");
+  setText(elements.clanWarLeagueBadge, c.warLeague ? `🏆 ${c.warLeague}` : "War League");
+
+  if (c.description) {
+    elements.clanDescription.textContent = `“${c.description}”`;
+    elements.clanDescription.style.display = "block";
+  } else {
+    elements.clanDescription.style.display = "none";
+  }
+
+  // Clan Labels
+  renderLabels(elements.clanLabelsContainer, c.labels);
+
+  // Clan Stats Grid
+  setText(elements.clanLevel, `Lv ${c.clanLevel}`);
+  setText(elements.clanPoints, `${c.clanPoints?.toLocaleString() || 0} 🏆`);
+  setText(elements.clanMembers, `${c.members} / 50`);
+  setText(elements.warWinStreak, `${c.warWinStreak || 0} Seri/Win`);
+  setText(elements.warRecord, `${c.warWins || 0}M / ${c.warLosses || 0}K / ${c.warTies || 0}S`);
+  setText(elements.capitalHallLevel, c.capitalHallLevel ? `CH ${c.capitalHallLevel}` : "-");
+  setText(elements.requiredTrophies, `${c.requiredTrophies?.toLocaleString() || 0} 🏆`);
+  setText(elements.warFrequency, formatWarFrequency(c.warFrequency));
+
+  elements.clanCard.classList.add("show");
+  saveRecentSearch("clan", c.tag, c.name);
+}
+
+// Render Clan Members Table
+function renderClanMembers(members = []) {
+  if (!members.length) {
+    elements.membersStatus.textContent = "Clan ini tidak memiliki data anggota.";
+    elements.membersTableBody.innerHTML =
+      '<tr><td colspan="6" class="members-empty">Tidak ada data anggota.</td></tr>';
+    return;
+  }
+
+  elements.membersStatus.textContent = `Total ${members.length} anggota clan:`;
+
+  const rows = members
+    .map((m, index) => {
+      const leagueImg = m.leagueIcon
+        ? `<img class="member-league-icon" src="${m.leagueIcon}" alt="League" />`
+        : "";
+      return `
+        <tr class="member-row-interactive" data-tag="${m.tag}" title="Klik untuk lihat profil ${m.name}">
+          <td>${m.clanRank || index + 1}</td>
+          <td>
+            <div class="member-name-cell">
+              ${leagueImg}
+              <span>${m.name}</span>
+            </div>
+          </td>
+          <td><span class="badge-role">${formatRole(m.role)}</span></td>
+          <td>TH ${m.townHallLevel || "-"}</td>
+          <td>${m.trophies?.toLocaleString() || 0}</td>
+          <td>${m.donations?.toLocaleString() || 0}</td>
+        </tr>
+      `;
+    })
+    .join("");
+
+  elements.membersTableBody.innerHTML = rows;
+
+  // Add click handler to all rows
+  elements.membersTableBody.querySelectorAll(".member-row-interactive").forEach((row) => {
+    row.addEventListener("click", () => {
+      const tag = row.dataset.tag;
+      if (tag) {
+        setActiveTab("player");
+        elements.tagInput.value = tag.replace(/^#/, "");
+        searchPlayer(tag);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    });
+  });
+}
+
+// Search Player
+async function searchPlayer(tag) {
+  resetViews();
+  toggleLoading(true);
+
+  try {
+    const { response, data } = await requestApi(`/player/${encodeURIComponent(tag)}`);
+    if (!response.ok) {
+      showError(data.error || "Gagal mengambil data pemain.");
+      return;
+    }
+    renderPlayer(data);
+
+    // If player has a clan, also prefetch clan profile
+    if (data.clanTag) {
+      fetchClanDataSilently(data.clanTag);
+    }
+  } catch (err) {
+    showError("Terjadi kesalahan jaringan. Cek koneksi Anda.");
+  } finally {
+    toggleLoading(false);
+  }
+}
+
+// Search Clan
+async function searchClan(tag) {
+  resetViews();
+  toggleLoading(true);
+
+  try {
+    const { response, data } = await requestApi(`/clan/${encodeURIComponent(tag)}`);
+    if (!response.ok) {
+      showError(data.error || "Gagal mengambil data clan.");
+      return;
+    }
+    renderClan(data);
+
+    // Fetch clan members
+    fetchClanMembers(tag);
+  } catch (err) {
+    showError("Terjadi kesalahan jaringan. Cek koneksi Anda.");
+  } finally {
+    toggleLoading(false);
+  }
+}
+
+async function fetchClanDataSilently(clanTag) {
+  try {
+    const { response, data } = await requestApi(`/clan/${encodeURIComponent(clanTag)}`);
+    if (response.ok) {
+      renderClan(data);
+      fetchClanMembers(clanTag);
+    }
+  } catch (err) {
+    // Clan error is silent when viewing player
+  }
+}
+
+async function fetchClanMembers(clanTag) {
+  try {
+    elements.membersStatus.textContent = "Memuat daftar anggota...";
+    const { response, data } = await requestApi(`/clan/${encodeURIComponent(clanTag)}/members`);
+    if (response.ok && data.members) {
+      renderClanMembers(data.members);
+    } else {
+      elements.membersStatus.textContent = "Gagal memuat daftar anggota.";
+    }
+  } catch (err) {
+    elements.membersStatus.textContent = "Gagal memuat daftar anggota.";
+  }
+}
+
+// Trigger Search from Input
+function triggerSearch() {
+  const val = elements.tagInput.value.trim();
+  if (!val) {
+    showError(activeTab === "player" ? "Masukkan player tag terlebih dahulu." : "Masukkan clan tag terlebih dahulu.");
+    return;
+  }
+
+  const normalized = val.startsWith("#") ? val : `#${val}`;
+  if (activeTab === "player") {
+    searchPlayer(normalized);
+  } else {
+    searchClan(normalized);
+  }
+}
+
+// Event Listeners for Search
+elements.fetchButton.addEventListener("click", triggerSearch);
+elements.tagInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    triggerSearch();
+  }
+});
+
+// Quick Samples
+elements.sampleChips.forEach((chip) => {
+  chip.addEventListener("click", () => {
+    const type = chip.dataset.type;
+    const tag = chip.dataset.tag;
+    setActiveTab(type);
+    elements.tagInput.value = tag.replace(/^#/, "");
+    elements.clearInputBtn.classList.add("visible");
+    if (type === "player") {
+      searchPlayer(tag);
+    } else {
+      searchClan(tag);
+    }
+  });
+});
+
+// Recent Searches Logic
+function loadRecentSearches() {
+  try {
+    const raw = localStorage.getItem(RECENT_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveRecentSearch(type, tag, name) {
+  let list = loadRecentSearches();
+  list = list.filter((item) => item.tag !== tag);
+  list.unshift({ type, tag, name, time: Date.now() });
+  if (list.length > 8) list.pop();
+  try {
+    localStorage.setItem(RECENT_KEY, JSON.stringify(list));
+    renderRecentSearches();
+  } catch (e) {}
+}
+
+function renderRecentSearches() {
+  const list = loadRecentSearches();
+  if (!list.length) {
+    elements.recentContainer.classList.add("hide");
+    return;
+  }
+  elements.recentContainer.classList.remove("hide");
+  elements.recentChips.innerHTML = "";
+
+  list.forEach((item) => {
+    const chip = document.createElement("div");
+    chip.className = "recent-chip";
+    const icon = item.type === "player" ? "👤" : "🛡️";
+    chip.innerHTML = `
+      <span>${icon} ${item.name || item.tag}</span>
+      <span class="recent-remove" title="Hapus">✕</span>
+    `;
+
+    chip.addEventListener("click", (e) => {
+      if (e.target.classList.contains("recent-remove")) {
+        e.stopPropagation();
+        deleteRecentSearch(item.tag);
+        return;
+      }
+      setActiveTab(item.type);
+      elements.tagInput.value = item.tag.replace(/^#/, "");
+      elements.clearInputBtn.classList.add("visible");
+      if (item.type === "player") {
+        searchPlayer(item.tag);
+      } else {
+        searchClan(item.tag);
+      }
+    });
+
+    elements.recentChips.appendChild(chip);
+  });
+}
+
+function deleteRecentSearch(tag) {
+  let list = loadRecentSearches();
+  list = list.filter((i) => i.tag !== tag);
+  localStorage.setItem(RECENT_KEY, JSON.stringify(list));
+  renderRecentSearches();
+}
+
+elements.clearRecentBtn.addEventListener("click", () => {
+  localStorage.removeItem(RECENT_KEY);
+  renderRecentSearches();
+});
+
+// Background Themes
 function activateBackgroundMode(mode) {
   const validMode = AVAILABLE_BACKGROUND_MODES.includes(mode) ? mode : "gradient";
 
@@ -50,7 +643,6 @@ function activateBackgroundMode(mode) {
 
   if (validMode === "video") {
     document.body.classList.add("bg-video-mode");
-    // Try to play video if browser blocks autoplay it will quietly fail.
     if (elements.backgroundVideo) {
       elements.backgroundVideo.play().catch(() => {});
     }
@@ -58,8 +650,8 @@ function activateBackgroundMode(mode) {
     elements.backgroundVideo.pause();
   }
 
-  elements.modeButtons.forEach((button) => {
-    button.classList.toggle("active", button.dataset.mode === validMode);
+  elements.modeButtons.forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.mode === validMode);
   });
 
   localStorage.setItem(BACKGROUND_STORAGE_KEY, validMode);
@@ -67,247 +659,38 @@ function activateBackgroundMode(mode) {
 }
 
 function updateSoundButtonLabel() {
-  if (!elements.soundToggleButton || !elements.backgroundVideo) {
-    return;
-  }
-
+  if (!elements.soundToggleButton || !elements.backgroundVideo) return;
   const isVideoMode = document.body.classList.contains("bg-video-mode");
   const isMuted = elements.backgroundVideo.muted;
 
-  // Keep button enabled in all modes so user can click once to switch to video + play with sound.
   elements.soundToggleButton.classList.toggle("sound-on", isVideoMode && !isMuted);
   elements.soundToggleButton.classList.toggle("visible", isVideoMode);
-  elements.soundToggleButton.setAttribute(
-    "aria-label",
-    isMuted ? "Unmute video background" : "Mute video background"
-  );
-  elements.soundToggleButton.setAttribute(
-    "title",
-    isMuted ? "Unmute video background" : "Mute video background"
-  );
-}
-
-// Best-effort check: some browsers expose audio metadata differently.
-function videoHasAudioTrack(videoElement) {
-  if (!videoElement) return false;
-
-  if (videoElement.mozHasAudio !== undefined) {
-    return videoElement.mozHasAudio;
-  }
-
-  if (videoElement.webkitAudioDecodedByteCount !== undefined) {
-    return videoElement.webkitAudioDecodedByteCount > 0;
-  }
-
-  if (videoElement.audioTracks && videoElement.audioTracks.length !== undefined) {
-    return videoElement.audioTracks.length > 0;
-  }
-
-  // If browser does not expose metadata, assume it may have audio.
-  return true;
 }
 
 async function toggleVideoSound() {
-  if (!elements.backgroundVideo) {
-    return;
-  }
-
-  // Browsers require direct user interaction before enabling sound.
+  if (!elements.backgroundVideo) return;
   if (!document.body.classList.contains("bg-video-mode")) {
     activateBackgroundMode("video");
   }
 
-  const shouldUnmute = elements.backgroundVideo.muted;
-  elements.backgroundVideo.muted = !shouldUnmute;
-  elements.backgroundVideo.volume = 1;
-
+  elements.backgroundVideo.muted = !elements.backgroundVideo.muted;
   try {
     await elements.backgroundVideo.play();
-    elements.errorMessage.textContent = "";
-    if (!elements.backgroundVideo.muted && !videoHasAudioTrack(elements.backgroundVideo)) {
-      elements.errorMessage.textContent =
-        "Video berjalan, tapi file bg.mp4 kemungkinan tidak punya audio track.";
-    }
-  } catch (error) {
-    // If playback fails, return to muted state for stability.
+  } catch (e) {
     elements.backgroundVideo.muted = true;
-    elements.errorMessage.textContent =
-      "Browser memblokir audio. Coba klik halaman dulu lalu tekan Unmute lagi.";
   }
-
   updateSoundButtonLabel();
 }
 
-function toggleLoadingState(isLoading) {
-  elements.fetchButton.disabled = isLoading;
-  elements.fetchButton.innerHTML = isLoading
-    ? '<span class="loading-dot"></span>Loading...'
-    : DEFAULT_BUTTON_TEXT;
-}
-
-function resetView() {
-  elements.errorMessage.textContent = "";
-  elements.playerCard.classList.remove("show");
-  elements.clanCard.classList.remove("show");
-  elements.clanBadge.src = DEFAULT_CLAN_BADGE;
-  elements.membersStatus.textContent = "No member data loaded.";
-  elements.membersTableBody.innerHTML =
-    '<tr><td colspan="4" class="members-empty">No members yet.</td></tr>';
-}
-
-function renderPlayer(playerData) {
-  setText(elements.playerName, playerData.name);
-  setText(elements.townHallLevel, playerData.townHallLevel);
-  setText(elements.trophies, playerData.trophies);
-  setText(elements.bestTrophies, playerData.bestTrophies);
-  setText(elements.warStars, playerData.warStars);
-  setText(elements.expLevel, playerData.expLevel);
-  setText(elements.clanName, playerData.clanName, "No clan");
-
-  elements.playerCard.classList.add("show");
-}
-
-function renderClan(clanData) {
-  setText(elements.clanDataName, clanData.name);
-  setText(elements.clanDataTag, clanData.tag);
-  setText(elements.clanLevel, clanData.clanLevel);
-  setText(elements.clanMembers, clanData.members);
-  setText(elements.warLeague, clanData.warLeague);
-  setText(elements.clanLocation, clanData.location);
-
-  elements.clanBadge.src = clanData.badgeUrl || DEFAULT_CLAN_BADGE;
-  elements.clanCard.classList.add("show");
-}
-
-function renderClanMembers(memberList) {
-  if (!memberList.length) {
-    elements.membersStatus.textContent = "This clan has no members.";
-    elements.membersTableBody.innerHTML =
-      '<tr><td colspan="4" class="members-empty">No members found.</td></tr>';
-    return;
-  }
-
-  elements.membersStatus.textContent = `Showing ${memberList.length} clan members.`;
-
-  const rows = memberList
-    .map((member, index) => {
-      return `
-        <tr>
-          <td>${index + 1}</td>
-          <td>${member.name || "-"}</td>
-          <td>${formatRoleLabel(member.role)}</td>
-          <td>${member.trophies ?? "-"}</td>
-        </tr>
-      `;
-    })
-    .join("");
-
-  elements.membersTableBody.innerHTML = rows;
-}
-
-// Convert API role value into a more user-friendly label
-function formatRoleLabel(role) {
-  const roleMap = {
-    member: "Member",
-    admin: "Elder",
-    coLeader: "Co-Leader",
-    leader: "Leader",
-  };
-
-  return roleMap[role] || "-";
-}
-
-async function requestJson(url) {
-  const response = await fetch(url);
-  const data = await response.json();
-  return { response, data };
-}
-
-// Load clan profile if the player belongs to a clan
-async function fetchClanData(clanTag) {
-  try {
-    const { response, data } = await requestJson(`/clan/${encodeURIComponent(clanTag)}`);
-
-    if (!response.ok) {
-      elements.clanCard.classList.remove("show");
-      return;
-    }
-
-    renderClan(data);
-  } catch (error) {
-    elements.clanCard.classList.remove("show");
-    return;
-  }
-
-  // After clan profile is loaded, fetch member list from backend
-  // This is separated so clan card still appears even if member list fails.
-  try {
-    const membersResult = await requestJson(`/clan/${encodeURIComponent(clanTag)}/members`);
-    if (membersResult.response.ok) {
-      renderClanMembers(membersResult.data.members || []);
-    } else {
-      elements.membersStatus.textContent = "Failed to load clan members.";
-    }
-  } catch (error) {
-    elements.membersStatus.textContent = "Failed to load clan members.";
-  }
-}
-
-// Main action for player lookup
-async function fetchPlayerData() {
-  const rawTag = elements.tagInput.value.trim();
-
-  resetView();
-
-  if (!rawTag) {
-    elements.errorMessage.textContent = "Please enter a player tag.";
-    return;
-  }
-
-  toggleLoadingState(true);
-
-  try {
-    const { response, data } = await requestJson(`/player/${encodeURIComponent(rawTag)}`);
-
-    if (!response.ok) {
-      elements.errorMessage.textContent = data.error || "Something went wrong.";
-      return;
-    }
-
-    renderPlayer(data);
-
-    if (data.clanTag) {
-      await fetchClanData(data.clanTag);
-    }
-  } catch (error) {
-    elements.errorMessage.textContent = "Network error. Please try again.";
-  } finally {
-    toggleLoadingState(false);
-  }
-}
-
-// Button click action
-elements.fetchButton.addEventListener("click", fetchPlayerData);
-
-// Enter key action on input field
-elements.tagInput.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {
-    fetchPlayerData();
-  }
-});
-
-// Background switcher setup
-elements.modeButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    activateBackgroundMode(button.dataset.mode);
-  });
+elements.modeButtons.forEach((btn) => {
+  btn.addEventListener("click", () => activateBackgroundMode(btn.dataset.mode));
 });
 
 if (elements.soundToggleButton) {
   elements.soundToggleButton.addEventListener("click", toggleVideoSound);
 }
 
-// If image/video file does not exist, automatically fallback to gradient.
+// Fallback handlers
 if (elements.backgroundImage) {
   elements.backgroundImage.addEventListener("error", () => {
     if (document.body.classList.contains("bg-image-mode")) {
@@ -324,5 +707,7 @@ if (elements.backgroundVideo) {
   });
 }
 
+// Initialise
 const savedMode = localStorage.getItem(BACKGROUND_STORAGE_KEY) || "gradient";
 activateBackgroundMode(savedMode);
+renderRecentSearches();
