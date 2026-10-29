@@ -249,21 +249,29 @@
             </section>
           </div>
 
-          <!-- Section: Heroes & Equipment Armory -->
+          <!-- Section: Army & Armory (Heroes, Equipment, Troops, Spells, Siege, Pets) -->
           <section id="heroesSection" class="armory-section">
             <div class="armory-header">
               <div class="armory-title-wrap">
-                <h3>Hero Armory</h3>
-                <span class="armory-counter" id="heroesCountText">0 Heroes</span>
+                <h3>Army & Armory</h3>
+                <span class="armory-counter" id="heroesCountText">0 Unit</span>
               </div>
               <div class="armory-tabs" role="tablist">
                 <button id="heroTabHeroes" class="armory-tab active" role="tab" type="button">Heroes</button>
                 <button id="heroTabEquip" class="armory-tab" role="tab" type="button">Equipment</button>
+                <button id="heroTabTroops" class="armory-tab" role="tab" type="button">Pasukan</button>
+                <button id="heroTabSpells" class="armory-tab" role="tab" type="button">Spells</button>
+                <button id="heroTabSiege" class="armory-tab" role="tab" type="button">Siege</button>
+                <button id="heroTabPets" class="armory-tab" role="tab" type="button">Pets</button>
               </div>
             </div>
 
             <div id="heroesGrid" class="armory-grid"></div>
             <div id="equipmentGrid" class="armory-grid" style="display: none;"></div>
+            <div id="troopsGrid" class="armory-grid" style="display: none;"></div>
+            <div id="spellsGrid" class="armory-grid" style="display: none;"></div>
+            <div id="siegeGrid" class="armory-grid" style="display: none;"></div>
+            <div id="petsGrid" class="armory-grid" style="display: none;"></div>
           </section>
 
           <!-- Section: Builder Base Village -->
@@ -294,7 +302,16 @@
                 </div>
               </div>
             </div>
-            <div id="builderHeroesGrid" class="armory-grid" style="margin-top: 14px;"></div>
+
+            <div class="bb-armory-header-row" style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px;">
+              <h4 style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-tertiary); letter-spacing: 0.5px;">Builder Army</h4>
+              <div class="armory-tabs" role="tablist">
+                <button id="bbTabHeroes" class="armory-tab active" role="tab" type="button">Heroes</button>
+                <button id="bbTabTroops" class="armory-tab" role="tab" type="button">Pasukan BB</button>
+              </div>
+            </div>
+            <div id="builderHeroesGrid" class="armory-grid" style="margin-top: 10px;"></div>
+            <div id="builderTroopsGrid" class="armory-grid" style="margin-top: 10px; display: none;"></div>
           </section>
 
           <footer class="card-status-bar">

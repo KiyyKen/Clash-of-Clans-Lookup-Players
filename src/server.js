@@ -141,6 +141,18 @@ async function handlePlayerLookup(req, res) {
         maxLevel: eq.maxLevel,
         village: eq.village,
       })),
+      troops: (player.troops || []).map((t) => ({
+        name: t.name,
+        level: t.level,
+        maxLevel: t.maxLevel,
+        village: t.village,
+      })),
+      spells: (player.spells || []).map((s) => ({
+        name: s.name,
+        level: s.level,
+        maxLevel: s.maxLevel,
+        village: s.village,
+      })),
       labels: (player.labels || []).map((l) => ({
         name: l.name,
         iconUrl: l.iconUrls ? l.iconUrls.medium || l.iconUrls.small : null,

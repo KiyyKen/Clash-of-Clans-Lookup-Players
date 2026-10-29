@@ -50,8 +50,16 @@ const elements = {
   heroesCountText: document.getElementById("heroesCountText"),
   heroTabHeroes: document.getElementById("heroTabHeroes"),
   heroTabEquip: document.getElementById("heroTabEquip"),
+  heroTabTroops: document.getElementById("heroTabTroops"),
+  heroTabSpells: document.getElementById("heroTabSpells"),
+  heroTabSiege: document.getElementById("heroTabSiege"),
+  heroTabPets: document.getElementById("heroTabPets"),
   heroesGrid: document.getElementById("heroesGrid"),
   equipmentGrid: document.getElementById("equipmentGrid"),
+  troopsGrid: document.getElementById("troopsGrid"),
+  spellsGrid: document.getElementById("spellsGrid"),
+  siegeGrid: document.getElementById("siegeGrid"),
+  petsGrid: document.getElementById("petsGrid"),
 
   builderBaseSection: document.getElementById("builderBaseSection"),
   builderHallImg: document.getElementById("builderHallImg"),
@@ -60,7 +68,10 @@ const elements = {
   builderHallLevel: document.getElementById("builderHallLevel"),
   builderBaseTrophies: document.getElementById("builderBaseTrophies"),
   bestBuilderBaseTrophies: document.getElementById("bestBuilderBaseTrophies"),
+  bbTabHeroes: document.getElementById("bbTabHeroes"),
+  bbTabTroops: document.getElementById("bbTabTroops"),
   builderHeroesGrid: document.getElementById("builderHeroesGrid"),
+  builderTroopsGrid: document.getElementById("builderTroopsGrid"),
 
   // Clan View
   clanCard: document.getElementById("clanCard"),
@@ -284,24 +295,80 @@ function renderLabels(container, labels = []) {
   });
 }
 
-// Armory Tabs (Heroes vs Equipment)
-if (elements.heroTabHeroes && elements.heroTabEquip) {
-  elements.heroTabHeroes.addEventListener("click", () => {
-    elements.heroTabHeroes.classList.add("active");
-    elements.heroTabEquip.classList.remove("active");
-    elements.heroesGrid.style.display = "grid";
-    elements.equipmentGrid.style.display = "none";
-  });
+// Armory & Army Tab System (Heroes, Equipment, Troops, Spells, Siege, Pets)
+const armoryTabsList = [
+  { get tab() { return elements.heroTabHeroes; }, get grid() { return elements.heroesGrid; } },
+  { get tab() { return elements.heroTabEquip; }, get grid() { return elements.equipmentGrid; } },
+  { get tab() { return elements.heroTabTroops; }, get grid() { return elements.troopsGrid; } },
+  { get tab() { return elements.heroTabSpells; }, get grid() { return elements.spellsGrid; } },
+  { get tab() { return elements.heroTabSiege; }, get grid() { return elements.siegeGrid; } },
+  { get tab() { return elements.heroTabPets; }, get grid() { return elements.petsGrid; } },
+];
 
-  elements.heroTabEquip.addEventListener("click", () => {
-    elements.heroTabEquip.classList.add("active");
-    elements.heroTabHeroes.classList.remove("active");
-    elements.heroesGrid.style.display = "none";
-    elements.equipmentGrid.style.display = "grid";
+function selectArmoryTab(activeTabElement) {
+  armoryTabsList.forEach(({ tab, grid }) => {
+    if (!tab || !grid) return;
+    if (tab === activeTabElement) {
+      tab.classList.add("active");
+      grid.style.display = "grid";
+    } else {
+      tab.classList.remove("active");
+      grid.style.display = "none";
+    }
   });
 }
 
-// Asset URL Helpers (Town Hall, Builder Hall, Heroes, Equipment)
+armoryTabsList.forEach(({ tab }) => {
+  if (tab) {
+    tab.addEventListener("click", () => selectArmoryTab(tab));
+  }
+});
+
+// Builder Base Army Tabs (Heroes vs Troops)
+if (elements.bbTabHeroes && elements.bbTabTroops) {
+  elements.bbTabHeroes.addEventListener("click", () => {
+    elements.bbTabHeroes.classList.add("active");
+    elements.bbTabTroops.classList.remove("active");
+    if (elements.builderHeroesGrid) elements.builderHeroesGrid.style.display = "grid";
+    if (elements.builderTroopsGrid) elements.builderTroopsGrid.style.display = "none";
+  });
+  elements.bbTabTroops.addEventListener("click", () => {
+    elements.bbTabTroops.classList.add("active");
+    elements.bbTabHeroes.classList.remove("active");
+    if (elements.builderHeroesGrid) elements.builderHeroesGrid.style.display = "none";
+    if (elements.builderTroopsGrid) elements.builderTroopsGrid.style.display = "grid";
+  });
+}
+
+// Clash of Clans Categorization Sets
+const SIEGE_MACHINE_NAMES = new Set([
+  "Wall Wrecker",
+  "Battle Blimp",
+  "Stone Slammer",
+  "Siege Barracks",
+  "Log Launcher",
+  "Flame Flinger",
+  "Battle Drill",
+  "Troop Launcher",
+  "Sky Wagon",
+]);
+
+const PET_NAMES = new Set([
+  "L.A.S.S.I",
+  "Mighty Yak",
+  "Electro Owl",
+  "Unicorn",
+  "Phoenix",
+  "Poison Lizard",
+  "Diggy",
+  "Frosty",
+  "Spirit Fox",
+  "Angry Jelly",
+  "Sneezy",
+  "Greedy Raven",
+]);
+
+// Asset URL Helpers (Town Hall, Builder Hall, Heroes, Equipment, Troops, Spells, Pets)
 function getTownHallImg(level) {
   const lvl = Math.max(1, Math.min(18, parseInt(level, 10) || 1));
   return `https://assets.clashk.ing/buildings/home-village/town_hall/level_${lvl}.webp`;
@@ -334,6 +401,31 @@ function getEquipmentIcon(name) {
   return `https://assets.clashk.ing/equipment/${key}.webp`;
 }
 
+function getTroopIcon(name) {
+  if (!name) return "/assets/barbarian-temp.svg";
+  const map = {
+    "p.e.k.k.a": "pekka",
+    "power p.e.k.k.a": "power_pekka",
+  };
+  const key = map[name.toLowerCase().trim()] || name.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  return `https://assets.clashk.ing/troops/${key}/icon.webp`;
+}
+
+function getSpellIcon(name) {
+  if (!name) return "/assets/barbarian-temp.svg";
+  const key = name.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  return `https://assets.clashk.ing/spells/${key}.webp`;
+}
+
+function getPetIcon(name) {
+  if (!name) return "/assets/barbarian-temp.svg";
+  const map = {
+    "l.a.s.s.i": "lassi",
+  };
+  const key = map[name.toLowerCase().trim()] || name.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  return `https://assets.clashk.ing/pets/${key}/icon.webp`;
+}
+
 function createArmorySlot(name, level, maxLevel, iconUrl) {
   const isMax = level >= maxLevel;
   const pct = Math.min(100, Math.round((level / (maxLevel || 1)) * 100));
@@ -364,19 +456,43 @@ function createArmorySlot(name, level, maxLevel, iconUrl) {
   return card;
 }
 
-function renderArmory(heroes = [], equipment = []) {
-  elements.heroesGrid.innerHTML = "";
-  elements.equipmentGrid.innerHTML = "";
+function renderArmory(heroes = [], equipment = [], troops = [], spells = []) {
+  if (elements.heroesGrid) elements.heroesGrid.innerHTML = "";
+  if (elements.equipmentGrid) elements.equipmentGrid.innerHTML = "";
+  if (elements.troopsGrid) elements.troopsGrid.innerHTML = "";
+  if (elements.spellsGrid) elements.spellsGrid.innerHTML = "";
+  if (elements.siegeGrid) elements.siegeGrid.innerHTML = "";
+  if (elements.petsGrid) elements.petsGrid.innerHTML = "";
   if (elements.builderHeroesGrid) elements.builderHeroesGrid.innerHTML = "";
+  if (elements.builderTroopsGrid) elements.builderTroopsGrid.innerHTML = "";
 
   const homeHeroes = heroes.filter((h) => h.village === "home" || !h.village);
   const builderHeroes = heroes.filter((h) => h.village === "builderBase");
 
-  if (!homeHeroes.length && !equipment.length) {
+  const regularTroops = [];
+  const siegeMachines = [];
+  const pets = [];
+  const bbTroops = [];
+
+  (troops || []).forEach((t) => {
+    if (t.village === "builderBase") {
+      bbTroops.push(t);
+    } else if (PET_NAMES.has(t.name)) {
+      pets.push(t);
+    } else if (SIEGE_MACHINE_NAMES.has(t.name)) {
+      siegeMachines.push(t);
+    } else {
+      regularTroops.push(t);
+    }
+  });
+
+  const totalArmoryItems = homeHeroes.length + equipment.length + regularTroops.length + spells.length + siegeMachines.length + pets.length;
+
+  if (totalArmoryItems === 0) {
     elements.heroesSection.style.display = "none";
   } else {
     elements.heroesSection.style.display = "flex";
-    setText(elements.heroesCountText, `${homeHeroes.length} Heroes`);
+    setText(elements.heroesCountText, `${totalArmoryItems} Unit`);
 
     homeHeroes.forEach((h) => {
       elements.heroesGrid.appendChild(createArmorySlot(h.name, h.level, h.maxLevel, getHeroIcon(h.name)));
@@ -386,21 +502,58 @@ function renderArmory(heroes = [], equipment = []) {
       elements.equipmentGrid.appendChild(createArmorySlot(eq.name, eq.level, eq.maxLevel, getEquipmentIcon(eq.name)));
     });
 
-    // Default to Heroes
-    elements.heroTabHeroes.classList.add("active");
-    elements.heroTabEquip.classList.remove("active");
-    elements.heroesGrid.style.display = "grid";
-    elements.equipmentGrid.style.display = "none";
+    regularTroops.forEach((t) => {
+      elements.troopsGrid.appendChild(createArmorySlot(t.name, t.level, t.maxLevel, getTroopIcon(t.name)));
+    });
+
+    (spells || []).forEach((s) => {
+      elements.spellsGrid.appendChild(createArmorySlot(s.name, s.level, s.maxLevel, getSpellIcon(s.name)));
+    });
+
+    siegeMachines.forEach((sm) => {
+      elements.siegeGrid.appendChild(createArmorySlot(sm.name, sm.level, sm.maxLevel, getTroopIcon(sm.name)));
+    });
+
+    pets.forEach((p) => {
+      elements.petsGrid.appendChild(createArmorySlot(p.name, p.level, p.maxLevel, getPetIcon(p.name)));
+    });
+
+    // Update tab labels with counts
+    if (elements.heroTabHeroes) elements.heroTabHeroes.textContent = `Heroes (${homeHeroes.length})`;
+    if (elements.heroTabEquip) elements.heroTabEquip.textContent = `Equipment (${equipment.length})`;
+    if (elements.heroTabTroops) elements.heroTabTroops.textContent = `Pasukan (${regularTroops.length})`;
+    if (elements.heroTabSpells) elements.heroTabSpells.textContent = `Spell (${(spells || []).length})`;
+    if (elements.heroTabSiege) {
+      elements.heroTabSiege.style.display = siegeMachines.length > 0 ? "inline-block" : "none";
+      elements.heroTabSiege.textContent = `Siege (${siegeMachines.length})`;
+    }
+    if (elements.heroTabPets) {
+      elements.heroTabPets.style.display = pets.length > 0 ? "inline-block" : "none";
+      elements.heroTabPets.textContent = `Pets (${pets.length})`;
+    }
+
+    // Default to Heroes tab
+    selectArmoryTab(elements.heroTabHeroes);
   }
 
-  // Builder Heroes
-  if (elements.builderHeroesGrid && builderHeroes.length > 0) {
-    elements.builderHeroesGrid.style.display = "grid";
+  // Builder Heroes & Troops
+  if (builderHeroes.length > 0 || bbTroops.length > 0) {
     builderHeroes.forEach((bh) => {
       elements.builderHeroesGrid.appendChild(createArmorySlot(bh.name, bh.level, bh.maxLevel, getHeroIcon(bh.name)));
     });
-  } else if (elements.builderHeroesGrid) {
-    elements.builderHeroesGrid.style.display = "none";
+    bbTroops.forEach((bt) => {
+      elements.builderTroopsGrid.appendChild(createArmorySlot(bt.name, bt.level, bt.maxLevel, getTroopIcon(bt.name)));
+    });
+
+    if (elements.bbTabHeroes) elements.bbTabHeroes.textContent = `Heroes (${builderHeroes.length})`;
+    if (elements.bbTabTroops) elements.bbTabTroops.textContent = `Pasukan BB (${bbTroops.length})`;
+
+    if (elements.bbTabHeroes && elements.bbTabTroops) {
+      elements.bbTabHeroes.classList.add("active");
+      elements.bbTabTroops.classList.remove("active");
+      if (elements.builderHeroesGrid) elements.builderHeroesGrid.style.display = "grid";
+      if (elements.builderTroopsGrid) elements.builderTroopsGrid.style.display = "none";
+    }
   }
 }
 
@@ -483,7 +636,7 @@ function renderPlayer(p) {
   setText(elements.thWeaponLevel, p.townHallWeaponLevel ? `Bintang ${p.townHallWeaponLevel}` : "None");
 
   // Armory
-  renderArmory(p.heroes, p.heroEquipment);
+  renderArmory(p.heroes, p.heroEquipment, p.troops, p.spells);
 
   // Builder Base
   if (p.builderHallLevel) {
