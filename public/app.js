@@ -398,6 +398,9 @@ function getHeroIcon(name) {
 function getEquipmentIcon(name) {
   if (!name) return "/assets/barbarian-temp.svg";
   const key = name.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  if (key === "portal_pendant") {
+    return "/assets/portal_pendant.png";
+  }
   return `https://assets.clashk.ing/equipment/${key}.webp`;
 }
 
