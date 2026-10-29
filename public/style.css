@@ -92,6 +92,69 @@ body.bg-video-mode .bg-overlay {
   display: block;
 }
 
+/* ==================== THEME: VILLAGE DAYLIGHT (TEMA TERANG) ==================== */
+body.bg-image-mode {
+  color-scheme: light;
+
+  /* Bright Daylight Village Palette */
+  --bg-base: #f0f4f8;
+  --bg-header: rgba(255, 255, 255, 0.94);
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #f8fafc;
+  --bg-surface-hover: #f1f5f9;
+  --bg-card: rgba(255, 255, 255, 0.97);
+
+  /* Clean Borders & Dividers */
+  --border-subtle: #e2e8f0;
+  --border-default: #cbd5e1;
+  --border-highlight: #94a3b8;
+
+  /* High-Contrast Brand & Accents for Light Mode */
+  --clash-gold: #b45309;
+  --clash-gold-dark: #78350f;
+  --clash-gold-subtle: rgba(217, 119, 6, 0.12);
+  --accent-blue: #0284c7;
+  --accent-blue-subtle: rgba(2, 132, 199, 0.12);
+  --accent-emerald: #059669;
+  --accent-emerald-subtle: rgba(5, 150, 105, 0.12);
+  --accent-purple: #7e22ce;
+  --accent-purple-subtle: rgba(126, 34, 206, 0.12);
+
+  /* Crisp Readable Slate Typography */
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-tertiary: #64748b;
+  --text-muted: #94a3b8;
+
+  /* System */
+  --error: #dc2626;
+  --error-bg: rgba(220, 38, 38, 0.08);
+}
+
+body.bg-image-mode .bg-overlay {
+  background: rgba(248, 250, 252, 0.65);
+  backdrop-filter: blur(4px);
+}
+
+body.bg-image-mode .search-console,
+body.bg-image-mode .profile-card {
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+body.bg-image-mode .armory-tab.active {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+body.bg-image-mode .error-banner {
+  color: #b91c1c;
+}
+
+/* ==================== THEME: CINEMATIC VIDEO (ENHANCED) ==================== */
+body.bg-video-mode .bg-overlay {
+  background: rgba(9, 12, 18, 0.78);
+  backdrop-filter: blur(2px);
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -239,6 +302,18 @@ body.bg-video-mode .bg-overlay {
 
 .sound-btn.sound-on {
   color: var(--clash-gold);
+  border-color: var(--clash-gold);
+  background: var(--clash-gold-subtle);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.35);
+}
+
+@keyframes audioNotice {
+  0%, 100% { border-color: var(--border-subtle); }
+  50% { border-color: var(--clash-gold); }
+}
+
+body.bg-video-mode .sound-btn:not(.sound-on) {
+  animation: audioNotice 2.5s infinite ease-in-out;
 }
 
 .sound-btn.sound-on .icon-volume-off {

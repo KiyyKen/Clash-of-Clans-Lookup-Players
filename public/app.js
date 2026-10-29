@@ -1023,6 +1023,12 @@ if (elements.soundToggleBtn) {
 if (elements.themeSelect) {
   elements.themeSelect.addEventListener("change", (e) => {
     applyTheme(e.target.value);
+    const msgs = {
+      gradient: "Tema Tactical Dark aktif 🌙",
+      image: "Tema Village Daylight (Terang) aktif ☀️",
+      video: "Tema Cinematic Video aktif 🎬 (Nyalakan audio jika mau)",
+    };
+    if (msgs[e.target.value]) showToast(msgs[e.target.value]);
   });
 }
 
