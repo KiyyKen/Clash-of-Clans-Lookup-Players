@@ -1,9 +1,14 @@
 // Cache DOM elements
 export const elements = {
   // Navigation & Search Mode
+  brandLogo: document.querySelector(".brand"),
   tabPlayer: document.getElementById("tabPlayer"),
   tabClan: document.getElementById("tabClan"),
   themeSelect: document.getElementById("themeSelect"),
+
+  // Home Landing Welcome
+  homeWelcomeSection: document.getElementById("homeWelcomeSection"),
+  spotlightCards: document.querySelectorAll(".spotlight-card"),
 
   // Search Console
   tagInput: document.getElementById("tagInput"),

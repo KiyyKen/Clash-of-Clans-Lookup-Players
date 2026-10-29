@@ -46,11 +46,27 @@ function showError(msg) {
   }
 }
 
+// Welcome section visibility
+function hideWelcomeSection() {
+  if (elements.homeWelcomeSection) {
+    elements.homeWelcomeSection.classList.add("hide");
+  }
+}
+
+function showWelcomeSection() {
+  if (elements.homeWelcomeSection) {
+    elements.homeWelcomeSection.classList.remove("hide");
+  }
+}
+
 // Reset views
-function resetViews() {
+function resetViews(keepWelcomeHidden = false) {
   showError("");
   elements.playerCard.classList.remove("show");
   elements.clanCard.classList.remove("show");
+  if (!keepWelcomeHidden) {
+    showWelcomeSection();
+  }
 }
 
 // Cross-feature callbacks
@@ -79,22 +95,34 @@ function handleRecentSelect(type, tag) {
 }
 
 function executePlayerSearch(tag) {
+  hideWelcomeSection();
   searchPlayer(tag, {
     onClanSelect: handleClanSelect,
     onClanSilentFetch: (cTag) => fetchClanDataSilently(cTag, handleMemberInspect, handleRecentSelect),
     toggleLoading,
-    showError,
-    resetViews,
+    showError: (msg) => {
+      showError(msg);
+      if (!elements.playerCard.classList.contains("show")) {
+        showWelcomeSection();
+      }
+    },
+    resetViews: () => resetViews(true),
     onRecentSelect: handleRecentSelect,
   });
 }
 
 function executeClanSearch(tag) {
+  hideWelcomeSection();
   searchClan(tag, {
     onMemberClick: handleMemberInspect,
     toggleLoading,
-    showError,
-    resetViews,
+    showError: (msg) => {
+      showError(msg);
+      if (!elements.clanCard.classList.contains("show")) {
+        showWelcomeSection();
+      }
+    },
+    resetViews: () => resetViews(true),
     onRecentSelect: handleRecentSelect,
   });
 }
@@ -149,6 +177,35 @@ function initEvents() {
       }
     });
   });
+
+  // Spotlight Demo Cards on Home Landing
+  elements.spotlightCards.forEach((card) => {
+    card.addEventListener("click", () => {
+      const type = card.dataset.type;
+      const tag = card.dataset.tag;
+      setMode(type);
+      elements.tagInput.value = tag.replace(/^#/, "");
+      elements.clearInputBtn.classList.add("visible");
+      if (type === "player") {
+        executePlayerSearch(tag);
+      } else {
+        executeClanSearch(tag);
+      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+
+  // Clicking brand logo navigates back to Home Welcome view
+  if (elements.brandLogo) {
+    elements.brandLogo.style.cursor = "pointer";
+    elements.brandLogo.addEventListener("click", () => {
+      resetViews(false);
+      elements.tagInput.value = "";
+      elements.clearInputBtn.classList.remove("visible");
+      window.history.replaceState({}, "", window.location.pathname);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }
 }
 
 // Deep linking check
