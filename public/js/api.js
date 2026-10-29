@@ -3,3 +3,4 @@ export async function requestApi(url) {
   const data = await response.json();
   return { response, data };
 }
+

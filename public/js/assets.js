@@ -86,3 +86,4 @@ export function getPetIcon(name) {
   const key = map[name.toLowerCase().trim()] || name.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
   return `https://assets.clashk.ing/pets/${key}/icon.webp`;
 }
+

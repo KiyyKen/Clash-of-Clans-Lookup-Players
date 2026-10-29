@@ -55,3 +55,4 @@ export function renderLabels(container, labels = []) {
     container.appendChild(chip);
   });
 }
+

@@ -31,3 +31,4 @@ export function syncUrl(type, tag) {
   const newUrl = `${window.location.pathname}?${type}=${encodeURIComponent(clean)}`;
   window.history.replaceState({ type, tag }, "", newUrl);
 }
+

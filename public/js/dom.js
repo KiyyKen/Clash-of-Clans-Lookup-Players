@@ -118,3 +118,4 @@ export function setText(element, value, fallback = "-") {
     element.textContent = value !== null && value !== undefined && value !== "" ? value : fallback;
   }
 }
+

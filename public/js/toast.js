@@ -11,3 +11,4 @@ export function showToast(message) {
     elements.toast.classList.remove("show");
   }, 2400);
 }
+

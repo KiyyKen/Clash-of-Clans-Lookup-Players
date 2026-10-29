@@ -17,3 +17,4 @@ router.get("/clan/:tag/members", handleClanMembersLookup);
 router.get("/clans/:tag/members", handleClanMembersLookup);
 
 module.exports = router;
+

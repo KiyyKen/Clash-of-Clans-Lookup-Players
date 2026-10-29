@@ -37,3 +37,4 @@ export function initTheme() {
   const initialTheme = localStorage.getItem(THEME_STORAGE_KEY) || "gradient";
   applyTheme(initialTheme);
 }
+

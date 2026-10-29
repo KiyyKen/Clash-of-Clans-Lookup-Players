@@ -312,3 +312,4 @@ export async function searchPlayer(tag, { onClanSelect, onClanSilentFetch, toggl
     toggleLoading(false);
   }
 }
+

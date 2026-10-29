@@ -66,3 +66,4 @@ export function initRecent(onSelectCallback) {
   });
   renderRecent(onSelectCallback);
 }
+

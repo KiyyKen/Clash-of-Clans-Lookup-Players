@@ -195,3 +195,4 @@ export async function searchClan(tag, { onMemberClick, toggleLoading, showError,
     toggleLoading(false);
   }
 }
+
