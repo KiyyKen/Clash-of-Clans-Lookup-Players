@@ -3,146 +3,161 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Clash of Clans Lookup — Player & Clan Stats</title>
+    <title>Clash of Clans Analytics & Profile Tracker</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
-    <!-- Sound Toggle for Video Background -->
-    <button
-      id="soundToggleBtn"
-      class="sound-icon-btn"
-      type="button"
-      aria-label="Unmute video background"
-      title="Unmute video background"
-    >
-      <svg class="icon icon-volume-off" viewBox="0 0 24 24" aria-hidden="true">
-        <path
-          d="M14 5.23v13.54c0 .45-.54.67-.85.35L8.57 15H5a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h3.57l4.58-4.12c.31-.32.85-.1.85.35z"
-          fill="currentColor"
-        />
-        <path d="M17 9l4 4m0-4l-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-      </svg>
-      <svg class="icon icon-volume-on" viewBox="0 0 24 24" aria-hidden="true">
-        <path
-          d="M14 5.23v13.54c0 .45-.54.67-.85.35L8.57 15H5a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h3.57l4.58-4.12c.31-.32.85-.1.85.35z"
-          fill="currentColor"
-        />
-        <path
-          d="M17 9a4 4 0 0 1 0 6m2.5-8.5a7.5 7.5 0 0 1 0 11"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          fill="none"
-        />
-      </svg>
-    </button>
-
-    <!-- Background Layer (Gradient / Wallpaper / Video) -->
-    <div class="bg-media-layer">
-      <img id="backgroundImage" class="bg-image" src="/assets/bg.jpg" alt="Background image" />
+    <!-- Background Layer (Wallpaper / Video) -->
+    <div class="bg-media-layer" aria-hidden="true">
+      <img id="backgroundImage" class="bg-image" src="/assets/bg.jpg" alt="" />
       <video id="backgroundVideo" class="bg-video" autoplay muted loop playsinline>
         <source src="/assets/bg.mp4" type="video/mp4" />
       </video>
       <div class="bg-overlay"></div>
     </div>
 
-    <main class="app">
-      <!-- Mode Switcher -->
-      <header class="app-topbar">
+    <!-- Navigation Header -->
+    <header class="site-header">
+      <div class="header-inner">
         <div class="brand">
-          <span class="brand-badge">COC STATS PRO</span>
-        </div>
-        <div class="mode-switcher">
-          <span class="mode-label">Tema:</span>
-          <div class="mode-buttons">
-            <button class="mode-btn active" data-mode="gradient" type="button" title="Mode Gradient (Minimalis)">1</button>
-            <button class="mode-btn" data-mode="image" type="button" title="Mode Gambar Wallpaper">2</button>
-            <button class="mode-btn" data-mode="video" type="button" title="Mode Video Bergerak">3</button>
+          <svg class="brand-shield" viewBox="0 0 24 24" width="24" height="24" fill="none">
+            <path d="M12 2L4 5V11C4 16.5 7.5 21.3 12 22C16.5 21.3 20 16.5 20 11V5L12 2Z" fill="url(#brandGrad)" />
+            <path d="M12 6L7 8V11.5C7 15 9.2 18.2 12 18.9C14.8 18.2 17 15 17 11.5V8L12 6Z" fill="#0b0e14" opacity="0.6"/>
+            <defs>
+              <linearGradient id="brandGrad" x1="4" y1="2" x2="20" y2="22" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#f59e0b"/>
+                <stop offset="1" stop-color="#d97706"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="brand-text">
+            <span class="brand-title">CLASH LOOKUP</span>
+            <span class="brand-subtitle">Supercell API Tracker</span>
           </div>
         </div>
-      </header>
 
-      <div class="hero-section">
-        <h1>Clash of Clans Lookup</h1>
-        <p class="subtitle">
-          Pantau statistik live pemain & clan secara akurat via official Supercell API.
-        </p>
-
-        <!-- Search Tab Switcher -->
-        <div class="search-tabs">
-          <button id="tabPlayer" class="search-tab active" type="button">
-            <span class="tab-icon">👤</span> Cari Player
+        <!-- Search Tab Selector in Nav -->
+        <nav class="nav-tabs" aria-label="Search Mode">
+          <button id="tabPlayer" class="nav-tab active" type="button">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            Player
           </button>
-          <button id="tabClan" class="search-tab" type="button">
-            <span class="tab-icon">🛡️</span> Cari Clan
+          <button id="tabClan" class="nav-tab" type="button">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            Clan
+          </button>
+        </nav>
+
+        <!-- Right Controls (Theme & Sound) -->
+        <div class="header-controls">
+          <div class="theme-select-wrap">
+            <label for="themeSelect" class="sr-only">Tema Tampilan</label>
+            <select id="themeSelect" class="theme-select" title="Pilih Tema Latar Belakang">
+              <option value="gradient">🎨 Tactical Dark</option>
+              <option value="image">🖼️ Village Wallpaper</option>
+              <option value="video">🎬 Cinematic Video</option>
+            </select>
+          </div>
+
+          <button
+            id="soundToggleBtn"
+            class="sound-btn"
+            type="button"
+            aria-label="Unmute background video"
+            title="Unmute background audio"
+          >
+            <svg class="icon-volume-off" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <line x1="23" y1="9" x2="17" y2="15"></line>
+              <line x1="17" y1="9" x2="23" y2="15"></line>
+            </svg>
+            <svg class="icon-volume-on" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
           </button>
         </div>
+      </div>
+    </header>
 
-        <!-- Input Box -->
-        <div class="search-box">
-          <div class="input-wrapper">
-            <span class="input-prefix">#</span>
+    <!-- Main Content App -->
+    <main class="main-container">
+      <!-- Search Console Hero -->
+      <section class="search-console">
+        <div class="search-header-text">
+          <h1>Clash of Clans Intelligence</h1>
+          <p>Cek statistik langsung profil pemain, level hero & equipment, serta susunan clan secara akurat.</p>
+        </div>
+
+        <div class="search-bar-wrap">
+          <div class="search-input-box">
+            <span class="tag-hash" aria-hidden="true">#</span>
             <input
               id="tagInput"
               type="text"
-              placeholder="Contoh: 8QRC82JP8"
+              placeholder="Masukkan tag, misal 8QRC82JP8"
               autocomplete="off"
               spellcheck="false"
             />
-            <button id="clearInputBtn" class="clear-btn" type="button" title="Bersihkan input">✕</button>
+            <button id="clearInputBtn" class="input-clear" type="button" aria-label="Clear input">✕</button>
           </div>
-          <button id="fetchBtn" class="btn-primary">
+          <button id="fetchBtn" class="search-submit-btn" type="button">
             <span class="btn-text">Cari Player</span>
           </button>
         </div>
 
-        <!-- Quick Suggestions -->
-        <div class="quick-samples">
-          <span class="quick-label">Coba sampel:</span>
-          <button class="sample-chip" data-type="player" data-tag="#8QRC82JP8">👤 #8QRC82JP8 (Big Smoke)</button>
-          <button class="sample-chip" data-type="clan" data-tag="#2LYQPU00L">🛡️ #2LYQPU00L (True Dominance)</button>
-          <button class="sample-chip" data-type="clan" data-tag="#2PP">🛡️ #2PP (The Order)</button>
-        </div>
-
-        <!-- Recent Searches -->
-        <div id="recentContainer" class="recent-searches hide">
-          <div class="recent-header">
-            <span class="recent-title">🕒 Riwayat Pencarian</span>
-            <button id="clearRecentBtn" class="btn-text-link" type="button">Hapus Semua</button>
+        <!-- Quick Samples & History Bar -->
+        <div class="console-meta-row">
+          <div class="quick-samples">
+            <span class="meta-label">Sampel:</span>
+            <button class="sample-chip" data-type="player" data-tag="#8QRC82JP8">Big Smoke</button>
+            <button class="sample-chip" data-type="clan" data-tag="#2LYQPU00L">True Dominance</button>
+            <button class="sample-chip" data-type="clan" data-tag="#2PP">The Order</button>
           </div>
-          <div id="recentChips" class="recent-chips"></div>
+
+          <div id="recentContainer" class="recent-bar hide">
+            <span class="meta-label">Riwayat:</span>
+            <div id="recentChips" class="recent-chips"></div>
+            <button id="clearRecentBtn" class="clear-history-btn" type="button" title="Bersihkan riwayat">Hapus</button>
+          </div>
         </div>
 
-        <p id="errorMessage" class="error"></p>
-      </div>
+        <div id="errorMessage" class="error-banner" role="alert"></div>
+      </section>
 
-      <!-- Result Cards Container -->
-      <div class="card-stack">
-        <!-- PLAYER CARD -->
-        <article id="resultCard" class="card player-card">
-          <!-- Player Header -->
-          <div class="profile-header">
-            <div class="profile-avatar-wrap">
-              <img id="playerLeagueBadge" class="league-badge-img" src="/assets/trophy-temp.svg" alt="League Badge" />
+      <!-- RESULTS SECTION -->
+      <div class="content-results">
+        <!-- ==================== PLAYER VIEW ==================== -->
+        <article id="resultCard" class="profile-card player-view">
+          <!-- Identity Banner -->
+          <div class="profile-banner">
+            <div class="league-avatar-container">
+              <img id="playerLeagueBadge" class="league-badge" src="/assets/trophy-temp.svg" alt="League tier" />
             </div>
-            <div class="profile-main-info">
-              <div class="name-row">
-                <h2 id="playerName" class="entity-name">-</h2>
-                <div class="tag-pill-wrap">
-                  <span id="playerTagText" class="tag-pill">#-</span>
-                  <button id="copyPlayerTagBtn" class="action-icon-btn" type="button" title="Salin Player Tag">
+
+            <div class="profile-core-info">
+              <div class="title-line">
+                <h2 id="playerName" class="user-display-name">-</h2>
+                <div class="tag-badge-group">
+                  <span id="playerTagText" class="code-pill">#-</span>
+                  <button id="copyPlayerTagBtn" class="icon-tool-btn" type="button" title="Salin Player Tag">
                     <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                     </svg>
                   </button>
-                  <button id="sharePlayerBtn" class="action-icon-btn" type="button" title="Bagikan link langsung profil ini">
+                  <button id="sharePlayerBtn" class="icon-tool-btn" type="button" title="Salin link langsung">
                     <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
@@ -150,155 +165,148 @@
                   </button>
                 </div>
               </div>
-              <div class="meta-row">
-                <span id="playerRoleBadge" class="badge-role">Member</span>
-                <span id="playerClanChip" class="badge-clan">
-                  <img id="playerClanBadgeMini" src="/assets/clan-temp.svg" alt="Clan" class="mini-clan-badge" />
+
+              <div class="meta-badges-row">
+                <span id="townHallBadge" class="pill-th">TH -</span>
+                <span id="playerRoleBadge" class="pill-role">Member</span>
+                <span id="playerWarPref" class="pill-war">Wars: In</span>
+                <button id="playerClanChip" class="pill-clan-link" type="button">
+                  <img id="playerClanBadgeMini" class="mini-badge" src="/assets/clan-temp.svg" alt="" />
                   <span id="playerClanNameText">No Clan</span>
-                </span>
-                <span id="playerWarPref" class="badge-war-pref">Wars: In</span>
+                </button>
               </div>
+
+              <!-- Official Playstyle Labels -->
+              <div id="playerLabelsContainer" class="official-labels-list"></div>
             </div>
           </div>
 
-          <!-- Labels / Playstyle -->
-          <div id="playerLabelsContainer" class="labels-container"></div>
+          <!-- Section: Analytics Modules (Categorized Panels) -->
+          <div class="dashboard-modules-grid">
+            <!-- Module 1: Combat & League Performance -->
+            <section class="stat-module">
+              <div class="module-header">
+                <h3>Combat & Trophies</h3>
+              </div>
+              <div class="metrics-row">
+                <div class="metric-item">
+                  <span class="metric-label">Trofi Saat Ini</span>
+                  <span id="trophies" class="metric-val highlight-gold">-</span>
+                  <span id="bestTrophiesSub" class="metric-sub">Tertinggi: -</span>
+                </div>
+                <div class="metric-item">
+                  <span class="metric-label">Bintang War</span>
+                  <span id="warStars" class="metric-val">-</span>
+                  <span class="metric-sub">Total Bintang</span>
+                </div>
+                <div class="metric-item">
+                  <span class="metric-label">EXP Level</span>
+                  <span id="expLevel" class="metric-val">-</span>
+                  <span class="metric-sub">Player Level</span>
+                </div>
+                <div class="metric-item">
+                  <span class="metric-label">Menang Serang / Tahan</span>
+                  <span id="attackDefenseStats" class="metric-val">- / -</span>
+                  <span class="metric-sub">Musim ini</span>
+                </div>
+              </div>
+            </section>
 
-          <!-- Section: Main Base Stats -->
-          <div class="stats-section">
-            <h3 class="section-title">Home Village Stats</h3>
-            <div class="stats-grid">
-              <div class="stat-card">
-                <div class="stat-head">
-                  <img class="stat-icon" src="/assets/townhall-temp.svg" alt="TH icon" />
-                  <span class="stat-label">Town Hall</span>
-                </div>
-                <span class="stat-value highlight" id="townHallLevel">-</span>
+            <!-- Module 2: Clan Activity & Economy -->
+            <section class="stat-module">
+              <div class="module-header">
+                <h3>Clan & Economy</h3>
               </div>
-              <div class="stat-card">
-                <div class="stat-head">
-                  <img class="stat-icon" src="/assets/trophy-temp.svg" alt="Trophy icon" />
-                  <span class="stat-label">Trofi Saat Ini</span>
+              <div class="metrics-row">
+                <div class="metric-item col-span-2">
+                  <div class="donation-header">
+                    <span class="metric-label">Rasio Donasi Pasukan</span>
+                    <span id="donationRatioText" class="metric-ratio-text">0 / 0</span>
+                  </div>
+                  <div class="ratio-progress-bg">
+                    <div id="donationRatioBar" class="ratio-progress-fill" style="width: 50%;"></div>
+                  </div>
+                  <span class="metric-sub">Terkirim (Hijau) vs Diterima (Abu)</span>
                 </div>
-                <span class="stat-value" id="trophies">-</span>
+                <div class="metric-item">
+                  <span class="metric-label">Kontribusi Clan Capital</span>
+                  <span id="clanCapitalPoints" class="metric-val highlight-gold">-</span>
+                  <span class="metric-sub">Capital Gold</span>
+                </div>
+                <div class="metric-item">
+                  <span class="metric-label">Town Hall Weapon</span>
+                  <span id="thWeaponLevel" class="metric-val">-</span>
+                  <span class="metric-sub">Bintang Giga Tesla/Inferno</span>
+                </div>
               </div>
-              <div class="stat-card">
-                <div class="stat-head">
-                  <img class="stat-icon" src="/assets/trophy-temp.svg" alt="Best Trophy icon" />
-                  <span class="stat-label">Trofi Tertinggi</span>
-                </div>
-                <span class="stat-value" id="bestTrophies">-</span>
+            </section>
+          </div>
+
+          <!-- Section: Heroes & Equipment Armory -->
+          <section id="heroesSection" class="armory-section">
+            <div class="armory-header">
+              <div class="armory-title-wrap">
+                <h3>Hero Armory</h3>
+                <span class="armory-counter" id="heroesCountText">0 Heroes</span>
               </div>
-              <div class="stat-card">
-                <div class="stat-head">
-                  <img class="stat-icon" src="/assets/star-temp.svg" alt="War star icon" />
-                  <span class="stat-label">Bintang War</span>
-                </div>
-                <span class="stat-value" id="warStars">-</span>
-              </div>
-              <div class="stat-card">
-                <div class="stat-head">
-                  <span class="stat-emoji">⚡</span>
-                  <span class="stat-label">Level EXP</span>
-                </div>
-                <span class="stat-value" id="expLevel">-</span>
-              </div>
-              <div class="stat-card">
-                <div class="stat-head">
-                  <span class="stat-emoji">⚔️</span>
-                  <span class="stat-label">Kemenangan Serang</span>
-                </div>
-                <span class="stat-value" id="attackWins">-</span>
-              </div>
-              <div class="stat-card">
-                <div class="stat-head">
-                  <span class="stat-emoji">🛡️</span>
-                  <span class="stat-label">Kemenangan Bertahan</span>
-                </div>
-                <span class="stat-value" id="defenseWins">-</span>
-              </div>
-              <div class="stat-card">
-                <div class="stat-head">
-                  <span class="stat-emoji">🎁</span>
-                  <span class="stat-label">Donasi Pasukan (Kirim/Terima)</span>
-                </div>
-                <span class="stat-value" id="donationRatio">- / -</span>
-              </div>
-              <div class="stat-card">
-                <div class="stat-head">
-                  <span class="stat-emoji">🏛️</span>
-                  <span class="stat-label">Kontribusi Clan Capital</span>
-                </div>
-                <span class="stat-value" id="clanCapitalPoints">-</span>
+              <div class="armory-tabs" role="tablist">
+                <button id="heroTabHeroes" class="armory-tab active" role="tab" type="button">Heroes</button>
+                <button id="heroTabEquip" class="armory-tab" role="tab" type="button">Equipment</button>
               </div>
             </div>
-          </div>
 
-          <!-- Section: Heroes & Equipment Showcase -->
-          <div id="heroesSection" class="heroes-section">
-            <div class="heroes-header-row">
-              <h3 class="section-title">Heroes & Equipment</h3>
-              <div class="heroes-subtabs">
-                <button id="heroTabHeroes" class="hero-subtab active" type="button">Heroes</button>
-                <button id="heroTabEquip" class="hero-subtab" type="button">Equipment</button>
+            <div id="heroesGrid" class="armory-grid"></div>
+            <div id="equipmentGrid" class="armory-grid" style="display: none;"></div>
+          </section>
+
+          <!-- Section: Builder Base Village -->
+          <section id="builderBaseSection" class="builder-village-section">
+            <div class="builder-header">
+              <h3>Builder Base (Night Village)</h3>
+              <span id="builderLeagueText" class="builder-league-pill">Unranked</span>
+            </div>
+            <div class="metrics-row">
+              <div class="metric-item">
+                <span class="metric-label">Builder Hall</span>
+                <span id="builderHallLevel" class="metric-val highlight-gold">-</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">Trofi Builder Base</span>
+                <span id="builderBaseTrophies" class="metric-val">-</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">Trofi BB Tertinggi</span>
+                <span id="bestBuilderBaseTrophies" class="metric-val">-</span>
               </div>
             </div>
-            <div id="heroesGrid" class="heroes-grid"></div>
-            <div id="equipmentGrid" class="heroes-grid" style="display: none;"></div>
-          </div>
+            <div id="builderHeroesGrid" class="armory-grid" style="margin-top: 14px;"></div>
+          </section>
 
-          <!-- Section: Builder Base -->
-          <div id="builderBaseSection" class="builder-base-section">
-            <h3 class="section-title">Builder Base</h3>
-            <div class="stats-grid">
-              <div class="stat-card">
-                <div class="stat-head">
-                  <span class="stat-emoji">🔨</span>
-                  <span class="stat-label">Builder Hall</span>
-                </div>
-                <span class="stat-value highlight" id="builderHallLevel">-</span>
-              </div>
-              <div class="stat-card">
-                <div class="stat-head">
-                  <span class="stat-emoji">🏆</span>
-                  <span class="stat-label">Trofi Builder Base</span>
-                </div>
-                <span class="stat-value" id="builderBaseTrophies">-</span>
-              </div>
-              <div class="stat-card">
-                <div class="stat-head">
-                  <span class="stat-emoji">🎖️</span>
-                  <span class="stat-label">Trofi BB Tertinggi</span>
-                </div>
-                <span class="stat-value" id="bestBuilderBaseTrophies">-</span>
-              </div>
-            </div>
-            <!-- Builder Base Heroes (Battle Machine, Battle Copter) -->
-            <div id="builderHeroesGrid" class="heroes-grid" style="margin-top: 8px;"></div>
-          </div>
-
-          <div class="card-footer">
-            <span class="badge-live">● LIVE PLAYER DATA</span>
-          </div>
+          <footer class="card-status-bar">
+            <span class="status-live-indicator">LIVE SUPERCELL API SYNC</span>
+          </footer>
         </article>
 
-        <!-- CLAN CARD -->
-        <article id="clanCard" class="card clan-card">
-          <!-- Clan Header -->
-          <div class="clan-profile-header">
-            <img id="clanBadge" class="clan-badge-large" src="/assets/clan-temp.svg" alt="Clan badge" />
-            <div class="clan-title-info">
-              <div class="name-row">
-                <h2 id="clanDataName" class="entity-name">-</h2>
-                <div class="tag-pill-wrap">
-                  <span id="clanDataTag" class="tag-pill">#-</span>
-                  <button id="copyClanTagBtn" class="action-icon-btn" type="button" title="Salin Clan Tag">
+        <!-- ==================== CLAN VIEW ==================== -->
+        <article id="clanCard" class="profile-card clan-view">
+          <!-- Clan Identity Banner -->
+          <div class="profile-banner">
+            <div class="clan-badge-container">
+              <img id="clanBadge" class="clan-badge-img" src="/assets/clan-temp.svg" alt="Clan crest" />
+            </div>
+
+            <div class="profile-core-info">
+              <div class="title-line">
+                <h2 id="clanDataName" class="user-display-name">-</h2>
+                <div class="tag-badge-group">
+                  <span id="clanDataTag" class="code-pill">#-</span>
+                  <button id="copyClanTagBtn" class="icon-tool-btn" type="button" title="Salin Clan Tag">
                     <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                     </svg>
                   </button>
-                  <button id="shareClanBtn" class="action-icon-btn" type="button" title="Bagikan link langsung clan ini">
+                  <button id="shareClanBtn" class="icon-tool-btn" type="button" title="Salin link langsung">
                     <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
@@ -306,97 +314,76 @@
                   </button>
                 </div>
               </div>
-              <div class="meta-row">
-                <span id="clanTypeBadge" class="badge-role">Invite Only</span>
-                <span id="clanLocationBadge" class="badge-clan">📍 International</span>
-                <span id="clanWarLeagueBadge" class="badge-war-pref">🏆 Master League</span>
+
+              <div class="meta-badges-row">
+                <span id="clanLevelBadge" class="pill-th">Clan Level -</span>
+                <span id="clanTypeBadge" class="pill-role">Public</span>
+                <span id="clanWarLeagueBadge" class="pill-war">War League -</span>
+                <span id="clanLocationBadge" class="pill-clan-link">📍 International</span>
               </div>
-              <p id="clanDescription" class="clan-desc-text"></p>
+
+              <p id="clanDescription" class="clan-bio"></p>
+              <div id="clanLabelsContainer" class="official-labels-list"></div>
             </div>
           </div>
 
-          <!-- Clan Labels -->
-          <div id="clanLabelsContainer" class="labels-container"></div>
-
-          <!-- Clan Stats -->
-          <div class="stats-section">
-            <h3 class="section-title">Statistik Clan</h3>
-            <div class="stats-grid">
-              <div class="stat-card">
-                <div class="stat-head">
-                  <span class="stat-emoji">⭐</span>
-                  <span class="stat-label">Level Clan</span>
-                </div>
-                <span class="stat-value highlight" id="clanLevel">-</span>
+          <!-- Clan Overview Grid -->
+          <div class="stat-module">
+            <div class="module-header">
+              <h3>Clan War & Ranking Overview</h3>
+            </div>
+            <div class="metrics-row">
+              <div class="metric-item">
+                <span class="metric-label">Trofi Clan (Home / BB)</span>
+                <span id="clanPoints" class="metric-val highlight-gold">-</span>
+                <span id="clanBuilderPoints" class="metric-sub">Builder Base: -</span>
               </div>
-              <div class="stat-card">
-                <div class="stat-head">
-                  <img class="stat-icon" src="/assets/trophy-temp.svg" alt="Trophy" />
-                  <span class="stat-label">Trofi Clan</span>
-                </div>
-                <span class="stat-value" id="clanPoints">-</span>
+              <div class="metric-item">
+                <span class="metric-label">Jumlah Anggota</span>
+                <span id="clanMembers" class="metric-val">- / 50</span>
+                <span class="metric-sub">Kapasitas Skuat</span>
               </div>
-              <div class="stat-card">
-                <div class="stat-head">
-                  <span class="stat-emoji">👥</span>
-                  <span class="stat-label">Jumlah Anggota</span>
-                </div>
-                <span class="stat-value" id="clanMembers">-</span>
+              <div class="metric-item">
+                <span class="metric-label">Rekor War (M / K / S)</span>
+                <span id="warRecord" class="metric-val">-</span>
+                <span id="warWinStreak" class="metric-sub">Streak: -</span>
               </div>
-              <div class="stat-card">
-                <div class="stat-head">
-                  <span class="stat-emoji">🔥</span>
-                  <span class="stat-label">War Win Streak</span>
-                </div>
-                <span class="stat-value" id="warWinStreak">-</span>
+              <div class="metric-item">
+                <span class="metric-label">Capital Hall</span>
+                <span id="capitalHallLevel" class="metric-val">-</span>
+                <span id="capitalPoints" class="metric-sub">Capital Points: -</span>
               </div>
-              <div class="stat-card">
-                <div class="stat-head">
-                  <span class="stat-emoji">⚔️</span>
-                  <span class="stat-label">Rekor War (M / K / S)</span>
-                </div>
-                <span class="stat-value" id="warRecord">-</span>
+              <div class="metric-item">
+                <span class="metric-label">Syarat Masuk (Trofi / TH)</span>
+                <span id="requiredEntry" class="metric-val">-</span>
+                <span class="metric-sub">Minimum Masuk</span>
               </div>
-              <div class="stat-card">
-                <div class="stat-head">
-                  <span class="stat-emoji">🏰</span>
-                  <span class="stat-label">Capital Hall</span>
-                </div>
-                <span class="stat-value" id="capitalHallLevel">-</span>
-              </div>
-              <div class="stat-card">
-                <div class="stat-head">
-                  <span class="stat-emoji">🎯</span>
-                  <span class="stat-label">Syarat Trofi Masuk</span>
-                </div>
-                <span class="stat-value" id="requiredTrophies">-</span>
-              </div>
-              <div class="stat-card">
-                <div class="stat-head">
-                  <span class="stat-emoji">🕒</span>
-                  <span class="stat-label">Frekuensi War</span>
-                </div>
-                <span class="stat-value" id="warFrequency">-</span>
+              <div class="metric-item">
+                <span class="metric-label">Frekuensi War</span>
+                <span id="warFrequency" class="metric-val">-</span>
+                <span class="metric-sub">Jadwal Perang</span>
               </div>
             </div>
           </div>
 
-          <!-- Clan Members List -->
-          <div class="members-wrapper">
-            <div class="members-header">
-              <h3 class="section-title">Daftar Anggota Clan</h3>
-              <span class="members-tip">💡 Klik baris anggota untuk membuka profil</span>
-            </div>
-
-            <!-- Member Live Filter & Sorting -->
-            <div class="members-controls-row">
-              <div class="member-search-wrap">
-                <span class="member-search-icon">🔍</span>
-                <input id="memberSearchInput" type="text" placeholder="Cari nama anggota..." />
+          <!-- Roster Leaderboard Table -->
+          <section class="roster-section">
+            <div class="roster-header-row">
+              <div class="roster-title-group">
+                <h3>Daftar Anggota Clan</h3>
+                <span id="membersCountSummary" class="roster-counter">0 Anggota</span>
               </div>
-              <div class="member-sort-wrap">
-                <label for="memberSortSelect" class="member-sort-label">Urutkan:</label>
-                <select id="memberSortSelect" class="member-sort-select">
+
+              <!-- Controls: Live Filter & Sorting -->
+              <div class="roster-tools">
+                <div class="table-search-box">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                  <input id="memberSearchInput" type="text" placeholder="Filter nama / tag..." autocomplete="off" />
+                </div>
+                <select id="memberSortSelect" class="table-sort-select">
                   <option value="trophies_desc">Trofi (Tertinggi)</option>
                   <option value="th_desc">Town Hall (Tertinggi)</option>
                   <option value="donations_desc">Donasi (Tertinggi)</option>
@@ -405,37 +392,37 @@
               </div>
             </div>
 
-            <p id="membersStatus" class="members-status">Memuat data anggota...</p>
-            <div class="members-table-wrap">
-              <table class="members-table">
+            <div class="table-responsive-wrapper" tabindex="0" role="region" aria-label="Tabel Anggota Clan">
+              <table class="roster-table">
                 <thead>
                   <tr>
-                    <th>#</th>
-                    <th>Nama Anggota</th>
-                    <th>Jabatan</th>
-                    <th>TH</th>
-                    <th>Trofi</th>
-                    <th>Donasi</th>
+                    <th scope="col" class="th-rank">#</th>
+                    <th scope="col" class="th-name">Anggota</th>
+                    <th scope="col" class="th-role">Jabatan</th>
+                    <th scope="col" class="th-th">Town Hall</th>
+                    <th scope="col" class="th-trophy">Trofi</th>
+                    <th scope="col" class="th-donations">Donasi</th>
                   </tr>
                 </thead>
                 <tbody id="membersTableBody">
                   <tr>
-                    <td colspan="6" class="members-empty">Belum ada data anggota.</td>
+                    <td colspan="6" class="table-empty">Belum ada data anggota.</td>
                   </tr>
                 </tbody>
               </table>
             </div>
-          </div>
+            <p id="membersStatus" class="table-caption-status">Memuat data anggota...</p>
+          </section>
 
-          <div class="card-footer">
-            <span class="badge-live">● CLAN PROFILE & ROSTER</span>
-          </div>
+          <footer class="card-status-bar">
+            <span class="status-live-indicator">LIVE ROSTER REFRESHED</span>
+          </footer>
         </article>
       </div>
     </main>
 
     <!-- Toast Notification -->
-    <div id="toast" class="toast"></div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
     <script src="/app.js"></script>
   </body>

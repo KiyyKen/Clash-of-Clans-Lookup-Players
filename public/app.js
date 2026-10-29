@@ -1,11 +1,15 @@
 // Cache DOM elements
 const elements = {
-  // Tabs & Search Input
+  // Navigation & Search Mode
   tabPlayer: document.getElementById("tabPlayer"),
   tabClan: document.getElementById("tabClan"),
+  themeSelect: document.getElementById("themeSelect"),
+  soundToggleBtn: document.getElementById("soundToggleBtn"),
+
+  // Search Console
   tagInput: document.getElementById("tagInput"),
   clearInputBtn: document.getElementById("clearInputBtn"),
-  fetchButton: document.getElementById("fetchBtn"),
+  fetchBtn: document.getElementById("fetchBtn"),
   errorMessage: document.getElementById("errorMessage"),
   sampleChips: document.querySelectorAll(".sample-chip"),
 
@@ -14,74 +18,79 @@ const elements = {
   recentChips: document.getElementById("recentChips"),
   clearRecentBtn: document.getElementById("clearRecentBtn"),
 
-  // Player Card
+  // Player View
   playerCard: document.getElementById("resultCard"),
   playerName: document.getElementById("playerName"),
   playerTagText: document.getElementById("playerTagText"),
   copyPlayerTagBtn: document.getElementById("copyPlayerTagBtn"),
   sharePlayerBtn: document.getElementById("sharePlayerBtn"),
   playerLeagueBadge: document.getElementById("playerLeagueBadge"),
+  townHallBadge: document.getElementById("townHallBadge"),
   playerRoleBadge: document.getElementById("playerRoleBadge"),
+  playerWarPref: document.getElementById("playerWarPref"),
   playerClanChip: document.getElementById("playerClanChip"),
   playerClanBadgeMini: document.getElementById("playerClanBadgeMini"),
   playerClanNameText: document.getElementById("playerClanNameText"),
-  playerWarPref: document.getElementById("playerWarPref"),
   playerLabelsContainer: document.getElementById("playerLabelsContainer"),
 
-  townHallLevel: document.getElementById("townHallLevel"),
   trophies: document.getElementById("trophies"),
-  bestTrophies: document.getElementById("bestTrophies"),
+  bestTrophiesSub: document.getElementById("bestTrophiesSub"),
   warStars: document.getElementById("warStars"),
   expLevel: document.getElementById("expLevel"),
-  attackWins: document.getElementById("attackWins"),
-  defenseWins: document.getElementById("defenseWins"),
-  donationRatio: document.getElementById("donationRatio"),
+  attackDefenseStats: document.getElementById("attackDefenseStats"),
+
+  donationRatioText: document.getElementById("donationRatioText"),
+  donationRatioBar: document.getElementById("donationRatioBar"),
   clanCapitalPoints: document.getElementById("clanCapitalPoints"),
+  thWeaponLevel: document.getElementById("thWeaponLevel"),
 
   heroesSection: document.getElementById("heroesSection"),
+  heroesCountText: document.getElementById("heroesCountText"),
   heroTabHeroes: document.getElementById("heroTabHeroes"),
   heroTabEquip: document.getElementById("heroTabEquip"),
   heroesGrid: document.getElementById("heroesGrid"),
   equipmentGrid: document.getElementById("equipmentGrid"),
 
   builderBaseSection: document.getElementById("builderBaseSection"),
+  builderLeagueText: document.getElementById("builderLeagueText"),
   builderHallLevel: document.getElementById("builderHallLevel"),
   builderBaseTrophies: document.getElementById("builderBaseTrophies"),
   bestBuilderBaseTrophies: document.getElementById("bestBuilderBaseTrophies"),
   builderHeroesGrid: document.getElementById("builderHeroesGrid"),
 
-  // Clan Card
+  // Clan View
   clanCard: document.getElementById("clanCard"),
   clanBadge: document.getElementById("clanBadge"),
   clanDataName: document.getElementById("clanDataName"),
   clanDataTag: document.getElementById("clanDataTag"),
   copyClanTagBtn: document.getElementById("copyClanTagBtn"),
   shareClanBtn: document.getElementById("shareClanBtn"),
+  clanLevelBadge: document.getElementById("clanLevelBadge"),
   clanTypeBadge: document.getElementById("clanTypeBadge"),
-  clanLocationBadge: document.getElementById("clanLocationBadge"),
   clanWarLeagueBadge: document.getElementById("clanWarLeagueBadge"),
+  clanLocationBadge: document.getElementById("clanLocationBadge"),
   clanDescription: document.getElementById("clanDescription"),
   clanLabelsContainer: document.getElementById("clanLabelsContainer"),
 
-  clanLevel: document.getElementById("clanLevel"),
   clanPoints: document.getElementById("clanPoints"),
+  clanBuilderPoints: document.getElementById("clanBuilderPoints"),
   clanMembers: document.getElementById("clanMembers"),
-  warWinStreak: document.getElementById("warWinStreak"),
   warRecord: document.getElementById("warRecord"),
+  warWinStreak: document.getElementById("warWinStreak"),
   capitalHallLevel: document.getElementById("capitalHallLevel"),
-  requiredTrophies: document.getElementById("requiredTrophies"),
+  capitalPoints: document.getElementById("capitalPoints"),
+  requiredEntry: document.getElementById("requiredEntry"),
   warFrequency: document.getElementById("warFrequency"),
 
+  membersCountSummary: document.getElementById("membersCountSummary"),
   memberSearchInput: document.getElementById("memberSearchInput"),
   memberSortSelect: document.getElementById("memberSortSelect"),
-  membersStatus: document.getElementById("membersStatus"),
   membersTableBody: document.getElementById("membersTableBody"),
+  membersStatus: document.getElementById("membersStatus"),
 
-  // Background & Media
+  // Background media
   backgroundImage: document.getElementById("backgroundImage"),
   backgroundVideo: document.getElementById("backgroundVideo"),
-  modeButtons: document.querySelectorAll(".mode-btn[data-mode]"),
-  soundToggleButton: document.getElementById("soundToggleBtn"),
 
   // Toast
   toast: document.getElementById("toast"),
@@ -89,19 +98,18 @@ const elements = {
 
 // State
 let activeTab = "player"; // "player" | "clan"
-let currentClanMembers = []; // Cache clan members for search & sort
+let currentClanMembers = [];
 const RECENT_KEY = "coc_recent_searches_v2";
-const BACKGROUND_STORAGE_KEY = "coc-background-mode";
-const AVAILABLE_BACKGROUND_MODES = ["gradient", "image", "video"];
+const THEME_STORAGE_KEY = "coc-theme-preference";
 
-// Helper: Safely format values
+// Helper: safe text injection
 function setText(element, value, fallback = "-") {
   if (element) {
     element.textContent = value !== null && value !== undefined && value !== "" ? value : fallback;
   }
 }
 
-// Show toast alert
+// Toast notification
 let toastTimer = null;
 function showToast(message) {
   if (!elements.toast) return;
@@ -110,11 +118,11 @@ function showToast(message) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => {
     elements.toast.classList.remove("show");
-  }, 2500);
+  }, 2400);
 }
 
-// Copy to clipboard helper
-async function copyToClipboard(text, entityType = "Tag") {
+// Clipboard copy helper
+async function copyToClipboard(text, label = "Tag") {
   try {
     if (navigator.clipboard && window.isSecureContext) {
       await navigator.clipboard.writeText(text);
@@ -128,27 +136,27 @@ async function copyToClipboard(text, entityType = "Tag") {
       document.execCommand("copy");
       document.body.removeChild(textarea);
     }
-    showToast(`${entityType} (${text}) berhasil disalin! 📋`);
+    showToast(`${label} disalin ke clipboard! 📋`);
   } catch (err) {
     showToast(`Gagal menyalin: ${text}`);
   }
 }
 
-// Share Direct Link
-function shareDirectLink(type, tag, name) {
-  const cleanTag = tag.replace(/^#/, "");
-  const url = `${window.location.origin}${window.location.pathname}?${type}=${encodeURIComponent(cleanTag)}`;
+// Share direct URL
+function shareLink(type, tag, name) {
+  const clean = tag.replace(/^#/, "");
+  const url = `${window.location.origin}${window.location.pathname}?${type}=${encodeURIComponent(clean)}`;
   copyToClipboard(url, `Link ${name || tag}`);
 }
 
-// Update URL bar without reload
-function updateBrowserUrl(type, tag) {
-  const cleanTag = tag.replace(/^#/, "");
-  const newUrl = `${window.location.pathname}?${type}=${encodeURIComponent(cleanTag)}`;
+// Sync browser URL
+function syncUrl(type, tag) {
+  const clean = tag.replace(/^#/, "");
+  const newUrl = `${window.location.pathname}?${type}=${encodeURIComponent(clean)}`;
   window.history.replaceState({ type, tag }, "", newUrl);
 }
 
-// Format Role string
+// Role label formatting
 function formatRole(role) {
   const map = {
     member: "Member",
@@ -159,22 +167,22 @@ function formatRole(role) {
   return map[role] || role || "Member";
 }
 
-// Format Clan Type
+// Clan type formatting
 function formatClanType(type) {
   const map = {
-    open: "Open",
+    open: "Public (Open)",
     inviteOnly: "Invite Only",
     closed: "Closed",
   };
   return map[type] || type || "Public";
 }
 
-// Format War Frequency
+// War frequency formatting
 function formatWarFrequency(freq) {
   const map = {
-    always: "Selalu (Always)",
-    moreThanOnceAWeek: "2x seminggu",
-    onceAWeek: "1x seminggu",
+    always: "Always (Selalu)",
+    moreThanOnceAWeek: "2x per minggu",
+    onceAWeek: "1x per minggu",
     lessThanOnceAWeek: "Jarang",
     never: "Never",
     unknown: "Tidak diketahui",
@@ -182,27 +190,27 @@ function formatWarFrequency(freq) {
   return map[freq] || freq || "-";
 }
 
-// Tab Switcher
-function setActiveTab(tab) {
+// Tab Switching
+function setMode(tab) {
   activeTab = tab;
   if (tab === "player") {
     elements.tabPlayer.classList.add("active");
     elements.tabClan.classList.remove("active");
-    elements.tagInput.placeholder = "Contoh: 8QRC82JP8";
-    elements.fetchButton.querySelector(".btn-text").textContent = "Cari Player";
+    elements.tagInput.placeholder = "Masukkan player tag, misal 8QRC82JP8";
+    elements.fetchBtn.querySelector(".btn-text").textContent = "Cari Player";
   } else {
     elements.tabClan.classList.add("active");
     elements.tabPlayer.classList.remove("active");
-    elements.tagInput.placeholder = "Contoh: 2LYQPU00L";
-    elements.fetchButton.querySelector(".btn-text").textContent = "Cari Clan";
+    elements.tagInput.placeholder = "Masukkan clan tag, misal 2LYQPU00L";
+    elements.fetchBtn.querySelector(".btn-text").textContent = "Cari Clan";
   }
   elements.tagInput.focus();
 }
 
-elements.tabPlayer.addEventListener("click", () => setActiveTab("player"));
-elements.tabClan.addEventListener("click", () => setActiveTab("clan"));
+elements.tabPlayer.addEventListener("click", () => setMode("player"));
+elements.tabClan.addEventListener("click", () => setMode("clan"));
 
-// Input clear button toggle
+// Clear button
 elements.tagInput.addEventListener("input", () => {
   elements.clearInputBtn.classList.toggle("visible", elements.tagInput.value.length > 0);
 });
@@ -215,8 +223,8 @@ elements.clearInputBtn.addEventListener("click", () => {
 
 // Loading state
 function toggleLoading(isLoading) {
-  elements.fetchButton.disabled = isLoading;
-  const btnText = elements.fetchButton.querySelector(".btn-text");
+  elements.fetchBtn.disabled = isLoading;
+  const btnText = elements.fetchBtn.querySelector(".btn-text");
   if (isLoading) {
     btnText.innerHTML = '<span class="loading-dot"></span>Memuat...';
   } else {
@@ -224,7 +232,6 @@ function toggleLoading(isLoading) {
   }
 }
 
-// Error state
 function showError(msg) {
   if (msg) {
     elements.errorMessage.textContent = msg;
@@ -235,21 +242,19 @@ function showError(msg) {
   }
 }
 
-// Reset views
 function resetViews() {
   showError("");
   elements.playerCard.classList.remove("show");
   elements.clanCard.classList.remove("show");
 }
 
-// Request Helper
 async function requestApi(url) {
   const response = await fetch(url);
   const data = await response.json();
   return { response, data };
 }
 
-// Render Labels
+// Render Playstyle Labels
 function renderLabels(container, labels = []) {
   if (!container) return;
   container.innerHTML = "";
@@ -259,23 +264,23 @@ function renderLabels(container, labels = []) {
   }
   container.style.display = "flex";
   labels.forEach((l) => {
-    const badge = document.createElement("div");
-    badge.className = "label-badge";
+    const chip = document.createElement("div");
+    chip.className = "official-label-chip";
     if (l.iconUrl) {
       const img = document.createElement("img");
-      img.className = "label-icon";
+      img.className = "official-label-img";
       img.src = l.iconUrl;
-      img.alt = l.name;
-      badge.appendChild(img);
+      img.alt = "";
+      chip.appendChild(img);
     }
     const txt = document.createElement("span");
     txt.textContent = l.name;
-    badge.appendChild(txt);
-    container.appendChild(badge);
+    chip.appendChild(txt);
+    container.appendChild(chip);
   });
 }
 
-// Hero & Equipment Subtabs
+// Armory Tabs (Heroes vs Equipment)
 if (elements.heroTabHeroes && elements.heroTabEquip) {
   elements.heroTabHeroes.addEventListener("click", () => {
     elements.heroTabHeroes.classList.add("active");
@@ -292,27 +297,26 @@ if (elements.heroTabHeroes && elements.heroTabEquip) {
   });
 }
 
-function createLevelCard(name, level, maxLevel) {
+function createArmorySlot(name, level, maxLevel) {
   const isMax = level >= maxLevel;
-  const percent = Math.min(100, Math.round((level / (maxLevel || 1)) * 100));
+  const pct = Math.min(100, Math.round((level / (maxLevel || 1)) * 100));
 
   const card = document.createElement("div");
-  card.className = "hero-card";
+  card.className = "hero-slot-card";
   card.innerHTML = `
-    <div class="hero-card-head">
-      <span class="hero-name">${name}</span>
-      <span class="hero-level-text">Lv ${level} / ${maxLevel}</span>
+    <div class="hero-slot-head">
+      <span class="hero-slot-name" title="${name}">${name}</span>
+      <span class="hero-slot-level">Lv ${level} <small style="color:var(--text-muted);font-weight:400;">/ ${maxLevel}</small></span>
     </div>
-    <div class="hero-bar-bg">
-      <div class="hero-bar-fill ${isMax ? "maxed" : ""}" style="width: ${percent}%;"></div>
+    <div class="hero-level-track">
+      <div class="hero-level-fill ${isMax ? "maxed" : ""}" style="width: ${pct}%;"></div>
     </div>
-    ${isMax ? '<div style="display:flex;justify-content:flex-end;"><span class="hero-max-badge">MAXED</span></div>' : ""}
+    ${isMax ? '<span class="hero-max-badge">MAX</span>' : ""}
   `;
   return card;
 }
 
-// Render Heroes & Equipment
-function renderHeroesAndEquipment(heroes = [], equipment = []) {
+function renderArmory(heroes = [], equipment = []) {
   elements.heroesGrid.innerHTML = "";
   elements.equipmentGrid.innerHTML = "";
   if (elements.builderHeroesGrid) elements.builderHeroesGrid.innerHTML = "";
@@ -324,29 +328,28 @@ function renderHeroesAndEquipment(heroes = [], equipment = []) {
     elements.heroesSection.style.display = "none";
   } else {
     elements.heroesSection.style.display = "flex";
+    setText(elements.heroesCountText, `${homeHeroes.length} Heroes`);
 
-    // Home Heroes
     homeHeroes.forEach((h) => {
-      elements.heroesGrid.appendChild(createLevelCard(h.name, h.level, h.maxLevel));
+      elements.heroesGrid.appendChild(createArmorySlot(h.name, h.level, h.maxLevel));
     });
 
-    // Equipment
     equipment.forEach((eq) => {
-      elements.equipmentGrid.appendChild(createLevelCard(eq.name, eq.level, eq.maxLevel));
+      elements.equipmentGrid.appendChild(createArmorySlot(eq.name, eq.level, eq.maxLevel));
     });
 
-    // Default to Heroes tab
+    // Default to Heroes
     elements.heroTabHeroes.classList.add("active");
     elements.heroTabEquip.classList.remove("active");
     elements.heroesGrid.style.display = "grid";
     elements.equipmentGrid.style.display = "none";
   }
 
-  // Builder Base Heroes
+  // Builder Heroes
   if (elements.builderHeroesGrid && builderHeroes.length > 0) {
     elements.builderHeroesGrid.style.display = "grid";
     builderHeroes.forEach((bh) => {
-      elements.builderHeroesGrid.appendChild(createLevelCard(bh.name, bh.level, bh.maxLevel));
+      elements.builderHeroesGrid.appendChild(createArmorySlot(bh.name, bh.level, bh.maxLevel));
     });
   } else if (elements.builderHeroesGrid) {
     elements.builderHeroesGrid.style.display = "none";
@@ -359,7 +362,7 @@ function renderPlayer(p) {
   setText(elements.playerTagText, p.tag);
 
   elements.copyPlayerTagBtn.onclick = () => copyToClipboard(p.tag, "Player Tag");
-  elements.sharePlayerBtn.onclick = () => shareDirectLink("player", p.tag, p.name);
+  elements.sharePlayerBtn.onclick = () => shareLink("player", p.tag, p.name);
 
   // League icon
   if (p.league && p.league.iconUrl) {
@@ -370,12 +373,16 @@ function renderPlayer(p) {
     elements.playerLeagueBadge.title = "Unranked";
   }
 
-  // Role & War Preference
+  // Meta pills
+  const thText = p.townHallWeaponLevel
+    ? `TH ${p.townHallLevel} ⭐${p.townHallWeaponLevel}`
+    : `TH ${p.townHallLevel}`;
+  setText(elements.townHallBadge, thText);
   setText(elements.playerRoleBadge, formatRole(p.role));
   elements.playerRoleBadge.style.display = p.role ? "inline-flex" : "none";
 
   if (p.warPreference) {
-    elements.playerWarPref.textContent = p.warPreference === "in" ? "Wars: IN ✅" : "Wars: OUT ❌";
+    elements.playerWarPref.textContent = p.warPreference === "in" ? "Wars: In ✅" : "Wars: Out ❌";
     elements.playerWarPref.style.display = "inline-flex";
   } else {
     elements.playerWarPref.style.display = "none";
@@ -386,10 +393,9 @@ function renderPlayer(p) {
     elements.playerClanChip.style.display = "inline-flex";
     setText(elements.playerClanNameText, p.clanName);
     elements.playerClanBadgeMini.src = p.clanBadgeUrl || "/assets/clan-temp.svg";
-    elements.playerClanChip.style.cursor = "pointer";
     elements.playerClanChip.onclick = () => {
       if (p.clanTag) {
-        setActiveTab("clan");
+        setMode("clan");
         elements.tagInput.value = p.clanTag.replace(/^#/, "");
         searchClan(p.clanTag);
       }
@@ -401,39 +407,44 @@ function renderPlayer(p) {
   // Labels
   renderLabels(elements.playerLabelsContainer, p.labels);
 
-  // Stats Grid
-  const thDisplay = p.townHallWeaponLevel
-    ? `TH ${p.townHallLevel} ⭐${p.townHallWeaponLevel}`
-    : `TH ${p.townHallLevel}`;
-  setText(elements.townHallLevel, thDisplay);
-  setText(elements.trophies, `${p.trophies?.toLocaleString() || 0} 🏆`);
-  setText(elements.bestTrophies, `${p.bestTrophies?.toLocaleString() || 0} 🏆`);
+  // Combat metrics
+  setText(elements.trophies, `${p.trophies?.toLocaleString() || 0}`);
+  setText(elements.bestTrophiesSub, `Tertinggi: ${p.bestTrophies?.toLocaleString() || 0}`);
   setText(elements.warStars, `${p.warStars?.toLocaleString() || 0} ⭐`);
-  setText(elements.expLevel, p.expLevel);
-  setText(elements.attackWins, `${p.attackWins || 0} Menang`);
-  setText(elements.defenseWins, `${p.defenseWins || 0} Menang`);
+  setText(elements.expLevel, `Level ${p.expLevel || 1}`);
+  setText(elements.attackDefenseStats, `${p.attackWins || 0} / ${p.defenseWins || 0}`);
 
-  const donated = p.donations?.toLocaleString() || "0";
-  const received = p.donationsReceived?.toLocaleString() || "0";
-  setText(elements.donationRatio, `${donated} / ${received}`);
-  setText(elements.clanCapitalPoints, p.clanCapitalContributions?.toLocaleString() || "0");
+  // Economy & Clan metrics
+  const sent = p.donations || 0;
+  const rcvd = p.donationsReceived || 0;
+  setText(elements.donationRatioText, `${sent.toLocaleString()} / ${rcvd.toLocaleString()}`);
 
-  // Heroes & Equipment
-  renderHeroesAndEquipment(p.heroes, p.heroEquipment);
+  const totalDonations = sent + rcvd;
+  const ratioPct = totalDonations > 0 ? Math.round((sent / totalDonations) * 100) : 50;
+  if (elements.donationRatioBar) {
+    elements.donationRatioBar.style.width = `${ratioPct}%`;
+  }
+
+  setText(elements.clanCapitalPoints, `${p.clanCapitalContributions?.toLocaleString() || 0}`);
+  setText(elements.thWeaponLevel, p.townHallWeaponLevel ? `Bintang ${p.townHallWeaponLevel}` : "None");
+
+  // Armory
+  renderArmory(p.heroes, p.heroEquipment);
 
   // Builder Base
   if (p.builderHallLevel) {
     elements.builderBaseSection.style.display = "flex";
+    setText(elements.builderLeagueText, p.builderBaseLeague || "Builder Base");
     setText(elements.builderHallLevel, `BH ${p.builderHallLevel}`);
-    setText(elements.builderBaseTrophies, `${p.builderBaseTrophies?.toLocaleString() || 0} 🏆`);
-    setText(elements.bestBuilderBaseTrophies, `${p.bestBuilderBaseTrophies?.toLocaleString() || 0} 🏆`);
+    setText(elements.builderBaseTrophies, `${p.builderBaseTrophies?.toLocaleString() || 0}`);
+    setText(elements.bestBuilderBaseTrophies, `${p.bestBuilderBaseTrophies?.toLocaleString() || 0}`);
   } else {
     elements.builderBaseSection.style.display = "none";
   }
 
   elements.playerCard.classList.add("show");
-  saveRecentSearch("player", p.tag, p.name);
-  updateBrowserUrl("player", p.tag);
+  saveRecent("player", p.tag, p.name);
+  syncUrl("player", p.tag);
 }
 
 // Render Clan Profile
@@ -442,12 +453,13 @@ function renderClan(c) {
   setText(elements.clanDataTag, c.tag);
 
   elements.copyClanTagBtn.onclick = () => copyToClipboard(c.tag, "Clan Tag");
-  elements.shareClanBtn.onclick = () => shareDirectLink("clan", c.tag, c.name);
+  elements.shareClanBtn.onclick = () => shareLink("clan", c.tag, c.name);
 
   elements.clanBadge.src = c.badgeUrl || "/assets/clan-temp.svg";
+  setText(elements.clanLevelBadge, `Level ${c.clanLevel}`);
   setText(elements.clanTypeBadge, formatClanType(c.type));
-  setText(elements.clanLocationBadge, c.location ? `📍 ${c.location}` : "📍 International");
   setText(elements.clanWarLeagueBadge, c.warLeague ? `🏆 ${c.warLeague}` : "War League");
+  setText(elements.clanLocationBadge, c.location ? `📍 ${c.location}` : "📍 International");
 
   if (c.description) {
     elements.clanDescription.textContent = `“${c.description}”`;
@@ -456,38 +468,43 @@ function renderClan(c) {
     elements.clanDescription.style.display = "none";
   }
 
-  // Clan Labels
   renderLabels(elements.clanLabelsContainer, c.labels);
 
-  // Clan Stats Grid
-  setText(elements.clanLevel, `Lv ${c.clanLevel}`);
-  setText(elements.clanPoints, `${c.clanPoints?.toLocaleString() || 0} 🏆`);
+  // Metrics
+  setText(elements.clanPoints, `${c.clanPoints?.toLocaleString() || 0}`);
+  setText(elements.clanBuilderPoints, `Builder Base: ${c.clanBuilderBasePoints?.toLocaleString() || 0}`);
   setText(elements.clanMembers, `${c.members} / 50`);
-  setText(elements.warWinStreak, `${c.warWinStreak || 0} Win Streak`);
 
-  const warRecordText = c.isWarLogPublic
-    ? `${c.warWins || 0}M / ${c.warLosses || 0}K / ${c.warTies || 0}S`
+  const warLogStr = c.isWarLogPublic
+    ? `${c.warWins || 0}W - ${c.warLosses || 0}L - ${c.warTies || 0}T`
     : `${c.warWins || 0} Menang (Log Privat)`;
-  setText(elements.warRecord, warRecordText);
+  setText(elements.warRecord, warLogStr);
+  setText(elements.warWinStreak, `Streak: ${c.warWinStreak || 0} Win`);
 
   setText(elements.capitalHallLevel, c.capitalHallLevel ? `CH ${c.capitalHallLevel}` : "-");
-  setText(elements.requiredTrophies, `${c.requiredTrophies?.toLocaleString() || 0} 🏆`);
+  setText(elements.capitalPoints, `Capital Points: ${c.clanCapitalPoints?.toLocaleString() || 0}`);
+
+  const reqTh = c.requiredTownhallLevel ? `TH ${c.requiredTownhallLevel}` : "-";
+  setText(elements.requiredEntry, `${c.requiredTrophies?.toLocaleString() || 0} 🏆 / ${reqTh}`);
   setText(elements.warFrequency, formatWarFrequency(c.warFrequency));
 
   elements.clanCard.classList.add("show");
-  saveRecentSearch("clan", c.tag, c.name);
-  updateBrowserUrl("clan", c.tag);
+  saveRecent("clan", c.tag, c.name);
+  syncUrl("clan", c.tag);
 }
 
-// Clan Members Filter & Sorting
-function getFilteredAndSortedMembers() {
+// Clan Roster Table Filtering & Sorting
+function getFilteredAndSortedRoster() {
   const query = (elements.memberSearchInput?.value || "").toLowerCase().trim();
   const sortMode = elements.memberSortSelect?.value || "trophies_desc";
 
   let list = [...currentClanMembers];
 
   if (query) {
-    list = list.filter((m) => (m.name || "").toLowerCase().includes(query) || (m.tag || "").toLowerCase().includes(query));
+    list = list.filter((m) =>
+      (m.name || "").toLowerCase().includes(query) ||
+      (m.tag || "").toLowerCase().includes(query)
+    );
   }
 
   list.sort((a, b) => {
@@ -501,38 +518,38 @@ function getFilteredAndSortedMembers() {
   return list;
 }
 
-function updateClanMembersTable() {
-  const members = getFilteredAndSortedMembers();
+function updateRosterTable() {
+  const list = getFilteredAndSortedRoster();
 
-  if (!members.length) {
+  if (!list.length) {
     elements.membersStatus.textContent = currentClanMembers.length === 0
       ? "Clan ini tidak memiliki data anggota."
-      : "Tidak ada anggota yang cocok dengan pencarian.";
+      : "Tidak ada anggota yang cocok dengan filter.";
     elements.membersTableBody.innerHTML =
-      '<tr><td colspan="6" class="members-empty">Tidak ada data anggota ditemukan.</td></tr>';
+      '<tr><td colspan="6" class="table-empty">Tidak ada data anggota ditemukan.</td></tr>';
     return;
   }
 
-  elements.membersStatus.textContent = `Menampilkan ${members.length} dari ${currentClanMembers.length} anggota:`;
+  elements.membersStatus.textContent = `Menampilkan ${list.length} dari ${currentClanMembers.length} anggota clan. Klik baris untuk inspect.`;
 
-  const rows = members
-    .map((m, index) => {
-      const leagueImg = m.leagueIcon
-        ? `<img class="member-league-icon" src="${m.leagueIcon}" alt="League" />`
+  const rows = list
+    .map((m, idx) => {
+      const icon = m.leagueIcon
+        ? `<img class="member-league-img" src="${m.leagueIcon}" alt="" />`
         : "";
       return `
-        <tr class="member-row-interactive" data-tag="${m.tag}" title="Klik untuk lihat profil ${m.name}">
-          <td>${m.clanRank || index + 1}</td>
+        <tr class="member-row-clickable" data-tag="${m.tag}">
+          <td style="font-weight:700;color:var(--text-tertiary);">${m.clanRank || idx + 1}</td>
           <td>
-            <div class="member-name-cell">
-              ${leagueImg}
+            <div class="member-name-flex">
+              ${icon}
               <span>${m.name}</span>
             </div>
           </td>
-          <td><span class="badge-role">${formatRole(m.role)}</span></td>
-          <td>TH ${m.townHallLevel || "-"}</td>
-          <td>${m.trophies?.toLocaleString() || 0}</td>
-          <td>${m.donations?.toLocaleString() || 0}</td>
+          <td><span class="pill-role">${formatRole(m.role)}</span></td>
+          <td><span class="pill-th">TH ${m.townHallLevel || "-"}</span></td>
+          <td style="font-weight:700;font-family:var(--font-mono);">${m.trophies?.toLocaleString() || 0}</td>
+          <td style="font-family:var(--font-mono);">${m.donations?.toLocaleString() || 0}</td>
         </tr>
       `;
     })
@@ -540,12 +557,11 @@ function updateClanMembersTable() {
 
   elements.membersTableBody.innerHTML = rows;
 
-  // Add click handler to all rows
-  elements.membersTableBody.querySelectorAll(".member-row-interactive").forEach((row) => {
+  elements.membersTableBody.querySelectorAll(".member-row-clickable").forEach((row) => {
     row.addEventListener("click", () => {
       const tag = row.dataset.tag;
       if (tag) {
-        setActiveTab("player");
+        setMode("player");
         elements.tagInput.value = tag.replace(/^#/, "");
         searchPlayer(tag);
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -555,18 +571,17 @@ function updateClanMembersTable() {
 }
 
 if (elements.memberSearchInput) {
-  elements.memberSearchInput.addEventListener("input", updateClanMembersTable);
+  elements.memberSearchInput.addEventListener("input", updateRosterTable);
 }
-
 if (elements.memberSortSelect) {
-  elements.memberSortSelect.addEventListener("change", updateClanMembersTable);
+  elements.memberSortSelect.addEventListener("change", updateRosterTable);
 }
 
-// Render Clan Members
 function renderClanMembers(members = []) {
   currentClanMembers = members;
+  setText(elements.membersCountSummary, `${members.length} Anggota`);
   if (elements.memberSearchInput) elements.memberSearchInput.value = "";
-  updateClanMembersTable();
+  updateRosterTable();
 }
 
 // Search Player
@@ -582,12 +597,11 @@ async function searchPlayer(tag) {
     }
     renderPlayer(data);
 
-    // If player has a clan, also prefetch clan profile
     if (data.clanTag) {
       fetchClanDataSilently(data.clanTag);
     }
   } catch (err) {
-    showError("Terjadi kesalahan jaringan. Cek koneksi Anda.");
+    showError("Terjadi kendala jaringan saat menghubungi server.");
   } finally {
     toggleLoading(false);
   }
@@ -605,11 +619,9 @@ async function searchClan(tag) {
       return;
     }
     renderClan(data);
-
-    // Fetch clan members
     fetchClanMembers(tag);
   } catch (err) {
-    showError("Terjadi kesalahan jaringan. Cek koneksi Anda.");
+    showError("Terjadi kendala jaringan saat menghubungi server.");
   } finally {
     toggleLoading(false);
   }
@@ -622,67 +634,58 @@ async function fetchClanDataSilently(clanTag) {
       renderClan(data);
       fetchClanMembers(clanTag);
     }
-  } catch (err) {
-    // Clan error is silent when viewing player
-  }
+  } catch (err) {}
 }
 
 async function fetchClanMembers(clanTag) {
   try {
-    elements.membersStatus.textContent = "Memuat daftar anggota...";
+    elements.membersStatus.textContent = "Memuat data anggota...";
     const { response, data } = await requestApi(`/clan/${encodeURIComponent(clanTag)}/members`);
     if (response.ok && data.members) {
       renderClanMembers(data.members);
     } else {
-      elements.membersStatus.textContent = "Gagal memuat daftar anggota.";
+      elements.membersStatus.textContent = "Gagal memuat anggota.";
     }
   } catch (err) {
-    elements.membersStatus.textContent = "Gagal memuat daftar anggota.";
+    elements.membersStatus.textContent = "Gagal memuat anggota.";
   }
 }
 
-// Trigger Search from Input
-function triggerSearch() {
+// Execute search
+function executeSearch() {
   const val = elements.tagInput.value.trim();
   if (!val) {
-    showError(activeTab === "player" ? "Masukkan player tag terlebih dahulu." : "Masukkan clan tag terlebih dahulu.");
+    showError(activeTab === "player" ? "Ketik player tag terlebih dahulu." : "Ketik clan tag terlebih dahulu.");
     return;
   }
-
-  const normalized = val.startsWith("#") ? val : `#${val}`;
+  const norm = val.startsWith("#") ? val : `#${val}`;
   if (activeTab === "player") {
-    searchPlayer(normalized);
+    searchPlayer(norm);
   } else {
-    searchClan(normalized);
+    searchClan(norm);
   }
 }
 
-// Event Listeners for Search
-elements.fetchButton.addEventListener("click", triggerSearch);
+elements.fetchBtn.addEventListener("click", executeSearch);
 elements.tagInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    triggerSearch();
-  }
+  if (e.key === "Enter") executeSearch();
 });
 
-// Quick Samples
+// Quick samples
 elements.sampleChips.forEach((chip) => {
   chip.addEventListener("click", () => {
     const type = chip.dataset.type;
     const tag = chip.dataset.tag;
-    setActiveTab(type);
+    setMode(type);
     elements.tagInput.value = tag.replace(/^#/, "");
     elements.clearInputBtn.classList.add("visible");
-    if (type === "player") {
-      searchPlayer(tag);
-    } else {
-      searchClan(tag);
-    }
+    if (type === "player") searchPlayer(tag);
+    else searchClan(tag);
   });
 });
 
-// Recent Searches Logic
-function loadRecentSearches() {
+// Recent searches
+function loadRecent() {
   try {
     const raw = localStorage.getItem(RECENT_KEY);
     return raw ? JSON.parse(raw) : [];
@@ -691,19 +694,18 @@ function loadRecentSearches() {
   }
 }
 
-function saveRecentSearch(type, tag, name) {
-  let list = loadRecentSearches();
-  list = list.filter((item) => item.tag !== tag);
+function saveRecent(type, tag, name) {
+  let list = loadRecent().filter((i) => i.tag !== tag);
   list.unshift({ type, tag, name, time: Date.now() });
-  if (list.length > 8) list.pop();
+  if (list.length > 6) list.pop();
   try {
     localStorage.setItem(RECENT_KEY, JSON.stringify(list));
-    renderRecentSearches();
+    renderRecent();
   } catch (e) {}
 }
 
-function renderRecentSearches() {
-  const list = loadRecentSearches();
+function renderRecent() {
+  const list = loadRecent();
   if (!list.length) {
     elements.recentContainer.classList.add("hide");
     return;
@@ -714,55 +716,46 @@ function renderRecentSearches() {
   list.forEach((item) => {
     const chip = document.createElement("div");
     chip.className = "recent-chip";
-    const icon = item.type === "player" ? "👤" : "🛡️";
     chip.innerHTML = `
-      <span>${icon} ${item.name || item.tag}</span>
+      <span>${item.name || item.tag}</span>
       <span class="recent-remove" title="Hapus">✕</span>
     `;
 
     chip.addEventListener("click", (e) => {
       if (e.target.classList.contains("recent-remove")) {
         e.stopPropagation();
-        deleteRecentSearch(item.tag);
+        deleteRecent(item.tag);
         return;
       }
-      setActiveTab(item.type);
+      setMode(item.type);
       elements.tagInput.value = item.tag.replace(/^#/, "");
       elements.clearInputBtn.classList.add("visible");
-      if (item.type === "player") {
-        searchPlayer(item.tag);
-      } else {
-        searchClan(item.tag);
-      }
+      if (item.type === "player") searchPlayer(item.tag);
+      else searchClan(item.tag);
     });
 
     elements.recentChips.appendChild(chip);
   });
 }
 
-function deleteRecentSearch(tag) {
-  let list = loadRecentSearches();
-  list = list.filter((i) => i.tag !== tag);
+function deleteRecent(tag) {
+  let list = loadRecent().filter((i) => i.tag !== tag);
   localStorage.setItem(RECENT_KEY, JSON.stringify(list));
-  renderRecentSearches();
+  renderRecent();
 }
 
 elements.clearRecentBtn.addEventListener("click", () => {
   localStorage.removeItem(RECENT_KEY);
-  renderRecentSearches();
+  renderRecent();
 });
 
-// Background Themes
-function activateBackgroundMode(mode) {
-  const validMode = AVAILABLE_BACKGROUND_MODES.includes(mode) ? mode : "gradient";
-
+// Theme Management
+function applyTheme(theme) {
   document.body.classList.remove("bg-image-mode", "bg-video-mode");
 
-  if (validMode === "image") {
+  if (theme === "image") {
     document.body.classList.add("bg-image-mode");
-  }
-
-  if (validMode === "video") {
+  } else if (theme === "video") {
     document.body.classList.add("bg-video-mode");
     if (elements.backgroundVideo) {
       elements.backgroundVideo.play().catch(() => {});
@@ -771,81 +764,75 @@ function activateBackgroundMode(mode) {
     elements.backgroundVideo.pause();
   }
 
-  elements.modeButtons.forEach((btn) => {
-    btn.classList.toggle("active", btn.dataset.mode === validMode);
-  });
+  if (elements.themeSelect) {
+    elements.themeSelect.value = theme;
+  }
 
-  localStorage.setItem(BACKGROUND_STORAGE_KEY, validMode);
-  updateSoundButtonLabel();
+  localStorage.setItem(THEME_STORAGE_KEY, theme);
+  updateSoundBtn();
 }
 
-function updateSoundButtonLabel() {
-  if (!elements.soundToggleButton || !elements.backgroundVideo) return;
-  const isVideoMode = document.body.classList.contains("bg-video-mode");
+function updateSoundBtn() {
+  if (!elements.soundToggleBtn || !elements.backgroundVideo) return;
+  const isVideo = document.body.classList.contains("bg-video-mode");
   const isMuted = elements.backgroundVideo.muted;
 
-  elements.soundToggleButton.classList.toggle("sound-on", isVideoMode && !isMuted);
-  elements.soundToggleButton.classList.toggle("visible", isVideoMode);
+  elements.soundToggleBtn.classList.toggle("sound-on", isVideo && !isMuted);
+  elements.soundToggleBtn.classList.toggle("visible", isVideo);
 }
 
-async function toggleVideoSound() {
-  if (!elements.backgroundVideo) return;
-  if (!document.body.classList.contains("bg-video-mode")) {
-    activateBackgroundMode("video");
-  }
-
-  elements.backgroundVideo.muted = !elements.backgroundVideo.muted;
-  try {
-    await elements.backgroundVideo.play();
-  } catch (e) {
-    elements.backgroundVideo.muted = true;
-  }
-  updateSoundButtonLabel();
+if (elements.soundToggleBtn) {
+  elements.soundToggleBtn.addEventListener("click", async () => {
+    if (!elements.backgroundVideo) return;
+    if (!document.body.classList.contains("bg-video-mode")) {
+      applyTheme("video");
+    }
+    elements.backgroundVideo.muted = !elements.backgroundVideo.muted;
+    try {
+      await elements.backgroundVideo.play();
+    } catch (e) {
+      elements.backgroundVideo.muted = true;
+    }
+    updateSoundBtn();
+  });
 }
 
-elements.modeButtons.forEach((btn) => {
-  btn.addEventListener("click", () => activateBackgroundMode(btn.dataset.mode));
-});
-
-if (elements.soundToggleButton) {
-  elements.soundToggleButton.addEventListener("click", toggleVideoSound);
+if (elements.themeSelect) {
+  elements.themeSelect.addEventListener("change", (e) => {
+    applyTheme(e.target.value);
+  });
 }
 
 // Fallback handlers
 if (elements.backgroundImage) {
   elements.backgroundImage.addEventListener("error", () => {
-    if (document.body.classList.contains("bg-image-mode")) {
-      activateBackgroundMode("gradient");
-    }
+    if (document.body.classList.contains("bg-image-mode")) applyTheme("gradient");
   });
 }
-
 if (elements.backgroundVideo) {
   elements.backgroundVideo.addEventListener("error", () => {
-    if (document.body.classList.contains("bg-video-mode")) {
-      activateBackgroundMode("gradient");
-    }
+    if (document.body.classList.contains("bg-video-mode")) applyTheme("gradient");
   });
 }
 
 // Initialise
-const savedMode = localStorage.getItem(BACKGROUND_STORAGE_KEY) || "gradient";
-activateBackgroundMode(savedMode);
-renderRecentSearches();
+const initialTheme = localStorage.getItem(THEME_STORAGE_KEY) || "gradient";
+applyTheme(initialTheme);
+renderRecent();
 
-// Check URL query parameters (Direct Link Support)
-const urlParams = new URLSearchParams(window.location.search);
-const initialPlayer = urlParams.get("player");
-const initialClan = urlParams.get("clan");
+// Direct Link param check
+const params = new URLSearchParams(window.location.search);
+const pTag = params.get("player");
+const cTag = params.get("clan");
 
-if (initialPlayer) {
-  setActiveTab("player");
-  elements.tagInput.value = initialPlayer.replace(/^#/, "");
+if (pTag) {
+  setMode("player");
+  elements.tagInput.value = pTag.replace(/^#/, "");
   elements.clearInputBtn.classList.add("visible");
-  searchPlayer(initialPlayer);
-} else if (initialClan) {
-  setActiveTab("clan");
-  elements.tagInput.value = initialClan.replace(/^#/, "");
+  searchPlayer(pTag);
+} else if (cTag) {
+  setMode("clan");
+  elements.tagInput.value = cTag.replace(/^#/, "");
   elements.clearInputBtn.classList.add("visible");
-  searchClan(initialClan);
+  searchClan(cTag);
 }
