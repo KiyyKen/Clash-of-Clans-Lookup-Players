@@ -7,6 +7,40 @@ A modern, fast, modular, and feature-rich fullstack web application for looking 
 ![Architecture](https://img.shields.io/badge/Architecture-Modular%20ESM-orange.svg)
 ![License](https://img.shields.io/badge/License-ISC-yellow.svg)
 
+<p align="center">
+  <img src="docs/screenshots/player-profile.png" alt="Clash of Clans Player Profile Preview" width="100%" />
+</p>
+
+---
+
+## 📸 Screenshots & Showcase
+
+### 1. 👤 Profil Pemain (Player Profile) & Army Armory
+Tampilan profil detail pemain mencakup badge liga Dragon League Supercell, preview gedung Town Hall 18 dengan level weapon, rasio donasi pasukan, status war, serta tab armory lengkap.
+
+![Player Profile](docs/screenshots/player-profile.png)
+
+---
+
+### 2. 🔮 Hero Equipment & Level Progression
+Sistem tab showcase equipment hero (Common & Epic) dengan artwork resmi resolusi tinggi, penyesuaian level, indikator progress bar visual, dan badge status `MAX`.
+
+![Hero Equipment Showcase](docs/screenshots/hero-equipment.png)
+
+---
+
+### 3. 🛡️ Profil Clan & Roster Anggota (Clan View)
+Informasi komprehensif clan (badge resmi, level clan, war win streak, rekor war, capital hall) serta tabel anggota clan interaktif dengan fitur filter nama/tag dan sortir dinamis (Trofi, TH, Donasi).
+
+![Clan Profile & Roster](docs/screenshots/clan-profile.png)
+
+---
+
+### 4. ☀️ Pilihan Tema: Desa Siang (Terang) vs 🌙 Desa Malam (Gelap)
+Tersedia selector tema suasana desa Clash of Clans dengan wallpaper resolusi tinggi dan kontras visual yang nyaman di mata.
+
+![Daylight Village Theme](docs/screenshots/daylight-theme.png)
+
 ---
 
 ## 🌟 Key Features
@@ -52,6 +86,13 @@ The codebase follows a modular design without requiring complex bundlers, levera
 
 ```text
 Clash-of-Clans-Lookup-Players/
+├── docs/                                 # 📸 Documentation & Screenshots
+│   └── screenshots/
+│       ├── player-profile.png
+│       ├── hero-equipment.png
+│       ├── clan-profile.png
+│       └── daylight-theme.png
+│
 ├── src/                                  # ⚙️ Backend (Express & Node.js)
 │   ├── config.js                         # Environment variables & port config
 │   ├── server.js                         # Clean entrypoint

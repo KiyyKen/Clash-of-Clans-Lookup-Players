@@ -1,5 +1,5 @@
 import { elements } from "./js/dom.js";
-import { initTheme } from "./js/theme.js";
+import { initTheme, applyTheme } from "./js/theme.js";
 import { initRecent } from "./js/history.js";
 import { initArmoryTabs, searchPlayer } from "./js/player.js";
 import { initRosterFilters, searchClan, fetchClanDataSilently } from "./js/clan.js";
@@ -156,12 +156,35 @@ function handleDeepLink() {
   const params = new URLSearchParams(window.location.search);
   const pTag = params.get("player");
   const cTag = params.get("clan");
+  const themeParam = params.get("theme");
+  const armoryParam = params.get("armory");
+
+  if (themeParam) {
+    applyTheme(themeParam);
+  }
 
   if (pTag) {
     setMode("player");
     elements.tagInput.value = pTag.replace(/^#/, "");
     elements.clearInputBtn.classList.add("visible");
     executePlayerSearch(pTag);
+
+    if (armoryParam) {
+      setTimeout(() => {
+        const tabMap = {
+          heroes: elements.heroTabHeroes,
+          equipment: elements.heroTabEquip,
+          equip: elements.heroTabEquip,
+          troops: elements.heroTabTroops,
+          spells: elements.heroTabSpells,
+          siege: elements.heroTabSiege,
+          pets: elements.heroTabPets,
+        };
+        if (tabMap[armoryParam]) {
+          tabMap[armoryParam].click();
+        }
+      }, 600);
+    }
   } else if (cTag) {
     setMode("clan");
     elements.tagInput.value = cTag.replace(/^#/, "");
