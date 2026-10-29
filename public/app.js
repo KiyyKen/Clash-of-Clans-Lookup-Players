@@ -103,7 +103,8 @@ const elements = {
   membersStatus: document.getElementById("membersStatus"),
 
   // Background media
-  backgroundImage: document.getElementById("backgroundImage"),
+  bgNight: document.getElementById("bgNight"),
+  bgDay: document.getElementById("bgDay"),
 
   // Toast
   toast: document.getElementById("toast"),
@@ -996,8 +997,8 @@ if (elements.themeSelect) {
 }
 
 // Fallback handlers
-if (elements.backgroundImage) {
-  elements.backgroundImage.addEventListener("error", () => {
+if (elements.bgDay) {
+  elements.bgDay.addEventListener("error", () => {
     if (document.body.classList.contains("bg-image-mode")) applyTheme("gradient");
   });
 }

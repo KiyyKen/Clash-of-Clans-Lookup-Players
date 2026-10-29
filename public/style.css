@@ -80,12 +80,28 @@ body {
 .bg-overlay {
   position: absolute;
   inset: 0;
-  display: none;
+  display: block;
+  transition: background 0.3s ease;
 }
 
-body.bg-image-mode .bg-image,
-body.bg-image-mode .bg-overlay {
+/* Default Theme: Desa Malam (Gelap) */
+body:not(.bg-image-mode) .bg-night {
   display: block;
+}
+
+body:not(.bg-image-mode) .bg-overlay {
+  background: rgba(9, 12, 18, 0.78);
+  backdrop-filter: blur(4px);
+}
+
+/* Theme: Desa Siang (Terang) */
+body.bg-image-mode .bg-day {
+  display: block;
+}
+
+body.bg-image-mode .bg-overlay {
+  background: rgba(248, 250, 252, 0.65);
+  backdrop-filter: blur(4px);
 }
 
 /* ==================== THEME: VILLAGE DAYLIGHT (TEMA TERANG) ==================== */
@@ -125,11 +141,6 @@ body.bg-image-mode {
   /* System */
   --error: #dc2626;
   --error-bg: rgba(220, 38, 38, 0.08);
-}
-
-body.bg-image-mode .bg-overlay {
-  background: rgba(248, 250, 252, 0.65);
-  backdrop-filter: blur(4px);
 }
 
 body.bg-image-mode .search-console,
