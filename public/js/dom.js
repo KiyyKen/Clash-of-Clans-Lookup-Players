@@ -113,6 +113,22 @@ export const elements = {
   bgNight: document.getElementById("bgNight"),
   bgDay: document.getElementById("bgDay"),
 
+  // Upgrade Modal
+  upgradeModal: document.getElementById("upgradeModal"),
+  upgradeModalBackdrop: document.getElementById("upgradeModalBackdrop"),
+  upgradeModalClose: document.getElementById("upgradeModalClose"),
+  modalUnitImg: document.getElementById("modalUnitImg"),
+  modalUnitCategory: document.getElementById("modalUnitCategory"),
+  modalUnitName: document.getElementById("modalUnitName"),
+  modalUnitLevel: document.getElementById("modalUnitLevel"),
+  modalUnitStatus: document.getElementById("modalUnitStatus"),
+  modalProgressPct: document.getElementById("modalProgressPct"),
+  modalTrackFill: document.getElementById("modalTrackFill"),
+  modalNextLevelTag: document.getElementById("modalNextLevelTag"),
+  modalNextCostBody: document.getElementById("modalNextCostBody"),
+  modalRemainingLevels: document.getElementById("modalRemainingLevels"),
+  modalTotalCostBody: document.getElementById("modalTotalCostBody"),
+
   // Toast
   toast: document.getElementById("toast"),
 };

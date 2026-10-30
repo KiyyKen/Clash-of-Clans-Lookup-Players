@@ -571,6 +571,67 @@
       </div>
     </main>
 
+    <!-- Upgrade Detail Modal -->
+    <div id="upgradeModal" class="upgrade-modal" aria-hidden="true" role="dialog" aria-labelledby="modalUnitName">
+      <div class="upgrade-modal-backdrop" id="upgradeModalBackdrop"></div>
+      <div class="upgrade-modal-card">
+        <button id="upgradeModalClose" class="upgrade-modal-close" type="button" aria-label="Tutup modal">✕</button>
+        
+        <div class="upgrade-modal-header">
+          <div class="modal-unit-avatar-box">
+            <img id="modalUnitImg" class="modal-unit-img" src="/assets/barbarian-temp.svg" alt="" />
+          </div>
+          <div class="modal-unit-title-box">
+            <span id="modalUnitCategory" class="modal-category-tag">HERO</span>
+            <h3 id="modalUnitName" class="modal-unit-title">-</h3>
+            <div class="modal-level-row">
+              <span id="modalUnitLevel" class="modal-level-val">Lv 0 / 0</span>
+              <span id="modalUnitStatus" class="modal-status-badge">Menuju Max</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-track-wrap">
+          <div class="modal-track-head">
+            <span>Progress Upgrade</span>
+            <span id="modalProgressPct" class="modal-pct-val">0%</span>
+          </div>
+          <div class="modal-track-bar">
+            <div id="modalTrackFill" class="modal-track-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <!-- Upgrade Cost Cards -->
+        <div class="modal-cost-grid">
+          <!-- Next Level Card -->
+          <div class="modal-cost-box next-box">
+            <div class="cost-box-head">
+              <span class="cost-box-label">🎯 Biaya ke Level Selanjutnya</span>
+              <span id="modalNextLevelTag" class="cost-box-target">Ke Lv -</span>
+            </div>
+            <div id="modalNextCostBody" class="cost-box-body">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- Road to Max Card -->
+          <div class="modal-cost-box max-box">
+            <div class="cost-box-head">
+              <span class="cost-box-label">🏆 Total Sisa Menuju MAX</span>
+              <span id="modalRemainingLevels" class="cost-box-target">- Level lagi</span>
+            </div>
+            <div id="modalTotalCostBody" class="cost-box-body">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer-note">
+          <span>💡 Estimasi resource dihitung berdasarkan data resmi Supercell Clash of Clans.</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Toast Notification -->
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 

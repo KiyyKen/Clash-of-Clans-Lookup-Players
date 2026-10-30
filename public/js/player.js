@@ -14,6 +14,7 @@ import {
 import { formatRole, renderLabels } from "./formatters.js";
 import { saveRecent } from "./history.js";
 import { requestApi } from "./api.js";
+import { getUnitUpgradeData } from "./upgradeCalculator.js";
 
 // Armory tab elements mapping
 const armoryTabsList = [
@@ -38,6 +39,107 @@ export function selectArmoryTab(activeTabElement) {
   });
 }
 
+export function closeUpgradeModal() {
+  if (elements.upgradeModal) {
+    elements.upgradeModal.classList.remove("show");
+    elements.upgradeModal.setAttribute("aria-hidden", "true");
+  }
+}
+
+export function openUpgradeModal({ name, level, maxLevel, iconUrl, category, village, upgradeData }) {
+  if (!elements.upgradeModal) return;
+
+  const isMax = level >= maxLevel;
+  const pct = Math.min(100, Math.round((level / (maxLevel || 1)) * 100));
+
+  const categoryLabels = {
+    hero: village === "builderBase" ? "HERO DESA MALAM" : "HERO",
+    equipment: maxLevel > 18 ? "EPIC EQUIPMENT" : "COMMON EQUIPMENT",
+    troop: village === "builderBase" ? "PASUKAN DESA MALAM" : "PASUKAN",
+    spell: "SPELL",
+    siege: "SIEGE MACHINE",
+    pet: "HERO PET",
+  };
+
+  if (elements.modalUnitImg) {
+    elements.modalUnitImg.src = iconUrl;
+    elements.modalUnitImg.alt = name;
+  }
+  setText(elements.modalUnitCategory, categoryLabels[category] || "UNIT");
+  setText(elements.modalUnitName, name);
+  setText(elements.modalUnitLevel, `Level ${level} / ${maxLevel}`);
+
+  if (elements.modalUnitStatus) {
+    elements.modalUnitStatus.textContent = isMax ? "MAX LEVEL 🏆" : `${upgradeData.levelsRemaining} Level lagi menuju MAX`;
+    elements.modalUnitStatus.className = `modal-status-badge ${isMax ? "maxed" : ""}`;
+  }
+
+  setText(elements.modalProgressPct, `${pct}%`);
+  if (elements.modalTrackFill) {
+    elements.modalTrackFill.style.width = `${pct}%`;
+    elements.modalTrackFill.className = `modal-track-fill ${isMax ? "maxed" : ""}`;
+  }
+
+  // Next level cost box
+  setText(elements.modalNextLevelTag, isMax ? "MAX" : `Ke Lv ${level + 1}`);
+  if (elements.modalNextCostBody) {
+    if (isMax) {
+      elements.modalNextCostBody.innerHTML = `
+        <div class="cost-max-notice">
+          <span>🏆</span>
+          <span>Unit ini sudah mencapai level maksimum!</span>
+        </div>
+      `;
+    } else if (category === "equipment") {
+      const { shiny, glowy, starry } = upgradeData.nextCost;
+      const pills = [];
+      if (shiny > 0) pills.push(`<div class="cost-item-pill"><span class="res-ico">💎</span><span>${shiny.toLocaleString()}</span><span class="res-name">Shiny Ore</span></div>`);
+      if (glowy > 0) pills.push(`<div class="cost-item-pill"><span class="res-ico">🟣</span><span>${glowy.toLocaleString()}</span><span class="res-name">Glowy Ore</span></div>`);
+      if (starry > 0) pills.push(`<div class="cost-item-pill"><span class="res-ico">⭐</span><span>${starry.toLocaleString()}</span><span class="res-name">Starry Ore</span></div>`);
+      elements.modalNextCostBody.innerHTML = pills.join("");
+    } else {
+      elements.modalNextCostBody.innerHTML = `
+        <div class="cost-item-pill">
+          <span class="res-ico">${upgradeData.resourceIcon}</span>
+          <span>${upgradeData.nextCost.toLocaleString()}</span>
+          <span class="res-name">${upgradeData.resourceName}</span>
+        </div>
+      `;
+    }
+  }
+
+  // Road to max cost box
+  setText(elements.modalRemainingLevels, isMax ? "Selesai" : `${upgradeData.levelsRemaining} Level lagi`);
+  if (elements.modalTotalCostBody) {
+    if (isMax) {
+      elements.modalTotalCostBody.innerHTML = `
+        <div class="cost-max-notice">
+          <span>✅</span>
+          <span>Semua level telah terselesaikan! Tidak butuh resource lagi.</span>
+        </div>
+      `;
+    } else if (category === "equipment") {
+      const { shiny, glowy, starry } = upgradeData.totalRemaining;
+      const pills = [];
+      if (shiny > 0) pills.push(`<div class="cost-item-pill"><span class="res-ico">💎</span><span>${shiny.toLocaleString()}</span><span class="res-name">Total Shiny</span></div>`);
+      if (glowy > 0) pills.push(`<div class="cost-item-pill"><span class="res-ico">🟣</span><span>${glowy.toLocaleString()}</span><span class="res-name">Total Glowy</span></div>`);
+      if (starry > 0) pills.push(`<div class="cost-item-pill"><span class="res-ico">⭐</span><span>${starry.toLocaleString()}</span><span class="res-name">Total Starry</span></div>`);
+      elements.modalTotalCostBody.innerHTML = pills.join("");
+    } else {
+      elements.modalTotalCostBody.innerHTML = `
+        <div class="cost-item-pill">
+          <span class="res-ico">${upgradeData.resourceIcon}</span>
+          <span>${upgradeData.totalRemaining.toLocaleString()}</span>
+          <span class="res-name">Total ${upgradeData.resourceName}</span>
+        </div>
+      `;
+    }
+  }
+
+  elements.upgradeModal.classList.add("show");
+  elements.upgradeModal.setAttribute("aria-hidden", "false");
+}
+
 export function initArmoryTabs() {
   armoryTabsList.forEach(({ tab }) => {
     if (tab) {
@@ -59,14 +161,29 @@ export function initArmoryTabs() {
       if (elements.builderTroopsGrid) elements.builderTroopsGrid.style.display = "grid";
     });
   }
+
+  // Modal event listeners
+  if (elements.upgradeModalClose) {
+    elements.upgradeModalClose.addEventListener("click", closeUpgradeModal);
+  }
+  if (elements.upgradeModalBackdrop) {
+    elements.upgradeModalBackdrop.addEventListener("click", closeUpgradeModal);
+  }
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeUpgradeModal();
+  });
 }
 
-export function createArmorySlot(name, level, maxLevel, iconUrl) {
+export function createArmorySlot(name, level, maxLevel, iconUrl, category = "troop", village = "home") {
   const isMax = level >= maxLevel;
   const pct = Math.min(100, Math.round((level / (maxLevel || 1)) * 100));
+  const upgradeData = getUnitUpgradeData({ name, level, maxLevel, category, village });
 
   const card = document.createElement("div");
   card.className = "hero-slot-card";
+  card.setAttribute("role", "button");
+  card.setAttribute("tabindex", "0");
+  card.setAttribute("title", `Klik untuk melihat detail kebutuhan upgrade ${name}`);
   card.innerHTML = `
     <div class="hero-thumb-box">
       <img
@@ -85,9 +202,21 @@ export function createArmorySlot(name, level, maxLevel, iconUrl) {
       <div class="hero-level-track">
         <div class="hero-level-fill ${isMax ? "maxed" : ""}" style="width: ${pct}%;"></div>
       </div>
-      ${isMax ? '<span class="hero-max-badge">MAX</span>' : ""}
+      <div class="hero-cost-pill">
+        ${upgradeData.costBadgeHtml}
+      </div>
     </div>
   `;
+
+  const onOpen = () => openUpgradeModal({ name, level, maxLevel, iconUrl, category, village, upgradeData });
+  card.addEventListener("click", onOpen);
+  card.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onOpen();
+    }
+  });
+
   return card;
 }
 
@@ -130,27 +259,27 @@ export function renderArmory(heroes = [], equipment = [], troops = [], spells = 
     setText(elements.heroesCountText, `${totalArmoryItems} Unit`);
 
     homeHeroes.forEach((h) => {
-      elements.heroesGrid.appendChild(createArmorySlot(h.name, h.level, h.maxLevel, getHeroIcon(h.name)));
+      elements.heroesGrid.appendChild(createArmorySlot(h.name, h.level, h.maxLevel, getHeroIcon(h.name), "hero", "home"));
     });
 
     equipment.forEach((eq) => {
-      elements.equipmentGrid.appendChild(createArmorySlot(eq.name, eq.level, eq.maxLevel, getEquipmentIcon(eq.name)));
+      elements.equipmentGrid.appendChild(createArmorySlot(eq.name, eq.level, eq.maxLevel, getEquipmentIcon(eq.name), "equipment", "home"));
     });
 
     regularTroops.forEach((t) => {
-      elements.troopsGrid.appendChild(createArmorySlot(t.name, t.level, t.maxLevel, getTroopIcon(t.name)));
+      elements.troopsGrid.appendChild(createArmorySlot(t.name, t.level, t.maxLevel, getTroopIcon(t.name), "troop", "home"));
     });
 
     (spells || []).forEach((s) => {
-      elements.spellsGrid.appendChild(createArmorySlot(s.name, s.level, s.maxLevel, getSpellIcon(s.name)));
+      elements.spellsGrid.appendChild(createArmorySlot(s.name, s.level, s.maxLevel, getSpellIcon(s.name), "spell", "home"));
     });
 
     siegeMachines.forEach((sm) => {
-      elements.siegeGrid.appendChild(createArmorySlot(sm.name, sm.level, sm.maxLevel, getTroopIcon(sm.name)));
+      elements.siegeGrid.appendChild(createArmorySlot(sm.name, sm.level, sm.maxLevel, getTroopIcon(sm.name), "siege", "home"));
     });
 
     pets.forEach((p) => {
-      elements.petsGrid.appendChild(createArmorySlot(p.name, p.level, p.maxLevel, getPetIcon(p.name)));
+      elements.petsGrid.appendChild(createArmorySlot(p.name, p.level, p.maxLevel, getPetIcon(p.name), "pet", "home"));
     });
 
     // Update tab labels with counts
@@ -174,10 +303,10 @@ export function renderArmory(heroes = [], equipment = [], troops = [], spells = 
   // Builder Heroes & Troops
   if (builderHeroes.length > 0 || bbTroops.length > 0) {
     builderHeroes.forEach((bh) => {
-      elements.builderHeroesGrid.appendChild(createArmorySlot(bh.name, bh.level, bh.maxLevel, getHeroIcon(bh.name)));
+      elements.builderHeroesGrid.appendChild(createArmorySlot(bh.name, bh.level, bh.maxLevel, getHeroIcon(bh.name), "hero", "builderBase"));
     });
     bbTroops.forEach((bt) => {
-      elements.builderTroopsGrid.appendChild(createArmorySlot(bt.name, bt.level, bt.maxLevel, getTroopIcon(bt.name)));
+      elements.builderTroopsGrid.appendChild(createArmorySlot(bt.name, bt.level, bt.maxLevel, getTroopIcon(bt.name), "troop", "builderBase"));
     });
 
     if (elements.bbTabHeroes) elements.bbTabHeroes.textContent = `Heroes (${builderHeroes.length})`;
