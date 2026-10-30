@@ -500,6 +500,221 @@ body.bg-image-mode .armory-tab.active {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
+/* ==================== ARMORY SUMMARY BANNER ==================== */
+.armory-summary-banner {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: all 0.25s ease;
+}
+
+.armory-summary-banner:empty {
+  display: none;
+}
+
+.summary-banner-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 10px;
+}
+
+.summary-banner-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.3px;
+}
+
+.summary-meta-badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.summary-meta-pill {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: var(--radius-xs);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+
+.summary-meta-pill.maxed {
+  color: var(--accent-emerald);
+  background: var(--accent-emerald-subtle);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.summary-meta-pill.levels {
+  color: var(--clash-gold);
+  background: var(--clash-gold-subtle);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.summary-banner-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 640px) {
+  .summary-banner-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.summary-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.summary-box.next-box {
+  border-left: 3px solid var(--accent-blue);
+}
+
+.summary-box.total-box {
+  border-left: 3px solid var(--clash-gold);
+}
+
+.summary-box-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.summary-pills-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.summary-res-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.summary-res-pill .res-icon-img {
+  width: 16px;
+  height: 16px;
+}
+
+.summary-res-pill .res-label-sub {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  font-family: var(--font-sans);
+}
+
+/* Specific Resource Pill Glows & Colors */
+.summary-res-pill.dark_elixir {
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.25);
+  background: rgba(15, 23, 42, 0.85);
+}
+
+.summary-res-pill.elixir {
+  color: #f472b6;
+  border-color: rgba(217, 70, 239, 0.25);
+  background: rgba(217, 70, 239, 0.1);
+}
+
+.summary-res-pill.builder_elixir {
+  color: #22d3ee;
+  border-color: rgba(6, 182, 212, 0.25);
+  background: rgba(6, 182, 212, 0.1);
+}
+
+.summary-res-pill.ore-shiny {
+  color: #38bdf8;
+  border-color: rgba(14, 165, 233, 0.25);
+  background: rgba(14, 165, 233, 0.1);
+}
+
+.summary-res-pill.ore-glowy {
+  color: #c084fc;
+  border-color: rgba(168, 85, 247, 0.25);
+  background: rgba(168, 85, 247, 0.1);
+}
+
+.summary-res-pill.ore-starry {
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.25);
+  background: rgba(245, 158, 11, 0.1);
+}
+
+/* Light Theme Contrast Enhancements */
+[data-theme="siang"] .summary-res-pill.elixir {
+  color: #be185d;
+  background: rgba(219, 39, 119, 0.1);
+  border-color: rgba(219, 39, 119, 0.25);
+}
+
+[data-theme="siang"] .summary-res-pill.dark_elixir {
+  color: #0369a1;
+  background: rgba(3, 105, 161, 0.08);
+  border-color: rgba(3, 105, 161, 0.25);
+}
+
+[data-theme="siang"] .summary-res-pill.builder_elixir {
+  color: #0891b2;
+  background: rgba(8, 145, 178, 0.1);
+}
+
+[data-theme="siang"] .summary-res-pill.ore-shiny {
+  color: #0284c7;
+  background: rgba(2, 132, 199, 0.1);
+}
+
+[data-theme="siang"] .summary-res-pill.ore-glowy {
+  color: #7c3aed;
+  background: rgba(124, 58, 237, 0.1);
+}
+
+[data-theme="siang"] .summary-res-pill.ore-starry {
+  color: #d97706;
+  background: rgba(217, 119, 6, 0.1);
+}
+
+.summary-all-max-tag {
+  color: var(--accent-emerald);
+  font-size: 0.76rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
 /* Builder Body */
 .builder-body {
   display: flex;

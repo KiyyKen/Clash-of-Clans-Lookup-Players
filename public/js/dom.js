@@ -67,6 +67,7 @@ export const elements = {
   spellsGrid: document.getElementById("spellsGrid"),
   siegeGrid: document.getElementById("siegeGrid"),
   petsGrid: document.getElementById("petsGrid"),
+  armorySummaryBanner: document.getElementById("armorySummaryBanner"),
 
   // Builder Base
   builderBaseSection: document.getElementById("builderBaseSection"),
@@ -80,6 +81,7 @@ export const elements = {
   bbTabTroops: document.getElementById("bbTabTroops"),
   builderHeroesGrid: document.getElementById("builderHeroesGrid"),
   builderTroopsGrid: document.getElementById("builderTroopsGrid"),
+  builderSummaryBanner: document.getElementById("builderSummaryBanner"),
 
   // Clan View
   clanCard: document.getElementById("clanCard"),

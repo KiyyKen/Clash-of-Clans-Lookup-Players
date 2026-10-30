@@ -14,29 +14,82 @@ import {
 import { formatRole, renderLabels } from "./formatters.js";
 import { saveRecent } from "./history.js";
 import { requestApi } from "./api.js";
-import { getUnitUpgradeData, RESOURCE_ICONS } from "./upgradeCalculator.js";
+import {
+  getUnitUpgradeData,
+  RESOURCE_ICONS,
+  calculateCategorySummary,
+  renderCategorySummaryHtml,
+} from "./upgradeCalculator.js";
+
+// State for cumulative category calculations
+const currentArmoryCategories = {
+  heroes: [],
+  equipment: [],
+  troops: [],
+  spells: [],
+  siege: [],
+  pets: [],
+};
+
+const currentBuilderCategories = {
+  heroes: [],
+  troops: [],
+};
 
 // Armory tab elements mapping
 const armoryTabsList = [
-  { get tab() { return elements.heroTabHeroes; }, get grid() { return elements.heroesGrid; } },
-  { get tab() { return elements.heroTabEquip; }, get grid() { return elements.equipmentGrid; } },
-  { get tab() { return elements.heroTabTroops; }, get grid() { return elements.troopsGrid; } },
-  { get tab() { return elements.heroTabSpells; }, get grid() { return elements.spellsGrid; } },
-  { get tab() { return elements.heroTabSiege; }, get grid() { return elements.siegeGrid; } },
-  { get tab() { return elements.heroTabPets; }, get grid() { return elements.petsGrid; } },
+  { key: "heroes", title: "Heroes", get tab() { return elements.heroTabHeroes; }, get grid() { return elements.heroesGrid; } },
+  { key: "equipment", title: "Hero Equipment", get tab() { return elements.heroTabEquip; }, get grid() { return elements.equipmentGrid; } },
+  { key: "troops", title: "Pasukan", get tab() { return elements.heroTabTroops; }, get grid() { return elements.troopsGrid; } },
+  { key: "spells", title: "Spells", get tab() { return elements.heroTabSpells; }, get grid() { return elements.spellsGrid; } },
+  { key: "siege", title: "Siege Machines", get tab() { return elements.heroTabSiege; }, get grid() { return elements.siegeGrid; } },
+  { key: "pets", title: "Hero Pets", get tab() { return elements.heroTabPets; }, get grid() { return elements.petsGrid; } },
 ];
 
 export function selectArmoryTab(activeTabElement) {
-  armoryTabsList.forEach(({ tab, grid }) => {
+  let selectedTabConfig = null;
+  armoryTabsList.forEach((item) => {
+    const { tab, grid } = item;
     if (!tab || !grid) return;
     if (tab === activeTabElement) {
       tab.classList.add("active");
       grid.style.display = "grid";
+      selectedTabConfig = item;
     } else {
       tab.classList.remove("active");
       grid.style.display = "none";
     }
   });
+
+  if (selectedTabConfig && elements.armorySummaryBanner) {
+    const units = currentArmoryCategories[selectedTabConfig.key] || [];
+    const summary = calculateCategorySummary(units);
+    elements.armorySummaryBanner.innerHTML = renderCategorySummaryHtml(`Total Estimasi Upgrade ${selectedTabConfig.title}`, summary);
+  }
+}
+
+export function selectBuilderTab(isHeroes) {
+  if (elements.bbTabHeroes && elements.bbTabTroops) {
+    if (isHeroes) {
+      elements.bbTabHeroes.classList.add("active");
+      elements.bbTabTroops.classList.remove("active");
+      if (elements.builderHeroesGrid) elements.builderHeroesGrid.style.display = "grid";
+      if (elements.builderTroopsGrid) elements.builderTroopsGrid.style.display = "none";
+      if (elements.builderSummaryBanner) {
+        const summary = calculateCategorySummary(currentBuilderCategories.heroes);
+        elements.builderSummaryBanner.innerHTML = renderCategorySummaryHtml("Total Estimasi Upgrade Builder Heroes", summary);
+      }
+    } else {
+      elements.bbTabTroops.classList.add("active");
+      elements.bbTabHeroes.classList.remove("active");
+      if (elements.builderHeroesGrid) elements.builderHeroesGrid.style.display = "none";
+      if (elements.builderTroopsGrid) elements.builderTroopsGrid.style.display = "grid";
+      if (elements.builderSummaryBanner) {
+        const summary = calculateCategorySummary(currentBuilderCategories.troops);
+        elements.builderSummaryBanner.innerHTML = renderCategorySummaryHtml("Total Estimasi Upgrade Pasukan BB", summary);
+      }
+    }
+  }
 }
 
 export function closeUpgradeModal() {
@@ -148,18 +201,8 @@ export function initArmoryTabs() {
   });
 
   if (elements.bbTabHeroes && elements.bbTabTroops) {
-    elements.bbTabHeroes.addEventListener("click", () => {
-      elements.bbTabHeroes.classList.add("active");
-      elements.bbTabTroops.classList.remove("active");
-      if (elements.builderHeroesGrid) elements.builderHeroesGrid.style.display = "grid";
-      if (elements.builderTroopsGrid) elements.builderTroopsGrid.style.display = "none";
-    });
-    elements.bbTabTroops.addEventListener("click", () => {
-      elements.bbTabTroops.classList.add("active");
-      elements.bbTabHeroes.classList.remove("active");
-      if (elements.builderHeroesGrid) elements.builderHeroesGrid.style.display = "none";
-      if (elements.builderTroopsGrid) elements.builderTroopsGrid.style.display = "grid";
-    });
+    elements.bbTabHeroes.addEventListener("click", () => selectBuilderTab(true));
+    elements.bbTabTroops.addEventListener("click", () => selectBuilderTab(false));
   }
 
   // Modal event listeners
@@ -296,12 +339,22 @@ export function renderArmory(heroes = [], equipment = [], troops = [], spells = 
       elements.heroTabPets.textContent = `Pets (${pets.length})`;
     }
 
+    currentArmoryCategories.heroes = homeHeroes.map((h) => ({ ...h, category: "hero", village: "home" }));
+    currentArmoryCategories.equipment = (equipment || []).map((eq) => ({ ...eq, category: "equipment", village: "home" }));
+    currentArmoryCategories.troops = regularTroops.map((t) => ({ ...t, category: "troop", village: "home" }));
+    currentArmoryCategories.spells = (spells || []).map((s) => ({ ...s, category: "spell", village: "home" }));
+    currentArmoryCategories.siege = siegeMachines.map((sm) => ({ ...sm, category: "siege", village: "home" }));
+    currentArmoryCategories.pets = pets.map((p) => ({ ...p, category: "pet", village: "home" }));
+
     // Default to Heroes tab
     selectArmoryTab(elements.heroTabHeroes);
   }
 
   // Builder Heroes & Troops
   if (builderHeroes.length > 0 || bbTroops.length > 0) {
+    currentBuilderCategories.heroes = builderHeroes.map((bh) => ({ ...bh, category: "hero", village: "builderBase" }));
+    currentBuilderCategories.troops = bbTroops.map((bt) => ({ ...bt, category: "troop", village: "builderBase" }));
+
     builderHeroes.forEach((bh) => {
       elements.builderHeroesGrid.appendChild(createArmorySlot(bh.name, bh.level, bh.maxLevel, getHeroIcon(bh.name), "hero", "builderBase"));
     });
@@ -312,12 +365,7 @@ export function renderArmory(heroes = [], equipment = [], troops = [], spells = 
     if (elements.bbTabHeroes) elements.bbTabHeroes.textContent = `Heroes (${builderHeroes.length})`;
     if (elements.bbTabTroops) elements.bbTabTroops.textContent = `Pasukan BB (${bbTroops.length})`;
 
-    if (elements.bbTabHeroes && elements.bbTabTroops) {
-      elements.bbTabHeroes.classList.add("active");
-      elements.bbTabTroops.classList.remove("active");
-      if (elements.builderHeroesGrid) elements.builderHeroesGrid.style.display = "grid";
-      if (elements.builderTroopsGrid) elements.builderTroopsGrid.style.display = "none";
-    }
+    selectBuilderTab(true);
   }
 }
 

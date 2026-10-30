@@ -414,3 +414,181 @@ export function getUnitUpgradeData(unit) {
   }
   return calculateTroopOrSpellUpgrade(name, level, maxLevel, category, village);
 }
+
+/**
+ * Calculate Cumulative Category Summary
+ * Calculates next level and total-to-max costs for a group of units (e.g. Heroes, Equipment, Troops, etc.)
+ */
+export function calculateCategorySummary(units = []) {
+  const totalUnits = units.length;
+  let maxedCount = 0;
+  let totalLevelsRemaining = 0;
+
+  const next = {
+    elixir: 0,
+    darkElixir: 0,
+    builderElixir: 0,
+    shinyOre: 0,
+    glowyOre: 0,
+    starryOre: 0,
+  };
+
+  const total = {
+    elixir: 0,
+    darkElixir: 0,
+    builderElixir: 0,
+    shinyOre: 0,
+    glowyOre: 0,
+    starryOre: 0,
+  };
+
+  units.forEach((u) => {
+    const data = getUnitUpgradeData(u);
+    if (data.isMax) {
+      maxedCount++;
+      return;
+    }
+
+    totalLevelsRemaining += data.levelsRemaining || 0;
+
+    if (data.resourceType === "ore") {
+      next.shinyOre += data.nextCost.shiny || 0;
+      next.glowyOre += data.nextCost.glowy || 0;
+      next.starryOre += data.nextCost.starry || 0;
+
+      total.shinyOre += data.totalRemaining.shiny || 0;
+      total.glowyOre += data.totalRemaining.glowy || 0;
+      total.starryOre += data.totalRemaining.starry || 0;
+    } else if (data.resourceType === "dark_elixir") {
+      next.darkElixir += data.nextCost || 0;
+      total.darkElixir += data.totalRemaining || 0;
+    } else if (data.resourceType === "builder_elixir") {
+      next.builderElixir += data.nextCost || 0;
+      total.builderElixir += data.totalRemaining || 0;
+    } else {
+      next.elixir += data.nextCost || 0;
+      total.elixir += data.totalRemaining || 0;
+    }
+  });
+
+  const isAllMax = totalUnits > 0 && maxedCount === totalUnits;
+
+  return {
+    totalUnits,
+    maxedCount,
+    totalLevelsRemaining,
+    isAllMax,
+    next,
+    total,
+  };
+}
+
+/**
+ * Render Category Summary Banner HTML
+ */
+export function renderCategorySummaryHtml(title, summaryData) {
+  if (!summaryData || summaryData.totalUnits === 0) {
+    return "";
+  }
+
+  const { totalUnits, maxedCount, totalLevelsRemaining, isAllMax, next, total } = summaryData;
+
+  function renderResourcePills(costObj) {
+    const pills = [];
+
+    if (costObj.darkElixir > 0) {
+      pills.push(`
+        <span class="summary-res-pill dark_elixir" title="${costObj.darkElixir.toLocaleString()} Dark Elixir">
+          <img class="res-icon-img" src="${RESOURCE_ICONS.dark_elixir}" alt="Dark Elixir" />
+          <span>${formatResourceNumber(costObj.darkElixir)}</span>
+          <small class="res-label-sub">Dark Elixir</small>
+        </span>
+      `);
+    }
+
+    if (costObj.elixir > 0) {
+      pills.push(`
+        <span class="summary-res-pill elixir" title="${costObj.elixir.toLocaleString()} Elixir">
+          <img class="res-icon-img" src="${RESOURCE_ICONS.elixir}" alt="Elixir" />
+          <span>${formatResourceNumber(costObj.elixir)}</span>
+          <small class="res-label-sub">Elixir</small>
+        </span>
+      `);
+    }
+
+    if (costObj.builderElixir > 0) {
+      pills.push(`
+        <span class="summary-res-pill builder_elixir" title="${costObj.builderElixir.toLocaleString()} Builder Elixir">
+          <img class="res-icon-img" src="${RESOURCE_ICONS.builder_elixir}" alt="Builder Elixir" />
+          <span>${formatResourceNumber(costObj.builderElixir)}</span>
+          <small class="res-label-sub">Builder Elixir</small>
+        </span>
+      `);
+    }
+
+    if (costObj.shinyOre > 0) {
+      pills.push(`
+        <span class="summary-res-pill ore-shiny" title="${costObj.shinyOre.toLocaleString()} Shiny Ore">
+          <img class="res-icon-img" src="${RESOURCE_ICONS.shiny_ore}" alt="Shiny Ore" />
+          <span>${formatResourceNumber(costObj.shinyOre)}</span>
+          <small class="res-label-sub">Shiny</small>
+        </span>
+      `);
+    }
+
+    if (costObj.glowyOre > 0) {
+      pills.push(`
+        <span class="summary-res-pill ore-glowy" title="${costObj.glowyOre.toLocaleString()} Glowy Ore">
+          <img class="res-icon-img" src="${RESOURCE_ICONS.glowy_ore}" alt="Glowy Ore" />
+          <span>${formatResourceNumber(costObj.glowyOre)}</span>
+          <small class="res-label-sub">Glowy</small>
+        </span>
+      `);
+    }
+
+    if (costObj.starryOre > 0) {
+      pills.push(`
+        <span class="summary-res-pill ore-starry" title="${costObj.starryOre.toLocaleString()} Starry Ore">
+          <img class="res-icon-img" src="${RESOURCE_ICONS.starry_ore}" alt="Starry Ore" />
+          <span>${costObj.starryOre.toLocaleString()}</span>
+          <small class="res-label-sub">Starry</small>
+        </span>
+      `);
+    }
+
+    if (pills.length === 0) {
+      return '<span class="summary-all-max-tag">🏆 Sudah MAX Semua!</span>';
+    }
+    return pills.join("");
+  }
+
+  const nextPillsHtml = renderResourcePills(next);
+  const totalPillsHtml = renderResourcePills(total);
+
+  return `
+    <div class="summary-banner-header">
+      <div class="summary-banner-title">
+        <span class="summary-badge-icon">📊</span>
+        <span class="summary-title-text">${title}</span>
+      </div>
+      <div class="summary-meta-badges">
+        <span class="summary-meta-pill ${isAllMax ? 'maxed' : ''}">🏆 ${maxedCount}/${totalUnits} MAX</span>
+        <span class="summary-meta-pill levels">⚡ ${totalLevelsRemaining} Level Tersisa</span>
+      </div>
+    </div>
+    <div class="summary-banner-grid">
+      <div class="summary-box next-box">
+        <span class="summary-box-label">🎯 Biaya 1x Upgrade Berikutnya</span>
+        <div class="summary-pills-row">
+          ${nextPillsHtml}
+        </div>
+      </div>
+      <div class="summary-box total-box">
+        <span class="summary-box-label">🏆 Total Sisa Menuju Semua MAX</span>
+        <div class="summary-pills-row">
+          ${totalPillsHtml}
+        </div>
+      </div>
+    </div>
+  `;
+}
