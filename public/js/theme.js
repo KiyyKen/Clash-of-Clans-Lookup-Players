@@ -1,5 +1,4 @@
 import { elements } from "./dom.js";
-import { showToast } from "./toast.js";
 
 export const THEME_STORAGE_KEY = "coc-theme-preference";
 
@@ -23,8 +22,6 @@ export function initTheme() {
   if (elements.themeSelect) {
     elements.themeSelect.addEventListener("change", (e) => {
       applyTheme(e.target.value);
-      const msg = e.target.value === "image" ? "Tema Desa Siang (Terang) aktif ☀️" : "Tema Desa Malam (Gelap) aktif 🌙";
-      showToast(msg);
     });
   }
 

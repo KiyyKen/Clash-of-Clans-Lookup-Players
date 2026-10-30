@@ -128,6 +128,7 @@
   width: 60px;
   height: 60px;
   object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.45));
 }
 
 .spotlight-league-img {

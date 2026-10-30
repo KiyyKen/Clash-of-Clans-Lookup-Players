@@ -91,6 +91,15 @@ body.bg-image-mode .bg-overlay {
   display: flex;
   align-items: center;
   gap: 10px;
+  text-decoration: none;
+}
+
+.brand-logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.4));
 }
 
 .brand-shield {
@@ -103,10 +112,11 @@ body.bg-image-mode .bg-overlay {
 }
 
 .brand-title {
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 800;
   letter-spacing: 0.8px;
   color: var(--text-primary);
+  line-height: 1;
 }
 
 .brand-subtitle {
