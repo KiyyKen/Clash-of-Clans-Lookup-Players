@@ -12,10 +12,9 @@ router.get("/api/my-ip", async (req, res) => {
     return res.json({
       outboundIp: ipRes.data.ip,
       isServerlessVercel: !!process.env.VERCEL,
-      note: process.env.VERCEL
-        ? "PERHATIAN: Di Vercel Serverless, IP outbound berubah-ubah secara dinamis dari pool AWS Lambda (tidak statis)."
-        : "IP statis / hosting lokal.",
-      instruction: "Untuk Vercel / serverless, gunakan proxy static RoyaleAPI (IP: 45.79.218.79) atau tambahkan COC_API_BASE_URL=https://proxy.royaleapi.dev/v1.",
+      activeBaseUrl: process.env.COC_API_BASE_URL || (process.env.VERCEL ? "https://cocproxy.royaleapi.dev/v1" : "https://api.clashofclans.com/v1"),
+      proxyIpToWhitelist: "45.79.218.79",
+      instruction: "Pastikan IP 45.79.218.79 terdaftar di Allowed IP pada portal developer.clashofclans.com.",
     });
   } catch (err) {
     return res.status(500).json({ error: "Gagal mendeteksi IP server" });

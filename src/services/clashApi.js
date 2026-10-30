@@ -2,8 +2,27 @@ const axios = require("axios");
 const { COC_API_KEY, COC_API_BASE_URL } = require("../config");
 const { getFromCache, saveToCache } = require("./cache");
 
-// Base URL can be overridden (e.g. https://proxy.royaleapi.dev/v1 for Vercel/dynamic IP hosting)
-const BASE_URL = (COC_API_BASE_URL || "https://api.clashofclans.com/v1").replace(/\/+$/, "");
+// Base URL resolution:
+// - If COC_API_BASE_URL is provided, auto-correct 'proxy.royaleapi.dev' to 'cocproxy.royaleapi.dev'
+// - In Vercel serverless environment, default to cocproxy.royaleapi.dev/v1 if not specified
+// - Otherwise default to official https://api.clashofclans.com/v1
+function resolveBaseUrl() {
+  let url = (COC_API_BASE_URL || "").trim();
+  if (!url && process.env.VERCEL) {
+    url = "https://cocproxy.royaleapi.dev/v1";
+  }
+  if (!url) {
+    url = "https://api.clashofclans.com/v1";
+  }
+  url = url.replace(/\/+$/, "");
+  // RoyaleAPI routes Clash of Clans specifically via cocproxy.royaleapi.dev
+  if (url.includes("proxy.royaleapi.dev") && !url.includes("cocproxy")) {
+    url = url.replace("proxy.royaleapi.dev", "cocproxy.royaleapi.dev");
+  }
+  return url;
+}
+
+const BASE_URL = resolveBaseUrl();
 
 // Helper to validate Clash of Clans tag format (# + valid base32 characters)
 function isValidTag(tag) {
