@@ -547,8 +547,9 @@ body.bg-image-mode .armory-tab.active {
 .hero-cost-pill {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 4px;
-  margin-top: 2px;
+  margin-top: 3px;
   font-size: 0.65rem;
   font-weight: 700;
   line-height: 1.2;
@@ -564,38 +565,59 @@ body.bg-image-mode .armory-tab.active {
   letter-spacing: 0.4px;
 }
 
+.res-icon-img {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  display: inline-block;
+  vertical-align: -2px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+  flex-shrink: 0;
+}
+
 .ore-mini {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: 3px;
   padding: 1px 5px;
   border-radius: 4px;
-  font-size: 0.64rem;
+  font-size: 0.65rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.ore-mini .res-icon-img {
+  width: 12px;
+  height: 12px;
 }
 
 .ore-mini.shiny {
   color: #38bdf8;
   background: rgba(14, 165, 233, 0.12);
+  border: 1px solid rgba(14, 165, 233, 0.25);
 }
 
 .ore-mini.glowy {
   color: #c084fc;
   background: rgba(168, 85, 247, 0.12);
+  border: 1px solid rgba(168, 85, 247, 0.25);
 }
 
 .ore-mini.starry {
   color: #fbbf24;
   background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.25);
 }
 
 .res-mini {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: 1px 6px;
+  gap: 4px;
+  padding: 2px 6px;
   border-radius: 4px;
-  font-size: 0.64rem;
+  font-size: 0.68rem;
   font-family: var(--font-mono);
+  font-weight: 700;
 }
 
 .res-mini.dark_elixir {
@@ -614,6 +636,37 @@ body.bg-image-mode .armory-tab.active {
   color: #22d3ee;
   background: rgba(6, 182, 212, 0.12);
   border: 1px solid rgba(6, 182, 212, 0.25);
+}
+
+/* Light mode adjustments for badges */
+[data-theme="siang"] .res-mini.elixir {
+  color: #be185d;
+  background: rgba(219, 39, 119, 0.12);
+  border-color: rgba(219, 39, 119, 0.3);
+}
+
+[data-theme="siang"] .res-mini.builder_elixir {
+  color: #0891b2;
+  background: rgba(8, 145, 178, 0.12);
+  border-color: rgba(8, 145, 178, 0.3);
+}
+
+[data-theme="siang"] .ore-mini.shiny {
+  color: #0284c7;
+  background: rgba(2, 132, 199, 0.12);
+  border-color: rgba(2, 132, 199, 0.3);
+}
+
+[data-theme="siang"] .ore-mini.glowy {
+  color: #7c3aed;
+  background: rgba(124, 58, 237, 0.12);
+  border-color: rgba(124, 58, 237, 0.3);
+}
+
+[data-theme="siang"] .ore-mini.starry {
+  color: #d97706;
+  background: rgba(217, 119, 6, 0.12);
+  border-color: rgba(217, 119, 6, 0.3);
 }
 
 /* ==================== UPGRADE DETAILS MODAL ==================== */
@@ -853,19 +906,28 @@ body.bg-image-mode .armory-tab.active {
 .cost-item-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 0.82rem;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.88rem;
   font-weight: 700;
 }
 
 .cost-item-pill .res-name {
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: 500;
   color: var(--text-tertiary);
+}
+
+.cost-item-pill .res-icon-img,
+.modal-res-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  vertical-align: middle;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
 }
 
 .cost-max-notice {

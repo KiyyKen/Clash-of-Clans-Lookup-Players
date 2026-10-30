@@ -14,7 +14,7 @@ import {
 import { formatRole, renderLabels } from "./formatters.js";
 import { saveRecent } from "./history.js";
 import { requestApi } from "./api.js";
-import { getUnitUpgradeData } from "./upgradeCalculator.js";
+import { getUnitUpgradeData, RESOURCE_ICONS } from "./upgradeCalculator.js";
 
 // Armory tab elements mapping
 const armoryTabsList = [
@@ -93,14 +93,14 @@ export function openUpgradeModal({ name, level, maxLevel, iconUrl, category, vil
     } else if (category === "equipment") {
       const { shiny, glowy, starry } = upgradeData.nextCost;
       const pills = [];
-      if (shiny > 0) pills.push(`<div class="cost-item-pill"><span class="res-ico">💎</span><span>${shiny.toLocaleString()}</span><span class="res-name">Shiny Ore</span></div>`);
-      if (glowy > 0) pills.push(`<div class="cost-item-pill"><span class="res-ico">🟣</span><span>${glowy.toLocaleString()}</span><span class="res-name">Glowy Ore</span></div>`);
-      if (starry > 0) pills.push(`<div class="cost-item-pill"><span class="res-ico">⭐</span><span>${starry.toLocaleString()}</span><span class="res-name">Starry Ore</span></div>`);
+      if (shiny > 0) pills.push(`<div class="cost-item-pill"><img class="res-icon-img modal-res-icon" src="${RESOURCE_ICONS.shiny_ore}" alt="Shiny Ore" /><span>${shiny.toLocaleString()}</span><span class="res-name">Shiny Ore</span></div>`);
+      if (glowy > 0) pills.push(`<div class="cost-item-pill"><img class="res-icon-img modal-res-icon" src="${RESOURCE_ICONS.glowy_ore}" alt="Glowy Ore" /><span>${glowy.toLocaleString()}</span><span class="res-name">Glowy Ore</span></div>`);
+      if (starry > 0) pills.push(`<div class="cost-item-pill"><img class="res-icon-img modal-res-icon" src="${RESOURCE_ICONS.starry_ore}" alt="Starry Ore" /><span>${starry.toLocaleString()}</span><span class="res-name">Starry Ore</span></div>`);
       elements.modalNextCostBody.innerHTML = pills.join("");
     } else {
       elements.modalNextCostBody.innerHTML = `
         <div class="cost-item-pill">
-          <span class="res-ico">${upgradeData.resourceIcon}</span>
+          <img class="res-icon-img modal-res-icon" src="${upgradeData.resourceIconUrl}" alt="${upgradeData.resourceName}" />
           <span>${upgradeData.nextCost.toLocaleString()}</span>
           <span class="res-name">${upgradeData.resourceName}</span>
         </div>
@@ -121,14 +121,14 @@ export function openUpgradeModal({ name, level, maxLevel, iconUrl, category, vil
     } else if (category === "equipment") {
       const { shiny, glowy, starry } = upgradeData.totalRemaining;
       const pills = [];
-      if (shiny > 0) pills.push(`<div class="cost-item-pill"><span class="res-ico">💎</span><span>${shiny.toLocaleString()}</span><span class="res-name">Total Shiny</span></div>`);
-      if (glowy > 0) pills.push(`<div class="cost-item-pill"><span class="res-ico">🟣</span><span>${glowy.toLocaleString()}</span><span class="res-name">Total Glowy</span></div>`);
-      if (starry > 0) pills.push(`<div class="cost-item-pill"><span class="res-ico">⭐</span><span>${starry.toLocaleString()}</span><span class="res-name">Total Starry</span></div>`);
+      if (shiny > 0) pills.push(`<div class="cost-item-pill"><img class="res-icon-img modal-res-icon" src="${RESOURCE_ICONS.shiny_ore}" alt="Shiny Ore" /><span>${shiny.toLocaleString()}</span><span class="res-name">Total Shiny</span></div>`);
+      if (glowy > 0) pills.push(`<div class="cost-item-pill"><img class="res-icon-img modal-res-icon" src="${RESOURCE_ICONS.glowy_ore}" alt="Glowy Ore" /><span>${glowy.toLocaleString()}</span><span class="res-name">Total Glowy</span></div>`);
+      if (starry > 0) pills.push(`<div class="cost-item-pill"><img class="res-icon-img modal-res-icon" src="${RESOURCE_ICONS.starry_ore}" alt="Starry Ore" /><span>${starry.toLocaleString()}</span><span class="res-name">Total Starry</span></div>`);
       elements.modalTotalCostBody.innerHTML = pills.join("");
     } else {
       elements.modalTotalCostBody.innerHTML = `
         <div class="cost-item-pill">
-          <span class="res-ico">${upgradeData.resourceIcon}</span>
+          <img class="res-icon-img modal-res-icon" src="${upgradeData.resourceIconUrl}" alt="${upgradeData.resourceName}" />
           <span>${upgradeData.totalRemaining.toLocaleString()}</span>
           <span class="res-name">Total ${upgradeData.resourceName}</span>
         </div>

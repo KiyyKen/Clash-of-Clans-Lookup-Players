@@ -4,6 +4,18 @@
  * Supports: Heroes, Hero Equipment (Common & Epic), Troops, Spells, Siege Machines, Pets, and Builder Base.
  */
 
+// Authentic Clash of Clans resource icons
+export const RESOURCE_ICONS = {
+  elixir: "/assets/res-elixir.png",
+  dark_elixir: "/assets/res-dark-elixir.png",
+  builder_elixir: "/assets/res-builder-elixir.png",
+  gold: "/assets/res-gold.png",
+  builder_gold: "/assets/res-builder-gold.png",
+  shiny_ore: "/assets/res-shiny-ore.png",
+  glowy_ore: "/assets/res-glowy-ore.png",
+  starry_ore: "/assets/res-starry-ore.png",
+};
+
 // Universal Hero Equipment Upgrade Cost Table (Official Supercell values)
 // Levels 1-18 for Common, Levels 1-27 for Epic
 export const EQUIPMENT_ORE_TABLE = [
@@ -85,7 +97,7 @@ export function calculateEquipmentUpgrade(level, maxLevel) {
       levelsRemaining: 0,
       resourceType: "ore",
       resourceName: "Ore (Batu Mulia)",
-      resourceIcon: "💎",
+      resourceIconUrl: RESOURCE_ICONS.shiny_ore,
       nextCost: { shiny: 0, glowy: 0, starry: 0 },
       totalRemaining: { shiny: 0, glowy: 0, starry: 0 },
       costBadgeHtml: '<span class="cost-max-tag">🏆 MAX</span>',
@@ -115,18 +127,24 @@ export function calculateEquipmentUpgrade(level, maxLevel) {
     }
   }
 
-  // Build compact pill HTML
+  // Build compact pill HTML with official ore graphics
   const parts = [];
-  if (nextShiny > 0) parts.push(`<span class="ore-mini shiny" title="Shiny Ore">💎 ${formatResourceNumber(nextShiny)}</span>`);
-  if (nextGlowy > 0) parts.push(`<span class="ore-mini glowy" title="Glowy Ore">🟣 ${formatResourceNumber(nextGlowy)}</span>`);
-  if (nextStarry > 0) parts.push(`<span class="ore-mini starry" title="Starry Ore">⭐ ${nextStarry}</span>`);
+  if (nextShiny > 0) {
+    parts.push(`<span class="ore-mini shiny" title="Shiny Ore"><img class="res-icon-img" src="${RESOURCE_ICONS.shiny_ore}" alt="Shiny Ore" /> ${formatResourceNumber(nextShiny)}</span>`);
+  }
+  if (nextGlowy > 0) {
+    parts.push(`<span class="ore-mini glowy" title="Glowy Ore"><img class="res-icon-img" src="${RESOURCE_ICONS.glowy_ore}" alt="Glowy Ore" /> ${formatResourceNumber(nextGlowy)}</span>`);
+  }
+  if (nextStarry > 0) {
+    parts.push(`<span class="ore-mini starry" title="Starry Ore"><img class="res-icon-img" src="${RESOURCE_ICONS.starry_ore}" alt="Starry Ore" /> ${nextStarry}</span>`);
+  }
 
   return {
     isMax: false,
     levelsRemaining,
     resourceType: "ore",
     resourceName: isEpic ? "Shiny, Glowy & Starry Ore" : "Shiny & Glowy Ore",
-    resourceIcon: "💎",
+    resourceIconUrl: RESOURCE_ICONS.shiny_ore,
     nextCost: { shiny: nextShiny, glowy: nextGlowy, starry: nextStarry },
     totalRemaining: { shiny: totalShiny, glowy: totalGlowy, starry: totalStarry },
     costBadgeHtml: parts.join(" "),
@@ -142,17 +160,16 @@ export function calculateHeroUpgrade(name, level, maxLevel, village) {
 
   let resourceType = "dark_elixir";
   let resourceName = "Dark Elixir";
-  let resourceIcon = "💧";
 
   if (village === "builderBase" || name === "Battle Machine" || name === "Battle Copter") {
     resourceType = "builder_elixir";
     resourceName = "Builder Elixir";
-    resourceIcon = "⚙️";
   } else if (name === "Grand Warden") {
     resourceType = "elixir";
     resourceName = "Elixir";
-    resourceIcon = "🧪";
   }
+
+  const resourceIconUrl = RESOURCE_ICONS[resourceType] || RESOURCE_ICONS.elixir;
 
   if (isMax || level < 1) {
     return {
@@ -160,7 +177,7 @@ export function calculateHeroUpgrade(name, level, maxLevel, village) {
       levelsRemaining: 0,
       resourceType,
       resourceName,
-      resourceIcon,
+      resourceIconUrl,
       nextCost: 0,
       totalRemaining: 0,
       costBadgeHtml: '<span class="cost-max-tag">🏆 MAX</span>',
@@ -208,10 +225,10 @@ export function calculateHeroUpgrade(name, level, maxLevel, village) {
     levelsRemaining,
     resourceType,
     resourceName,
-    resourceIcon,
+    resourceIconUrl,
     nextCost,
     totalRemaining,
-    costBadgeHtml: `<span class="res-mini ${resourceType}"><span class="res-ico">${resourceIcon}</span> ${formatResourceNumber(nextCost)}</span>`,
+    costBadgeHtml: `<span class="res-mini ${resourceType}"><img class="res-icon-img" src="${resourceIconUrl}" alt="${resourceName}" /> ${formatResourceNumber(nextCost)}</span>`,
   };
 }
 
@@ -224,7 +241,7 @@ export function calculatePetUpgrade(level, maxLevel) {
 
   const resourceType = "dark_elixir";
   const resourceName = "Dark Elixir";
-  const resourceIcon = "💧";
+  const resourceIconUrl = RESOURCE_ICONS.dark_elixir;
 
   if (isMax || level < 1) {
     return {
@@ -232,7 +249,7 @@ export function calculatePetUpgrade(level, maxLevel) {
       levelsRemaining: 0,
       resourceType,
       resourceName,
-      resourceIcon,
+      resourceIconUrl,
       nextCost: 0,
       totalRemaining: 0,
       costBadgeHtml: '<span class="cost-max-tag">🏆 MAX</span>',
@@ -256,10 +273,10 @@ export function calculatePetUpgrade(level, maxLevel) {
     levelsRemaining,
     resourceType,
     resourceName,
-    resourceIcon,
+    resourceIconUrl,
     nextCost,
     totalRemaining,
-    costBadgeHtml: `<span class="res-mini ${resourceType}"><span class="res-ico">${resourceIcon}</span> ${formatResourceNumber(nextCost)}</span>`,
+    costBadgeHtml: `<span class="res-mini ${resourceType}"><img class="res-icon-img" src="${resourceIconUrl}" alt="${resourceName}" /> ${formatResourceNumber(nextCost)}</span>`,
   };
 }
 
@@ -272,7 +289,7 @@ export function calculateSiegeUpgrade(level, maxLevel) {
 
   const resourceType = "elixir";
   const resourceName = "Elixir";
-  const resourceIcon = "🧪";
+  const resourceIconUrl = RESOURCE_ICONS.elixir;
 
   if (isMax || level < 1) {
     return {
@@ -280,7 +297,7 @@ export function calculateSiegeUpgrade(level, maxLevel) {
       levelsRemaining: 0,
       resourceType,
       resourceName,
-      resourceIcon,
+      resourceIconUrl,
       nextCost: 0,
       totalRemaining: 0,
       costBadgeHtml: '<span class="cost-max-tag">🏆 MAX</span>',
@@ -304,10 +321,10 @@ export function calculateSiegeUpgrade(level, maxLevel) {
     levelsRemaining,
     resourceType,
     resourceName,
-    resourceIcon,
+    resourceIconUrl,
     nextCost,
     totalRemaining,
-    costBadgeHtml: `<span class="res-mini ${resourceType}"><span class="res-ico">${resourceIcon}</span> ${formatResourceNumber(nextCost)}</span>`,
+    costBadgeHtml: `<span class="res-mini ${resourceType}"><img class="res-icon-img" src="${resourceIconUrl}" alt="${resourceName}" /> ${formatResourceNumber(nextCost)}</span>`,
   };
 }
 
@@ -320,17 +337,16 @@ export function calculateTroopOrSpellUpgrade(name, level, maxLevel, category, vi
 
   let resourceType = "elixir";
   let resourceName = "Elixir";
-  let resourceIcon = "🧪";
 
   if (village === "builderBase") {
     resourceType = "builder_elixir";
     resourceName = "Builder Elixir";
-    resourceIcon = "⚙️";
   } else if (DARK_TROOP_NAMES.has(name) || DARK_SPELL_NAMES.has(name)) {
     resourceType = "dark_elixir";
     resourceName = "Dark Elixir";
-    resourceIcon = "💧";
   }
+
+  const resourceIconUrl = RESOURCE_ICONS[resourceType] || RESOURCE_ICONS.elixir;
 
   if (isMax || level < 1) {
     return {
@@ -338,7 +354,7 @@ export function calculateTroopOrSpellUpgrade(name, level, maxLevel, category, vi
       levelsRemaining: 0,
       resourceType,
       resourceName,
-      resourceIcon,
+      resourceIconUrl,
       nextCost: 0,
       totalRemaining: 0,
       costBadgeHtml: '<span class="cost-max-tag">🏆 MAX</span>',
@@ -371,10 +387,10 @@ export function calculateTroopOrSpellUpgrade(name, level, maxLevel, category, vi
     levelsRemaining,
     resourceType,
     resourceName,
-    resourceIcon,
+    resourceIconUrl,
     nextCost,
     totalRemaining,
-    costBadgeHtml: `<span class="res-mini ${resourceType}"><span class="res-ico">${resourceIcon}</span> ${formatResourceNumber(nextCost)}</span>`,
+    costBadgeHtml: `<span class="res-mini ${resourceType}"><img class="res-icon-img" src="${resourceIconUrl}" alt="${resourceName}" /> ${formatResourceNumber(nextCost)}</span>`,
   };
 }
 
