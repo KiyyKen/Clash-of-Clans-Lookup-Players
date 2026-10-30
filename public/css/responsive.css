@@ -67,6 +67,117 @@
   }
 }
 
+/* ==================== TABLET & MOBILE BREAKPOINTS ==================== */
+@media (max-width: 640px) {
+  .header-inner {
+    padding: 10px 14px;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .nav-tabs {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    margin-top: 4px;
+  }
+
+  .nav-tab {
+    flex: 1;
+    justify-content: center;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+
+  .theme-select {
+    padding: 4px 8px;
+    font-size: 0.74rem;
+    max-width: 135px;
+  }
+
+  .main-container {
+    padding: 16px 12px 48px;
+    gap: 20px;
+  }
+
+  .console-meta-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .summary-banner-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .armory-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .spotlight-wrapper-card {
+    padding: 20px 14px;
+  }
+}
+
+/* Small Smartphone Breakpoint (iPhone SE, Galaxy, Pixel < 480px) */
+@media (max-width: 480px) {
+  .brand-title {
+    font-size: 0.92rem;
+  }
+
+  .brand-logo {
+    width: 28px;
+    height: 28px;
+  }
+
+  /* Upgrade Modal Optimization for Small Screens */
+  .upgrade-modal {
+    padding: 12px 10px;
+  }
+
+  .upgrade-modal-card {
+    padding: 18px 14px;
+    gap: 14px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal-unit-avatar {
+    width: 52px;
+    height: 52px;
+  }
+
+  .modal-unit-info .modal-unit-name {
+    font-size: 1.15rem;
+  }
+
+  .cost-box-body {
+    gap: 6px;
+  }
+
+  .cost-item-pill {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    gap: 6px;
+  }
+
+  .cost-item-pill .res-name {
+    font-size: 0.68rem;
+  }
+
+  .hero-slot-card {
+    padding: 8px 10px;
+  }
+
+  .summary-banner-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+}
+
 @container (max-width: 500px) {
   .roster-table th:nth-child(4),
   .roster-table td:nth-child(4),
