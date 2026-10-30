@@ -15,6 +15,22 @@
   display: none !important;
 }
 
+/* Spotlight Wrapper Card */
+.spotlight-wrapper-card {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 30px 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+body.bg-image-mode .spotlight-wrapper-card {
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
 /* Spotlight Header */
 .spotlight-header {
   text-align: center;
@@ -41,7 +57,7 @@
 }
 
 .spotlight-title {
-  font-size: 1.65rem;
+  font-size: 1.55rem;
   font-weight: 800;
   color: var(--text-primary);
   line-height: 1.25;
@@ -49,7 +65,7 @@
 }
 
 .spotlight-desc {
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   color: var(--text-secondary);
   line-height: 1.5;
 }
@@ -57,31 +73,29 @@
 /* Spotlight Cards Grid */
 .spotlight-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 18px;
   width: 100%;
 }
 
 .spotlight-card {
   position: relative;
-  background: var(--bg-card);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border-card);
-  border-radius: var(--radius-lg);
-  padding: 24px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 22px;
   cursor: pointer;
   transition: transform var(--transition-bounce), border-color var(--transition-normal), box-shadow var(--transition-normal);
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
   overflow: hidden;
 }
 
 .spotlight-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-3px);
   border-color: rgba(245, 158, 11, 0.45);
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4), 0 0 20px rgba(245, 158, 11, 0.15);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25), 0 0 16px rgba(245, 158, 11, 0.12);
 }
 
 .spotlight-badge-corner {
@@ -425,6 +439,16 @@
 }
 
 /* Light Mode Overrides */
+body.bg-image-mode .spotlight-wrapper-card {
+  background: rgba(255, 255, 255, 0.75);
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+body.bg-image-mode .spotlight-card {
+  background: rgba(255, 255, 255, 0.88);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
 body.bg-image-mode .home-features-section {
   background: rgba(255, 255, 255, 0.7);
 }
