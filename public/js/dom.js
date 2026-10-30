@@ -47,6 +47,8 @@ export const elements = {
 
   donationRatioText: document.getElementById("donationRatioText"),
   donationRatioBar: document.getElementById("donationRatioBar"),
+  donationSentVal: document.getElementById("donationSentVal"),
+  donationRcvdVal: document.getElementById("donationRcvdVal"),
   clanCapitalPoints: document.getElementById("clanCapitalPoints"),
   thWeaponLevel: document.getElementById("thWeaponLevel"),
 

@@ -388,9 +388,21 @@ export function renderPlayer(p, onClanSelect, onRecentSelect) {
   setText(elements.donationRatioText, `${sent.toLocaleString()} / ${rcvd.toLocaleString()}`);
 
   const totalDonations = sent + rcvd;
-  const ratioPct = totalDonations > 0 ? Math.round((sent / totalDonations) * 100) : 50;
+  const sentPct = totalDonations > 0 ? Math.round((sent / totalDonations) * 100) : 50;
+  const rcvdPct = totalDonations > 0 ? (100 - sentPct) : 50;
+
   if (elements.donationRatioBar) {
-    elements.donationRatioBar.style.width = `${ratioPct}%`;
+    elements.donationRatioBar.style.width = `${totalDonations > 0 ? sentPct : 50}%`;
+  }
+  if (elements.donationSentVal) {
+    elements.donationSentVal.textContent = totalDonations > 0
+      ? `${sent.toLocaleString()} (${sentPct}%)`
+      : `${sent.toLocaleString()}`;
+  }
+  if (elements.donationRcvdVal) {
+    elements.donationRcvdVal.textContent = totalDonations > 0
+      ? `${rcvd.toLocaleString()} (${rcvdPct}%)`
+      : `${rcvd.toLocaleString()}`;
   }
 
   setText(elements.clanCapitalPoints, `${p.clanCapitalContributions?.toLocaleString() || 0}`);

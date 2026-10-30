@@ -348,10 +348,19 @@
                     <span class="metric-label">Rasio Donasi Pasukan</span>
                     <span id="donationRatioText" class="metric-ratio-text">0 / 0</span>
                   </div>
-                  <div class="ratio-progress-bg">
+                  <div class="ratio-progress-bg" title="Rasio Donasi: Hijau (Terkirim) vs Biru (Diterima)">
                     <div id="donationRatioBar" class="ratio-progress-fill" style="width: 50%;"></div>
                   </div>
-                  <span class="metric-sub">Terkirim (Hijau) vs Diterima (Abu)</span>
+                  <div class="donation-legend-row">
+                    <span class="donation-legend-item sent">
+                      <span class="legend-color-dot dot-sent"></span>
+                      <span>Terkirim (Hijau): <strong id="donationSentVal">0</strong></span>
+                    </span>
+                    <span class="donation-legend-item received">
+                      <span class="legend-color-dot dot-rcvd"></span>
+                      <span>Diterima (Biru): <strong id="donationRcvdVal">0</strong></span>
+                    </span>
+                  </div>
                 </div>
                 <div class="metric-item">
                   <span class="metric-label">Kontribusi Clan Capital</span>
