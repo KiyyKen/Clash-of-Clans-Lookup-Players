@@ -2,6 +2,7 @@
  * upgradeCalculator.js
  * Comprehensive Upgrade Requirements & Resource Calculator for Clash of Clans
  * Supports: Heroes, Hero Equipment (Common & Epic), Troops, Spells, Siege Machines, Pets, and Builder Base.
+ * Includes: Upgrade Resource Costs AND Upgrade Durations (Time)
  */
 
 // Authentic Clash of Clans resource icons
@@ -17,7 +18,7 @@ export const RESOURCE_ICONS = {
 };
 
 // Universal Hero Equipment Upgrade Cost Table (Official Supercell values)
-// Levels 1-18 for Common, Levels 1-27 for Epic
+// Levels 1-18 for Common, Levels 1-27 for Epic (Equipment is Instant: 0s duration)
 export const EQUIPMENT_ORE_TABLE = [
   { level: 1,  shiny: 120,  glowy: 0,   starry: 0 },
   { level: 2,  shiny: 240,  glowy: 20,  starry: 0 },
@@ -83,8 +84,55 @@ export function formatResourceNumber(num) {
   return num.toLocaleString();
 }
 
+// Format duration in readable Indonesian (h = hari, j = jam, m = menit)
+export function formatDuration(seconds) {
+  if (!seconds || seconds <= 0) return "Instant";
+  const days = Math.floor(seconds / 86400);
+  const hours = Math.floor((seconds % 86400) / 3600);
+  const mins = Math.floor((seconds % 3600) / 60);
+
+  if (days >= 365) {
+    const years = Math.floor(days / 365);
+    const remMonths = Math.round((days % 365) / 30);
+    return remMonths > 0 ? `${years} thn ${remMonths} bln` : `${years} Tahun`;
+  }
+  if (days >= 30) {
+    const months = Math.floor(days / 30);
+    const remDays = days % 30;
+    return remDays > 0 ? `${months} bln ${remDays} hari` : `${months} Bulan`;
+  }
+  if (days > 0) {
+    return hours > 0 ? `${days} hari ${hours} jam` : `${days} Hari`;
+  }
+  if (hours > 0) {
+    return mins > 0 ? `${hours} jam ${mins} mnt` : `${hours} Jam`;
+  }
+  return `${mins} Menit`;
+}
+
+// Compact duration for unit card pills: 12j, 3h, 7h 12j, 2.5bln
+export function formatDurationCompact(seconds) {
+  if (!seconds || seconds <= 0) return "";
+  const days = Math.floor(seconds / 86400);
+  const hours = Math.floor((seconds % 86400) / 3600);
+
+  if (days >= 365) {
+    const years = (days / 365).toFixed(1).replace(/\.0$/, "");
+    return `${years}th`;
+  }
+  if (days >= 30) {
+    const months = (days / 30).toFixed(1).replace(/\.0$/, "");
+    return `${months}bln`;
+  }
+  if (days > 0) {
+    return hours >= 6 ? `${days}h ${hours}j` : `${days}h`;
+  }
+  return `${hours}j`;
+}
+
 /**
- * Calculate Equipment Upgrade Costs
+ * Calculate Equipment Upgrade Costs & Duration
+ * Equipment upgrade in Clash of Clans is instantaneous with Ores (0s).
  */
 export function calculateEquipmentUpgrade(level, maxLevel) {
   const isMax = level >= maxLevel;
@@ -100,7 +148,12 @@ export function calculateEquipmentUpgrade(level, maxLevel) {
       resourceIconUrl: RESOURCE_ICONS.shiny_ore,
       nextCost: { shiny: 0, glowy: 0, starry: 0 },
       totalRemaining: { shiny: 0, glowy: 0, starry: 0 },
+      nextTimeSeconds: 0,
+      totalTimeSeconds: 0,
+      nextTimeText: "Instant",
+      totalTimeText: "Instant",
       costBadgeHtml: '<span class="cost-max-tag">🏆 MAX</span>',
+      timeBadgeHtml: '',
     };
   }
 
@@ -147,12 +200,17 @@ export function calculateEquipmentUpgrade(level, maxLevel) {
     resourceIconUrl: RESOURCE_ICONS.shiny_ore,
     nextCost: { shiny: nextShiny, glowy: nextGlowy, starry: nextStarry },
     totalRemaining: { shiny: totalShiny, glowy: totalGlowy, starry: totalStarry },
+    nextTimeSeconds: 0,
+    totalTimeSeconds: 0,
+    nextTimeText: "Instant (0s)",
+    totalTimeText: "Instant (0s)",
     costBadgeHtml: parts.join(" "),
+    timeBadgeHtml: '',
   };
 }
 
 /**
- * Calculate Hero Upgrade Costs
+ * Calculate Hero Upgrade Costs & Duration
  */
 export function calculateHeroUpgrade(name, level, maxLevel, village) {
   const isMax = level >= maxLevel;
@@ -180,23 +238,25 @@ export function calculateHeroUpgrade(name, level, maxLevel, village) {
       resourceIconUrl,
       nextCost: 0,
       totalRemaining: 0,
+      nextTimeSeconds: 0,
+      totalTimeSeconds: 0,
+      nextTimeText: "Selesai",
+      totalTimeText: "Selesai",
       costBadgeHtml: '<span class="cost-max-tag">🏆 MAX</span>',
+      timeBadgeHtml: '',
     };
   }
 
   // Cost calculation function per level
   function getCostForLevel(lvl) {
     if (resourceType === "builder_elixir") {
-      // 1.5M - 5.5M
       return Math.min(5_500_000, 1_400_000 + (lvl * 120_000));
     }
     if (resourceType === "elixir") {
-      // Grand Warden: 3M - 23M
       if (lvl <= 20) return 2_800_000 + (lvl * 350_000);
       if (lvl <= 50) return 9_800_000 + ((lvl - 20) * 280_000);
       return Math.min(23_500_000, 18_200_000 + ((lvl - 50) * 160_000));
     }
-    // Dark Elixir Heroes (King, Queen, Royal Champion, Minion Prince, Dragon Duke)
     if (name === "Royal Champion") {
       if (lvl <= 15) return 120_000 + (lvl * 9_000);
       if (lvl <= 35) return 255_000 + ((lvl - 15) * 4_500);
@@ -205,12 +265,36 @@ export function calculateHeroUpgrade(name, level, maxLevel, village) {
     if (name === "Dragon Duke") {
       return Math.min(360_000, 160_000 + (lvl * 8_000));
     }
-    // Barbarian King, Archer Queen, Minion Prince
     if (lvl <= 10) return 12_000 + (lvl * 3_200);
     if (lvl <= 40) return 44_000 + ((lvl - 10) * 4_200);
     if (lvl <= 70) return 170_000 + ((lvl - 40) * 3_600);
     if (lvl <= 95) return 278_000 + ((lvl - 70) * 2_600);
     return Math.min(360_000, 343_000 + ((lvl - 95) * 1_200));
+  }
+
+  // Duration calculation in seconds per level
+  function getHeroTimeForLevel(lvl) {
+    if (village === "builderBase" || name === "Battle Machine" || name === "Battle Copter") {
+      if (lvl <= 5) return 6 * 3600;
+      if (lvl <= 15) return 18 * 3600;
+      if (lvl <= 25) return Math.round((1.5 + ((lvl - 15) / 10) * 1.5) * 86400);
+      return Math.round((3.0 + ((lvl - 25) / 10) * 1.5) * 86400);
+    }
+    if (name === "Royal Champion") {
+      if (lvl <= 10) return Math.round((2.0 + (lvl / 10) * 1.5) * 86400);
+      if (lvl <= 30) return Math.round((3.5 + ((lvl - 10) / 20) * 2.5) * 86400);
+      return Math.min(8 * 86400, Math.round((6.0 + ((lvl - 30) / 25) * 2.0) * 86400));
+    }
+    if (name === "Dragon Duke") {
+      if (lvl <= 10) return Math.round((3.5 + (lvl / 10) * 2.0) * 86400);
+      return Math.min(8 * 86400, Math.round((5.5 + ((lvl - 10) / 15) * 2.5) * 86400));
+    }
+    // BK, AQ, GW, Minion Prince (capped at 8 days max in CoC)
+    if (lvl <= 10) return Math.round((6 + (lvl * 1.8)) * 3600);
+    if (lvl <= 40) return Math.round((1.0 + ((lvl - 10) / 30) * 2.5) * 86400);
+    if (lvl <= 70) return Math.round((3.5 + ((lvl - 40) / 30) * 2.0) * 86400);
+    if (lvl <= 95) return Math.round((5.5 + ((lvl - 70) / 25) * 1.5) * 86400);
+    return Math.min(8 * 86400, Math.round((7.0 + ((lvl - 95) / 15) * 1.0) * 86400));
   }
 
   const nextCost = Math.round(getCostForLevel(level));
@@ -220,6 +304,16 @@ export function calculateHeroUpgrade(name, level, maxLevel, village) {
   }
   totalRemaining = Math.round(totalRemaining);
 
+  const nextTimeSeconds = getHeroTimeForLevel(level);
+  let totalTimeSeconds = 0;
+  for (let l = level; l < maxLevel; l++) {
+    totalTimeSeconds += getHeroTimeForLevel(l);
+  }
+
+  const nextTimeText = formatDuration(nextTimeSeconds);
+  const totalTimeText = formatDuration(totalTimeSeconds);
+  const timeCompact = formatDurationCompact(nextTimeSeconds);
+
   return {
     isMax: false,
     levelsRemaining,
@@ -228,12 +322,17 @@ export function calculateHeroUpgrade(name, level, maxLevel, village) {
     resourceIconUrl,
     nextCost,
     totalRemaining,
+    nextTimeSeconds,
+    totalTimeSeconds,
+    nextTimeText,
+    totalTimeText,
     costBadgeHtml: `<span class="res-mini ${resourceType}"><img class="res-icon-img" src="${resourceIconUrl}" alt="${resourceName}" /> ${formatResourceNumber(nextCost)}</span>`,
+    timeBadgeHtml: `<span class="time-mini" title="Waktu upgrade berikutnya: ${nextTimeText}"><span class="time-ico">⏱️</span> ${timeCompact}</span>`,
   };
 }
 
 /**
- * Calculate Pet Upgrade Costs
+ * Calculate Pet Upgrade Costs & Duration
  */
 export function calculatePetUpgrade(level, maxLevel) {
   const isMax = level >= maxLevel;
@@ -252,7 +351,12 @@ export function calculatePetUpgrade(level, maxLevel) {
       resourceIconUrl,
       nextCost: 0,
       totalRemaining: 0,
+      nextTimeSeconds: 0,
+      totalTimeSeconds: 0,
+      nextTimeText: "Selesai",
+      totalTimeText: "Selesai",
       costBadgeHtml: '<span class="cost-max-tag">🏆 MAX</span>',
+      timeBadgeHtml: '',
     };
   }
 
@@ -262,11 +366,30 @@ export function calculatePetUpgrade(level, maxLevel) {
     return PET_COSTS[idx] || 250_000;
   }
 
+  const PET_TIMES = [
+    3 * 86400, 3.5 * 86400, 4 * 86400, 4.5 * 86400, 5.5 * 86400,
+    6 * 86400, 6.5 * 86400, 7 * 86400, 7.5 * 86400, 8 * 86400
+  ];
+  function getPetTime(lvl) {
+    const idx = Math.min(PET_TIMES.length - 1, Math.max(0, lvl - 1));
+    return PET_TIMES[idx] || 6 * 86400;
+  }
+
   const nextCost = getPetCost(level);
   let totalRemaining = 0;
   for (let l = level; l < maxLevel; l++) {
     totalRemaining += getPetCost(l);
   }
+
+  const nextTimeSeconds = getPetTime(level);
+  let totalTimeSeconds = 0;
+  for (let l = level; l < maxLevel; l++) {
+    totalTimeSeconds += getPetTime(l);
+  }
+
+  const nextTimeText = formatDuration(nextTimeSeconds);
+  const totalTimeText = formatDuration(totalTimeSeconds);
+  const timeCompact = formatDurationCompact(nextTimeSeconds);
 
   return {
     isMax: false,
@@ -276,12 +399,17 @@ export function calculatePetUpgrade(level, maxLevel) {
     resourceIconUrl,
     nextCost,
     totalRemaining,
+    nextTimeSeconds,
+    totalTimeSeconds,
+    nextTimeText,
+    totalTimeText,
     costBadgeHtml: `<span class="res-mini ${resourceType}"><img class="res-icon-img" src="${resourceIconUrl}" alt="${resourceName}" /> ${formatResourceNumber(nextCost)}</span>`,
+    timeBadgeHtml: `<span class="time-mini" title="Waktu upgrade berikutnya: ${nextTimeText}"><span class="time-ico">⏱️</span> ${timeCompact}</span>`,
   };
 }
 
 /**
- * Calculate Siege Machine Upgrade Costs
+ * Calculate Siege Machine Upgrade Costs & Duration
  */
 export function calculateSiegeUpgrade(level, maxLevel) {
   const isMax = level >= maxLevel;
@@ -300,7 +428,12 @@ export function calculateSiegeUpgrade(level, maxLevel) {
       resourceIconUrl,
       nextCost: 0,
       totalRemaining: 0,
+      nextTimeSeconds: 0,
+      totalTimeSeconds: 0,
+      nextTimeText: "Selesai",
+      totalTimeText: "Selesai",
       costBadgeHtml: '<span class="cost-max-tag">🏆 MAX</span>',
+      timeBadgeHtml: '',
     };
   }
 
@@ -310,11 +443,27 @@ export function calculateSiegeUpgrade(level, maxLevel) {
     return SIEGE_COSTS[idx] || 15_000_000;
   }
 
+  const SIEGE_TIMES = [7 * 86400, 9.5 * 86400, 11.5 * 86400, 14 * 86400];
+  function getSiegeTime(lvl) {
+    const idx = Math.min(SIEGE_TIMES.length - 1, Math.max(0, lvl - 1));
+    return SIEGE_TIMES[idx] || 10 * 86400;
+  }
+
   const nextCost = getSiegeCost(level);
   let totalRemaining = 0;
   for (let l = level; l < maxLevel; l++) {
     totalRemaining += getSiegeCost(l);
   }
+
+  const nextTimeSeconds = getSiegeTime(level);
+  let totalTimeSeconds = 0;
+  for (let l = level; l < maxLevel; l++) {
+    totalTimeSeconds += getSiegeTime(l);
+  }
+
+  const nextTimeText = formatDuration(nextTimeSeconds);
+  const totalTimeText = formatDuration(totalTimeSeconds);
+  const timeCompact = formatDurationCompact(nextTimeSeconds);
 
   return {
     isMax: false,
@@ -324,12 +473,17 @@ export function calculateSiegeUpgrade(level, maxLevel) {
     resourceIconUrl,
     nextCost,
     totalRemaining,
+    nextTimeSeconds,
+    totalTimeSeconds,
+    nextTimeText,
+    totalTimeText,
     costBadgeHtml: `<span class="res-mini ${resourceType}"><img class="res-icon-img" src="${resourceIconUrl}" alt="${resourceName}" /> ${formatResourceNumber(nextCost)}</span>`,
+    timeBadgeHtml: `<span class="time-mini" title="Waktu upgrade berikutnya: ${nextTimeText}"><span class="time-ico">⏱️</span> ${timeCompact}</span>`,
   };
 }
 
 /**
- * Calculate Troop & Spell Upgrade Costs
+ * Calculate Troop & Spell Upgrade Costs & Duration
  */
 export function calculateTroopOrSpellUpgrade(name, level, maxLevel, category, village) {
   const isMax = level >= maxLevel;
@@ -357,7 +511,12 @@ export function calculateTroopOrSpellUpgrade(name, level, maxLevel, category, vi
       resourceIconUrl,
       nextCost: 0,
       totalRemaining: 0,
+      nextTimeSeconds: 0,
+      totalTimeSeconds: 0,
+      nextTimeText: "Selesai",
+      totalTimeText: "Selesai",
       costBadgeHtml: '<span class="cost-max-tag">🏆 MAX</span>',
+      timeBadgeHtml: '',
     };
   }
 
@@ -365,15 +524,24 @@ export function calculateTroopOrSpellUpgrade(name, level, maxLevel, category, vi
     const progressRatio = lvl / (maxLevel || 1);
 
     if (resourceType === "builder_elixir") {
-      // 500K - 4.5M
       return Math.round(500_000 + (progressRatio * 4_000_000));
     }
     if (resourceType === "dark_elixir") {
-      // 20K - 350K
       return Math.round(25_000 + (progressRatio * 320_000));
     }
-    // Regular Elixir (500K - 22M)
     return Math.round(800_000 + (progressRatio * 20_000_000));
+  }
+
+  function getTroopTime(lvl) {
+    if (village === "builderBase") {
+      const ratio = lvl / (maxLevel || 1);
+      return Math.min(5 * 86400, Math.round((0.5 + (ratio * 4.5)) * 86400));
+    }
+    const ratio = lvl / (maxLevel || 1);
+    if (maxLevel <= 5) {
+      return Math.min(7 * 86400, Math.round((0.5 + (ratio * 6.5)) * 86400));
+    }
+    return Math.min(14 * 86400, Math.round((0.75 + (ratio * 13.0)) * 86400));
   }
 
   const nextCost = getStepCost(level);
@@ -381,6 +549,16 @@ export function calculateTroopOrSpellUpgrade(name, level, maxLevel, category, vi
   for (let l = level; l < maxLevel; l++) {
     totalRemaining += getStepCost(l);
   }
+
+  const nextTimeSeconds = getTroopTime(level);
+  let totalTimeSeconds = 0;
+  for (let l = level; l < maxLevel; l++) {
+    totalTimeSeconds += getTroopTime(l);
+  }
+
+  const nextTimeText = formatDuration(nextTimeSeconds);
+  const totalTimeText = formatDuration(totalTimeSeconds);
+  const timeCompact = formatDurationCompact(nextTimeSeconds);
 
   return {
     isMax: false,
@@ -390,7 +568,12 @@ export function calculateTroopOrSpellUpgrade(name, level, maxLevel, category, vi
     resourceIconUrl,
     nextCost,
     totalRemaining,
+    nextTimeSeconds,
+    totalTimeSeconds,
+    nextTimeText,
+    totalTimeText,
     costBadgeHtml: `<span class="res-mini ${resourceType}"><img class="res-icon-img" src="${resourceIconUrl}" alt="${resourceName}" /> ${formatResourceNumber(nextCost)}</span>`,
+    timeBadgeHtml: `<span class="time-mini" title="Waktu upgrade berikutnya: ${nextTimeText}"><span class="time-ico">⏱️</span> ${timeCompact}</span>`,
   };
 }
 
@@ -416,8 +599,7 @@ export function getUnitUpgradeData(unit) {
 }
 
 /**
- * Calculate Cumulative Category Summary
- * Calculates next level and total-to-max costs for a group of units (e.g. Heroes, Equipment, Troops, etc.)
+ * Calculate Cumulative Category Summary (Resource Costs + Durations)
  */
 export function calculateCategorySummary(units = []) {
   const totalUnits = units.length;
@@ -431,6 +613,7 @@ export function calculateCategorySummary(units = []) {
     shinyOre: 0,
     glowyOre: 0,
     starryOre: 0,
+    timeSeconds: 0,
   };
 
   const total = {
@@ -440,6 +623,7 @@ export function calculateCategorySummary(units = []) {
     shinyOre: 0,
     glowyOre: 0,
     starryOre: 0,
+    timeSeconds: 0,
   };
 
   units.forEach((u) => {
@@ -451,6 +635,11 @@ export function calculateCategorySummary(units = []) {
 
     totalLevelsRemaining += data.levelsRemaining || 0;
 
+    // Time summation
+    next.timeSeconds += data.nextTimeSeconds || 0;
+    total.timeSeconds += data.totalTimeSeconds || 0;
+
+    // Resource summation
     if (data.resourceType === "ore") {
       next.shinyOre += data.nextCost.shiny || 0;
       next.glowyOre += data.nextCost.glowy || 0;
@@ -472,6 +661,8 @@ export function calculateCategorySummary(units = []) {
   });
 
   const isAllMax = totalUnits > 0 && maxedCount === totalUnits;
+  next.timeText = formatDuration(next.timeSeconds);
+  total.timeText = formatDuration(total.timeSeconds);
 
   return {
     totalUnits,
@@ -493,8 +684,29 @@ export function renderCategorySummaryHtml(title, summaryData) {
 
   const { totalUnits, maxedCount, totalLevelsRemaining, isAllMax, next, total } = summaryData;
 
-  function renderResourcePills(costObj) {
+  function renderResourcePills(costObj, isNext = false) {
     const pills = [];
+
+    // Duration pill
+    if (costObj.timeSeconds > 0) {
+      const timeLabel = isNext ? "Waktu" : "Total Waktu";
+      const timeIcon = isNext ? "⏱️" : "⏳";
+      pills.push(`
+        <span class="summary-res-pill time-pill" title="${isNext ? 'Akumulasi waktu upgrade 1x berikutnya' : 'Total akumulasi waktu tukang/lab menuju MAX'}: ${costObj.timeText}">
+          <span class="time-pill-ico">${timeIcon}</span>
+          <span>${costObj.timeText}</span>
+          <small class="res-label-sub">${timeLabel}</small>
+        </span>
+      `);
+    } else if (costObj.shinyOre > 0 || costObj.glowyOre > 0) {
+      pills.push(`
+        <span class="summary-res-pill time-pill instant" title="Upgrade Equipment instan tanpa jeda waktu tukang">
+          <span class="time-pill-ico">⚡</span>
+          <span>Instant</span>
+          <small class="res-label-sub">Waktu</small>
+        </span>
+      `);
+    }
 
     if (costObj.darkElixir > 0) {
       pills.push(`
@@ -562,8 +774,8 @@ export function renderCategorySummaryHtml(title, summaryData) {
     return pills.join("");
   }
 
-  const nextPillsHtml = renderResourcePills(next);
-  const totalPillsHtml = renderResourcePills(total);
+  const nextPillsHtml = renderResourcePills(next, true);
+  const totalPillsHtml = renderResourcePills(total, false);
 
   return `
     <div class="summary-banner-header">

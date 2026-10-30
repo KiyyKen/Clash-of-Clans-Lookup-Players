@@ -706,6 +706,36 @@ body.bg-image-mode .armory-tab.active {
   background: rgba(217, 119, 6, 0.1);
 }
 
+.summary-res-pill.time-pill {
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.25);
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.summary-res-pill.time-pill.instant {
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.25);
+  background: rgba(56, 189, 248, 0.1);
+}
+
+[data-theme="siang"] .summary-res-pill.time-pill {
+  color: #b45309;
+  border-color: rgba(217, 119, 6, 0.25);
+  background: rgba(217, 119, 6, 0.1);
+}
+
+[data-theme="siang"] .summary-res-pill.time-pill.instant {
+  color: #0284c7;
+  border-color: rgba(2, 132, 199, 0.25);
+  background: rgba(2, 132, 199, 0.1);
+}
+
+.summary-res-pill .time-pill-ico {
+  font-size: 0.88rem;
+  line-height: 1;
+  display: inline-block;
+}
+
 .summary-all-max-tag {
   color: var(--accent-emerald);
   font-size: 0.76rem;
@@ -962,6 +992,32 @@ body.bg-image-mode .armory-tab.active {
   border-color: rgba(217, 119, 6, 0.3);
 }
 
+.time-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 0.64rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  white-space: nowrap;
+}
+
+[data-theme="siang"] .time-mini {
+  color: #b45309;
+  background: rgba(217, 119, 6, 0.1);
+  border-color: rgba(217, 119, 6, 0.25);
+}
+
+.time-mini .time-ico {
+  font-size: 0.68rem;
+  line-height: 1;
+}
+
 /* ==================== UPGRADE DETAILS MODAL ==================== */
 .upgrade-modal {
   position: fixed;
@@ -1212,6 +1268,36 @@ body.bg-image-mode .armory-tab.active {
   font-size: 0.72rem;
   font-weight: 500;
   color: var(--text-tertiary);
+}
+
+.cost-item-pill.time-pill {
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.28);
+}
+
+.cost-item-pill.time-pill.instant {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.08);
+  border-color: rgba(56, 189, 248, 0.28);
+}
+
+[data-theme="siang"] .cost-item-pill.time-pill {
+  color: #b45309;
+  background: rgba(217, 119, 6, 0.08);
+  border-color: rgba(217, 119, 6, 0.25);
+}
+
+[data-theme="siang"] .cost-item-pill.time-pill.instant {
+  color: #0284c7;
+  background: rgba(2, 132, 199, 0.08);
+  border-color: rgba(2, 132, 199, 0.25);
+}
+
+.time-modal-ico {
+  font-size: 1.15rem;
+  line-height: 1;
+  display: inline-block;
 }
 
 .cost-item-pill .res-icon-img,

@@ -149,14 +149,19 @@ export function openUpgradeModal({ name, level, maxLevel, iconUrl, category, vil
       if (shiny > 0) pills.push(`<div class="cost-item-pill"><img class="res-icon-img modal-res-icon" src="${RESOURCE_ICONS.shiny_ore}" alt="Shiny Ore" /><span>${shiny.toLocaleString()}</span><span class="res-name">Shiny Ore</span></div>`);
       if (glowy > 0) pills.push(`<div class="cost-item-pill"><img class="res-icon-img modal-res-icon" src="${RESOURCE_ICONS.glowy_ore}" alt="Glowy Ore" /><span>${glowy.toLocaleString()}</span><span class="res-name">Glowy Ore</span></div>`);
       if (starry > 0) pills.push(`<div class="cost-item-pill"><img class="res-icon-img modal-res-icon" src="${RESOURCE_ICONS.starry_ore}" alt="Starry Ore" /><span>${starry.toLocaleString()}</span><span class="res-name">Starry Ore</span></div>`);
+      pills.push(`<div class="cost-item-pill time-pill instant"><span class="time-modal-ico">⚡</span><span>Instant (0s)</span><span class="res-name">Waktu Upgrade</span></div>`);
       elements.modalNextCostBody.innerHTML = pills.join("");
     } else {
+      const timePill = upgradeData.nextTimeSeconds > 0
+        ? `<div class="cost-item-pill time-pill"><span class="time-modal-ico">⏱️</span><span>${upgradeData.nextTimeText}</span><span class="res-name">Waktu Upgrade</span></div>`
+        : "";
       elements.modalNextCostBody.innerHTML = `
         <div class="cost-item-pill">
           <img class="res-icon-img modal-res-icon" src="${upgradeData.resourceIconUrl}" alt="${upgradeData.resourceName}" />
           <span>${upgradeData.nextCost.toLocaleString()}</span>
           <span class="res-name">${upgradeData.resourceName}</span>
         </div>
+        ${timePill}
       `;
     }
   }
@@ -177,14 +182,20 @@ export function openUpgradeModal({ name, level, maxLevel, iconUrl, category, vil
       if (shiny > 0) pills.push(`<div class="cost-item-pill"><img class="res-icon-img modal-res-icon" src="${RESOURCE_ICONS.shiny_ore}" alt="Shiny Ore" /><span>${shiny.toLocaleString()}</span><span class="res-name">Total Shiny</span></div>`);
       if (glowy > 0) pills.push(`<div class="cost-item-pill"><img class="res-icon-img modal-res-icon" src="${RESOURCE_ICONS.glowy_ore}" alt="Glowy Ore" /><span>${glowy.toLocaleString()}</span><span class="res-name">Total Glowy</span></div>`);
       if (starry > 0) pills.push(`<div class="cost-item-pill"><img class="res-icon-img modal-res-icon" src="${RESOURCE_ICONS.starry_ore}" alt="Starry Ore" /><span>${starry.toLocaleString()}</span><span class="res-name">Total Starry</span></div>`);
+      pills.push(`<div class="cost-item-pill time-pill instant"><span class="time-modal-ico">⚡</span><span>Instant (0s)</span><span class="res-name">Total Waktu</span></div>`);
       elements.modalTotalCostBody.innerHTML = pills.join("");
     } else {
+      const timeLabel = (category === "hero" || category === "pet" || village === "builderBase") ? "Total Waktu Tukang" : "Total Waktu Lab";
+      const totalTimePill = upgradeData.totalTimeSeconds > 0
+        ? `<div class="cost-item-pill time-pill"><span class="time-modal-ico">⏳</span><span>${upgradeData.totalTimeText}</span><span class="res-name">${timeLabel}</span></div>`
+        : "";
       elements.modalTotalCostBody.innerHTML = `
         <div class="cost-item-pill">
           <img class="res-icon-img modal-res-icon" src="${upgradeData.resourceIconUrl}" alt="${upgradeData.resourceName}" />
           <span>${upgradeData.totalRemaining.toLocaleString()}</span>
           <span class="res-name">Total ${upgradeData.resourceName}</span>
         </div>
+        ${totalTimePill}
       `;
     }
   }
@@ -247,6 +258,7 @@ export function createArmorySlot(name, level, maxLevel, iconUrl, category = "tro
       </div>
       <div class="hero-cost-pill">
         ${upgradeData.costBadgeHtml}
+        ${upgradeData.timeBadgeHtml || ""}
       </div>
     </div>
   `;
